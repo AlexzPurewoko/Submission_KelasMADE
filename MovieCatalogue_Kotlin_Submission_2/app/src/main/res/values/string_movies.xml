@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="movie_name_list">
+        <item>A star is born</item>
+        <item>Aquaman</item>
+        <item>Avengers: Infinity War</item>
+        <item>Bird Box</item>
+        <item>Bohemian Rhapsody</item>
+        <item>Bumblebee</item>
+        <item>Creed II</item>
+        <item>Once Upon a Deadpool</item>
+        <item>How to Train Your Dragon: The Hidden World</item>
+        <item>Dragon Ball Super: Broly</item>
+        <item>Glass</item>
+        <item>Hunter Killer</item>
+        <item>Mary Poppins Returns</item>
+        <item>Mortal Engines</item>
+        <item>Preman pensiun</item>
+        <item>Robin Hood</item>
+        <item>The Girl in the Spiders Web</item>
+        <item>The Mule</item>
+        <item>Venom</item>
+    </string-array>
+    <!-- [Original Language|Runtime|Budget|Revenue|Genres] -->
+    <string-array name="movie_short_about_list">
+        <item>English|2h 15m|$36,000,000.00|$433,888,866.00|Drama,Romance,Music</item>
+        <item>English|2h 24m|$160,000,000.00|$1,143,689,193.00|Action, Adventure, Fantasy</item>
+        <item>English|2h 29m|$300,000,000.00|$2,046,239,637.00|Adventure,Action,Fantasy</item>
+        <item>English|2h 4m|$19,800,000.00|-|Thriller, Drama</item>
+        <item>English|2h 15m|$52,000,000.00|$835,137,710.00|Drama, Music</item>
+        <item>English|1h 54m|$135,000,000.00|$465,895,025.00|Action, Adventure, Science Fiction</item>
+        <item>English|2h 10m|$50,000,000.00|$137,944,327.00|Drama</item>
+        <item>English|1h 57m|-|-|Comedy, Action</item>
+        <item>English|1h 44m|$129,000,000.00|$517,526,875.00|Animation, Family, Adventure</item>
+        <item>Japanese|1h 41m|$1,000,000.00|$114,102,821.00|Action, Animation, Fantasy, Adventure, Comedy, Science
+            Fiction
+        </item>
+        <item>English|2h 9m|$20,000,000.00|$246,941,965.00|Thriller, Mystery, Drama</item>
+        <item>English|2h 2m|-|-|Action, Thriller</item>
+        <item>English|2h 11m|$130,000,000.00|$348,807,090.00|Fantasy, Family, Comedy</item>
+        <item>English|2h 9m|$100,000,000.00|$104,236,467.00|Adventure, Fantasy</item>
+        <item>Indonesian|1h 34m|-|-|Comedy, Drama</item>
+        <item>English|1h 56m|$100,000,000.00|$73,260,114.00|Adventure, Action, Thriller</item>
+        <item>English|1h 57m|$43,000,000.00|$17,894,345.00|Action, Crime, Thriller</item>
+        <item>English|1h 57m|$50,000,000.00|$171,304,407.00|Crime, Drama, Thriller</item>
+        <item>English|1h 52m|$116,000,000.00|$855,013,954.00|Science Fiction, Action</item>
+    </string-array>
+
+    <string-array name="movie_top_billed_cast_list">
+        <item>Lady Gaga=Ally Campana,Bradley Cooper=Jackson Maine,Sam Elliott=Bobby Maine,Andrew Dice Clay=Lorenzo
+            Campana,Rafi Gavron=Rez Gavron
+        </item>
+        <item>Jason Momoa=Arthur Curry / Aquaman,Amber Heard=Mera,Willem Dafoe=Nuidis Vulko,Patrick Wilson=King Orm
+            Marius / Ocean Master,Nicole Kidman=Atlanna
+        </item>
+        <item>Robert Downey Jr.=Tony Stark / Iron Man,Chris Hemsworth=Thor Odinson,Chris Evans=Steve Rogers / Captain
+            America,Mark Ruffalo=Bruce Banner / The Hulk,Scarlett Johansson=Natasha Romanoff / Black Widow
+        </item>
+        <item>Sandra Bullock=Malorie Hayes,Trevante Rhodes=Tom,John Malkovich=Douglas,Sarah Paulson=Jessica,Jacki
+            Weaver=Cheryl
+        </item>
+        <item>Rami Malek=Freddie Mercury,Gwilym Lee=Brian May,Ben Hardy=Roger Taylor,Joseph Mazzello=John Deacon,Lucy
+            Boynton=Mary Austin
+        </item>
+        <item>Hailee Steinfeld=Charlie Watson,Jorge Lendeborg Jr.=Memo,John Cena=Agent Jack Burns,Jason Ian Drucker=Otis
+            Watson,Pamela Adlon=Sally Watson
+        </item>
+        <item>Michael B. Jordan=Adonis Creed,Sylvester Stallone=Robert &quot;Rocky&quot; Balboa Sr.,Dolph Lundgren=Ivan
+            Drago,Florian Munteanu=Viktor Drago,Tessa Thompson=Bianca Taylor
+        </item>
+        <item>Ryan Reynolds=Wade Wilson / Deadpool / Juggernaut (voice) / Himself,Fred Savage=Himself,Josh
+            Brolin=Cable,Morena Baccarin=Vanessa,Julian Dennison=Russell Collins / Firefist
+        </item>
+        <item>Jay Baruchel=Hiccup (voice),America Ferrera=Astrid (voice),F. Murray Abraham=Grimmel (voice),Cate
+            Blanchett=Valka (voice),Gerard Butler=Stoick (voice)
+        </item>
+        <item>Masako Nozawa=Son Goku / Son Goten / Gogeta / Bardock (voice),Ryou Horikawa=Vegeta / Gogeta (voice),Bin
+            Shimada=Broly (voice),Ryusei Nakao=Freeza (voice),Banjou Ginga=King Vegeta III (voice)
+        </item>
+        <item>James McAvoy=Kevin Wendell Crumb / Patricia / Dennis / Hedwig / The Beast / Barry / Heinrich / Jade / Ian
+            / Mary Reynolds / Norma / Jalin / Kat / B. T. / Mr. Pritchard / Felida / Luke / Goddard / Samuel /
+            Polly,Bruce Willis=David Dunn / The Overseer,Samuel L. Jackson=Elijah Price / Mr. Glass,Anya
+            Taylor-Joy=Casey Cooke,Sarah Paulson=Dr. Ellie Staple
+        </item>
+        <item>Gerard Butler=Captain Joe Glass,Gary Oldman=CJCS Charles Donnegan,Toby Stephens=Bill Beaman,Common=RA John
+            Fisk,Linda Cardellini=Jane Norquist
+        </item>
+        <item>Emily Blunt=Mary Poppins,Lin-Manuel Miranda=Jack,Ben Whishaw=Michael Banks,Emily Mortimer=Jane Banks,Pixie
+            Davies=Annabel Banks
+        </item>
+        <item>Hera Hilmar=Hester Shaw,Robert Sheehan=Tom Natsworthy,Hugo Weaving=Thaddeus Valentine,Jihae=Anna
+            Fang,Ronan Raftery=Bevis Pod
+        </item>
+        <item>Epy Kusnandar=Kang Mus,Tya Arifin=Kinanti,Soraya Rasyid=Imas,Andra Manihot=Dikdik,Sandi Tile=Amin</item>
+        <item>Taron Egerton=Robin of Loxley,Jamie Foxx=Yahya / John,Ben Mendelsohn=Sheriff of Nottingham,Eve
+            Hewson=Marian,Jamie Dornan=Will Scarlet
+        </item>
+        <item>Claire Foy=Lisbeth Salander,Sverrir Gudnason=Mikael Blomkvist,Lakeith Stanfield=Edwin Needham,Sylvia
+            Hoeks=Camilla Salander,Stephen Merchant=Frans Balder
+        </item>
+        <item>Clint Eastwood=Earl Stone,Bradley Cooper=Agent Colin Bates,Laurence Fishburne=Special Agent in
+            Charge,Michael Peña=Agent Treviño,Dianne Wiest=Mary
+        </item>
+        <item>Tom Hardy=Eddie Brock / Venom,Michelle Williams=Anne Weying,Riz Ahmed=Carlton Drake / Riot,Scott
+            Haze=Security Chief Roland Treece,Reid Scott=Dr. Dan Lewis
+        </item>
+    </string-array>
+
+    <string-array name="movie_released_time_list">
+        <item>October 3, 2018</item>
+        <item>December 7, 2018</item>
+        <item>April 25, 2018</item>
+        <item>December 13, 2018</item>
+        <item>October 24, 2018</item>
+        <item>December 15, 2018</item>
+        <item>November 21, 2018</item>
+        <item>December 11, 2018</item>
+        <item>January 3, 2019</item>
+        <item>December 14, 2018</item>
+        <item>January 16, 2019</item>
+        <item>October 19, 2018</item>
+        <item>December 13, 2018</item>
+        <item>November 27, 2018</item>
+        <item>January 17, 2019</item>
+        <item>November 20, 2018</item>
+        <item>October 25, 2018</item>
+        <item>December 14, 2018</item>
+        <item>October 5, 2018</item>
+    </string-array>
+
+    <array name="movie_drawable_list">
+        <item>@drawable/poster_a_star</item>
+        <item>@drawable/poster_aquaman</item>
+        <item>@drawable/poster_avengerinfinity</item>
+        <item>@drawable/poster_birdbox</item>
+        <item>@drawable/poster_bohemian</item>
+        <item>@drawable/poster_bumblebee</item>
+        <item>@drawable/poster_creed</item>
+        <item>@drawable/poster_deadpool</item>
+        <item>@drawable/poster_dragon</item>
+        <item>@drawable/poster_dragonball</item>
+        <item>@drawable/poster_glass</item>
+        <item>@drawable/poster_hunterkiller</item>
+        <item>@drawable/poster_marrypopins</item>
+        <item>@drawable/poster_mortalengine</item>
+        <item>@drawable/poster_preman</item>
+        <item>@drawable/poster_robinhood</item>
+        <item>@drawable/poster_thegirl</item>
+        <item>@drawable/poster_themule</item>
+        <item>@drawable/poster_venom</item>
+    </array>
+
+    <string-array name="movie_overview_str_list">
+        <item>"Seasoned musician Jackson Maine discovers — and falls in love with — struggling artist Ally. She has just
+            about given up on her dream to make it big as a singer — until Jack coaxes her into the spotlight. But even
+            as Ally's career takes off, the personal side of their relationship is breaking down, as Jack fights an
+            ongoing battle with his own internal demons."
+        </item>
+        <item>"Once home to the most advanced civilization on Earth, Atlantis is now an underwater kingdom ruled by the
+            power-hungry King Orm. With a vast army at his disposal, Orm plans to conquer the remaining oceanic people
+            and then the surface world. Standing in his way is Arthur Curry, Orm's half-human, half-Atlantean brother
+            and true heir to the throne."
+        </item>
+        <item>"As the Avengers and their allies have continued to protect the world from threats too large for any one
+            hero to handle, a new danger has emerged from the cosmic shadows: Thanos. A despot of intergalactic infamy,
+            his goal is to collect all six Infinity Stones, artifacts of unimaginable power, and use them to inflict his
+            twisted will on all of reality. Everything the Avengers have fought for has led up to this moment - the fate
+            of Earth and existence itself has never been more uncertain."
+        </item>
+        <item>"Five years after an ominous unseen presence drives most of society to suicide, a survivor and her two
+            children make a desperate bid to reach safety."
+        </item>
+        <item>"Singer Freddie Mercury, guitarist Brian May, drummer Roger Taylor and bass guitarist John Deacon take the
+            music world by storm when they form the rock 'n' roll band Queen in 1970. Hit songs become instant classics.
+            When Mercury's increasingly wild lifestyle starts to spiral out of control, Queen soon faces its greatest
+            challenge yet – finding a way to keep the band together amid the success and excess."
+        </item>
+        <item>"On the run in the year 1987, Bumblebee finds refuge in a junkyard in a small Californian beach town.
+            Charlie, on the cusp of turning 18 and trying to find her place in the world, discovers Bumblebee,
+            battle-scarred and broken. When Charlie revives him, she quickly learns this is no ordinary yellow VW bug."
+        </item>
+        <item>"Between personal obligations and training for his next big fight against an opponent with ties to his
+            family's past, Adonis Creed is up against the challenge of his life."
+        </item>
+        <item>"A kidnapped Fred Savage is forced to endure Deadpool's PG-13 rendition of Deadpool 2 as a Princess
+            Bride-esque story that's full of magic, wonder &amp; zero F's."
+        </item>
+        <item>"As Hiccup fulfills his dream of creating a peaceful dragon utopia, Toothless’ discovery of an untamed,
+            elusive mate draws the Night Fury away. When danger mounts at home and Hiccup’s reign as village chief is
+            tested, both dragon and rider must make impossible decisions to save their kind."
+        </item>
+        <item>"Earth is peaceful following the Tournament of Power. Realizing that the universes still hold many more
+            strong people yet to see, Goku spends all his days training to reach even greater heights. Then one day,
+            Goku and Vegeta are faced by a Saiyan called 'Broly' who they've never seen before. The Saiyans were
+            supposed to have been almost completely wiped out in the destruction of Planet Vegeta, so what's this one
+            doing on Earth? This encounter between the three Saiyans who have followed completely different destinies
+            turns into a stupendous battle, with even Frieza (back from Hell) getting caught up in the mix."
+        </item>
+        <item>"In a series of escalating encounters, former security guard David Dunn uses his supernatural abilities to
+            track Kevin Wendell Crumb, a disturbed man who has twenty-four personalities. Meanwhile, the shadowy
+            presence of Elijah Price emerges as an orchestrator who holds secrets critical to both men."
+        </item>
+        <item>"Captain Glass of the USS Arkansas discovers that a coup d'état is taking place in Russia, so he and his
+            crew join an elite group working on the ground to prevent a war."
+        </item>
+        <item>"In Depression-era London, a now-grown Jane and Michael Banks, along with Michael's three children, are
+            visited by the enigmatic Mary Poppins following a personal loss. Through her unique magical skills, and with
+            the aid of her friend Jack, she helps the family rediscover the joy and wonder missing in their lives."
+        </item>
+        <item>"Many thousands of years in the future, Earth’s cities roam the globe on huge wheels, devouring each other
+            in a struggle for ever diminishing resources. On one of these massive traction cities, the old London, Tom
+            Natsworthy has an unexpected encounter with a mysterious young woman from the wastelands who will change the
+            course of his life forever."
+        </item>
+        <item>"We don't have an overview translated in English. Help us expand our database by adding one."</item>
+        <item>"A war-hardened Crusader and his Moorish commander mount an audacious revolt against the corrupt English
+            crown."
+        </item>
+        <item>"In Stockholm, Sweden, hacker Lisbeth Salander is hired by Frans Balder, a computer engineer, to retrieve
+            a program that he believes it is too dangerous to exist."
+        </item>
+        <item>"Earl Stone, a man in his 80s, is broke, alone, and facing foreclosure of his business when he is offered
+            a job that simply requires him to drive. Easy enough, but, unbeknownst to Earl, he’s just signed on as a
+            drug courier for a Mexican cartel. He does so well that his cargo increases exponentially, and Earl hit the
+            radar of hard-charging DEA agent Colin Bates."
+        </item>
+        <item>"Investigative journalist Eddie Brock attempts a comeback following a scandal, but accidentally becomes
+            the host of Venom, a violent, super powerful alien symbiote. Soon, he must rely on his newfound powers to
+            protect the world from a shadowy organization looking for a symbiote of their own."
+        </item>
+    </string-array>
+</resources>

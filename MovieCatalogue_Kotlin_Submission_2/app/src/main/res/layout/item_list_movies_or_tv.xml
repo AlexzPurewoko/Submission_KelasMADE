@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+                                    xmlns:app="http://schemas.android.com/apk/res-auto"
+                                    xmlns:tools="http://schemas.android.com/tools"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    app:cardCornerRadius="6dp"
+                                    app:cardElevation="4dp"
+                                    app:cardUseCompatPadding="true"
+                                    app:contentPadding="10dp">
+
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <ImageView
+                android:contentDescription="@string/img_poster_contentdesc"
+                android:id="@+id/item_list_image"
+                style="@style/ImagePosterStyle"
+                tools:srcCompat="@tools:sample/avatars"/>
+
+        <TextView
+                android:id="@+id/item_list_text_title"
+                style="@style/ItemListTextViewTitle"
+                android:layout_marginStart="16dp"
+                android:layout_toEndOf="@id/item_list_image"
+                tools:text="Aquaman"/>
+
+        <TextView
+                android:id="@+id/item_list_release_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/item_list_text_title"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_toEndOf="@id/item_list_image"
+                tools:text="December 12, 2018"/>
+
+        <TextView
+                android:id="@+id/item_list_overview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/item_list_release_date"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="24dp"
+                android:layout_toEndOf="@id/item_list_image"
+                android:ellipsize="end"
+                android:maxLines="4"
+                tools:text="Lorem ipsum dolor sit amet"/>
+    </RelativeLayout>
+</android.support.v7.widget.CardView>

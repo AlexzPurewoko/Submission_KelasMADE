@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             xmlns:tools="http://schemas.android.com/tools"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent"
+                                             android:padding="10dp"
+                                             android:background="@android:color/white"
+                                             tools:context=".activities.DetailMovieOrTv">
+
+    <TextView
+            android:id="@+id/text_movie_title"
+            style="@style/DetailTextView.Potrait.Title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Aquaman"/>
+
+    <TextView
+            android:id="@+id/text_released"
+            style="@style/DetailTextView.Potrait"
+            android:layout_below="@id/text_movie_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_movie_title"
+            tools:text="October 29, 2018"/>
+
+    <ImageView
+            android:contentDescription="@string/img_poster_contentdesc"
+            style="@style/ImagePosterStyle.DetailPotrait"
+            android:id="@+id/image_movies"
+            android:layout_below="@id/text_released"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_released"
+            tools:srcCompat="@tools:sample/avatars"/>
+
+    <android.support.v7.widget.RecyclerView
+
+            android:id="@+id/list_side_left_recycler"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/item_poster_height"
+            android:layout_below="@id/text_released"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_toEndOf="@id/image_movies"
+            app:layout_constraintBottom_toBottomOf="@+id/image_movies"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/image_movies"
+            app:layout_constraintTop_toBottomOf="@+id/text_released"/>
+
+    <TextView
+            android:id="@+id/detail_overview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/image_movies"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:gravity="start"
+            android:text="@string/overview_text"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/list_side_left_recycler"/>
+
+    <ScrollView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/detail_overview"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/detail_overview">
+
+        <TextView
+                android:id="@+id/detail_text_overview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                tools:text="Lorem ipsum dolor"/>
+
+    </ScrollView>
+
+</android.support.constraint.ConstraintLayout>

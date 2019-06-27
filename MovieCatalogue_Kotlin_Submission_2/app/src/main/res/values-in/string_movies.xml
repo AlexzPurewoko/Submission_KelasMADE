@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="movie_short_about_list">
+        <item>Inggris|2j 15m|$ 36.000.000,00|$ 433.888.866,00|Drama, Romansa, Musik</item>
+        <item>Inggris|2j 24m|$ 160.000.000,00|$ 1,143,689,193.00|Aksi, Petualangan, Fantasi</item>
+        <item>Inggris|2jam 29m|$ 300.000.000,00|$ 2.046.239.637,00|Petualangan, Aksi, Fantasi</item>
+        <item>Bahasa Inggris|2h 4m|$ 19.800.000,00|-|Thriller, Drama</item>
+        <item>Inggris|2j 15m|$ 52.000.000,00|$ 835.137.710,00|Drama, Musik</item>
+        <item>Bahasa Inggris|1jam 54m|$ 135.000.000,00|$ 465.895.025,00|Aksi, Petualangan, Fiksi Ilmiah</item>
+        <item>Inggris|2j 10m|$ 50,000,000.00|$ 137,944,327.00|Drama</item>
+        <item>Inggris|1j 57m|-|-|Komedi, Aksi</item>
+        <item>Inggris|1j 44m|$ 129.000.000,00|$ 517.526.875,00|Animasi, Keluarga, Petualangan</item>
+        <item>Jepang|1j 41m|$ 1.000.000,00|$ 114.102.821,00|Aksi, Animasi, Fantasi, Petualangan, Komedi, Fiksi Ilmiah
+        </item>
+        <item>Inggris|2jam 9m|$ 20.000.000,00|$ 246.941.965,00|Film thriller, Misteri, Drama</item>
+        <item>Inggris|2j 2m|-|-|Aksi, Thriller</item>
+        <item>Inggris|2j 11m|$ 130.000.000,00|$ 348.807.090,00|Fantasi, Keluarga, Komedi</item>
+        <item>Inggris|2jam 9m|$ 100.000.000,00|$ 104.236.467,00|Petualangan, Fantasi</item>
+        <item>Bahasa Indonesia|1jam 34m|-|-|Komedi, Drama</item>
+        <item>Inggris|1j 56m|$ 100.000.000,00|$ 73.260.114,00|Petualangan, Aksi, Thriller</item>
+        <item>Inggris|1j 57m|$ 43.000.000,00|$ 17.894.345,00|Aksi, Kejahatan, Thriller</item>
+        <item>Inggris|1j 57m|$ 50.000.000,00|$ 171.304.407,00|Kejahatan, Drama, Thriller</item>
+        <item>Bahasa Inggris|1j 52m|$ 116.000.000,00|$ 855.013.954,00|Fiksi Ilmiah, Aksi</item>
+    </string-array>
+
+    <string-array name="movie_top_billed_cast_list">
+        <item>Lady Gaga=Ally Campana,Bradley Cooper=Jackson Maine,Sam Elliott=Bobby Maine,Andrew Dice Clay=Lorenzo
+            Campana,Rafi Gavron=Rez Gavron
+        </item>
+        <item>Jason Momoa=Arthur Curry / Aquaman,Amber Heard=Mera,Willem Dafoe=Nuidis Vulko,Patrick Wilson=Raja Orm
+            Marius / Master Kelautan,Nicole Kidman=Atlanna
+        </item>
+        <item>Robert Downey Jr.=Tony Stark / Iron Man,Chris Hemsworth=Thor Odinson,Chris Evans=Steve Rogers / Captain
+            America,Mark Ruffalo=Bruce Banner / The Hulk,Scarlett Johansson=Natasha Romanoff / Black Widow
+        </item>
+        <item>Sandra Bullock=Malorie Hayes,Trevante Rhodes=Tom,John Malkovich=Douglas,Sarah Paulson=Jessica,Jacki
+            Weaver=Cheryl
+        </item>
+        <item>Rami Malek=Freddie Mercury,Gwilym Lee=Brian May,Ben Hardy=Roger Taylor,Joseph Mazzello=John Deacon,Lucy
+            Boynton=Mary Austin
+        </item>
+        <item>Hailee Steinfeld=Charlie Watson,Jorge Lendeborg Jr.=Memo,John Cena=Agen Jack Burns,Jason Ian Drucker=Otis
+            Watson,Pamela Adlon=Sally Watson
+        </item>
+        <item>Michael B. Jordan=Adonis Creed,Sylvester Stallone=Robert &quot; Rocky &quot; Balboa Sr.,Dolph
+            Lundgren=Ivan Drago,Florian Munteanu=Viktor Drago,Tessa Thompson=Bianca Taylor
+        </item>
+        <item>Ryan Reynolds=Wade Wilson / Deadpool / Juggernaut (suara) / Dirinya sendiri,Fred Savage=Dirinya
+            sendiri,Josh Brolin=Kabel,Morena Baccarin=Vanessa,Julian Dennison=Russell Collins / Pemadam Kebakaran
+        </item>
+        <item>Jay Baruchel=Hiccup (suara),America Ferrera=Astrid (suara),F. Murray Abraham=Grimmel (suara),Cate
+            Blanchett=Valka (suara),Gerard Butler=Stoick (suara)
+        </item>
+        <item>Masako Nozawa=Son Goku / Son Goten / Gogeta / Bardock (suara),Ryou Horikawa=Vegeta / Gogeta (suara),Bin
+            Shimada=Broly (suara),Ryusei Nakao=Freeza (suara),Banjou Ginga=Raja Vegeta III (suara)
+        </item>
+        <item>James McAvoy=Kevin Wendell Crumb / Patricia / Dennis / Hedwig / The Beast / Barry / Heinrich / Jade / Ian
+            / Mary Reynolds / Norma / Jalin / Kat / BT / Mr. Pritchard / Felida / Luke / Goddard / Samuel / Polly,Bruce
+            Willis=David Dunn / Pengawas,Samuel L. Jackson=Elia Price / Tuan Glass,Anya Taylor-Joy=Casey Cooke,Sarah
+            Paulson=Dr. Ellie Staple
+        </item>
+        <item>Gerard Butler=Kapten Joe Glass,Gary Oldman=CJCS Charles Donnegan,Toby Stephens=Bill Beaman,Umum=RA John
+            Fisk,Linda Cardellini=Jane Norquist
+        </item>
+        <item>Emily Blunt=Mary Poppins,Lin-Manuel Miranda=Jack,Ben Whishaw=Michael Banks,Emily Mortimer=Jane Banks,Pixie
+            Davies=Annabel Banks
+        </item>
+        <item>Hera Hilmar=Hester Shaw,Robert Sheehan=Tom Natsworthy,Tenun Hugo=Taddeus Valentine,Jihae=Anna Fang,Ronan
+            Raftery=Bevis Pod
+        </item>
+        <item>Epy Kusnandar=Kang Mus,Tya Arifin=Kinanti,Soraya Rasyid=Imas,Andra Manihot=Dikdik,Sandi Tile=Amin</item>
+        <item>Taron Egerton=Robin dari Loxley,Jamie Foxx=Yahya / John,Ben Mendelsohn=Sheriff of Nottingham,Eve
+            Hewson=Marian,Jamie Dornan=Will Scarlet
+        </item>
+        <item>Claire Foy=Lisbeth Salander,Sverrir Gudnason=Mikael Blomkvist,Lakeith Stanfield=Edwin Needham,Sylvia
+            Hoeks=Camilla Salander,Stephen Merchant=Frans Balder
+        </item>
+        <item>Clint Eastwood=Earl Stone,Bradley Cooper=Agen Colin Bates,Laurence Fishburne=Agen Khusus yang Bertanggung
+            Jawab,Michael Peña=Agen Treviño,Dianne Wiest=Mary
+        </item>
+        <item>Tom Hardy=Eddie Brock / Venom,Michelle Williams=Anne Weying,Riz Ahmed=Carlton Drake / Riot,Scott
+            Haze=Kepala Keamanan Roland Treece,Reid Scott=Dr. Dan Lewis
+        </item>
+    </string-array>
+    <string-array name="movie_overview_str_list">
+        <item>"Musisi kawakan Jackson Maine menemukan - dan jatuh cinta dengan - artis yang sedang berjuang Ally. Dia
+            baru saja menyerah pada mimpinya untuk menjadikannya sebagai penyanyi - hingga Jack membujuknya menjadi
+            sorotan. Tetapi bahkan saat karier Ally lepas landas, sisi pribadi dari hubungan mereka hancur, karena Jack
+            berkelahi dengan iblis internalnya sendiri. "
+        </item>
+        <item>"Dulunya adalah rumah bagi peradaban paling maju di Bumi, Atlantis sekarang merupakan kerajaan bawah laut
+            yang diperintah oleh Raja Orm yang haus kekuasaan. Dengan pasukan yang sangat besar yang dapat digunakannya,
+            Orm berencana untuk menaklukkan orang-orang samudera yang tersisa dan kemudian dunia permukaan . Yang
+            menghalanginya adalah Arthur Curry, saudara tiri manusia setengah manusia Orm dan pewaris sejati takhta. "
+        </item>
+        <item>"Ketika Avengers dan sekutu mereka terus melindungi dunia dari ancaman yang terlalu besar untuk ditangani
+            oleh satu pahlawan, bahaya baru telah muncul dari bayang-bayang kosmik: Thanos. Seorang pelacur penghinaan
+            antargalaksi, tujuannya adalah untuk mengumpulkan semua enam Batu Infinity, artefak kekuatan yang tak
+            terbayangkan, dan menggunakannya untuk menimbulkan keinginannya yang terpelintir pada semua kenyataan.
+            Segala sesuatu yang telah diperjuangkan para Avengers telah mengarah pada saat ini - nasib Bumi dan
+            keberadaannya sendiri tidak pernah menjadi semakin tidak pasti. "
+        </item>
+        <item>"Lima tahun setelah kehadiran tak terlihat yang tidak menyenangkan membuat sebagian besar masyarakat bunuh
+            diri, seorang yang selamat dan dua anaknya melakukan upaya putus asa untuk mencapai keselamatan."
+        </item>
+        <item>"Penyanyi Freddie Mercury, gitaris Brian May, drummer Roger Taylor dan gitaris John Deacon membawa dunia
+            musik dengan badai ketika mereka membentuk band rock 'n' roll Queen pada tahun 1970. Lagu-lagu hit menjadi
+            klasik instan. Ketika Mercury semakin liar gaya hidup mulai lepas kendali, Queen segera menghadapi tantangan
+            terbesarnya - menemukan cara untuk menjaga band bersama di tengah kesuksesan dan kelebihan. "
+        </item>
+        <item>"Dalam pelarian pada tahun 1987, Bumblebee menemukan tempat perlindungan di tempat barang rongsokan di
+            kota pantai kecil California. Charlie, di puncak usia 18 tahun dan mencoba menemukan tempatnya di dunia,
+            menemukan Bumblebee, pertempuran-bekas luka dan Ketika Charlie menghidupkannya kembali, Charlie dengan cepat
+            mengetahui bahwa ini bukan bug VW kuning biasa. "
+        </item>
+        <item>"Antara kewajiban pribadi dan pelatihan untuk pertarungan besar berikutnya melawan lawan yang memiliki
+            ikatan dengan masa lalu keluarganya, Adonis Creed menghadapi tantangan hidupnya."
+        </item>
+        <item>"Fred Savage yang diculik terpaksa menanggung rendisi Deadpool 2 PG-13 Deadpool sebagai kisah Putri
+            Pengantin yang penuh keajaiban, keajaiban, dan nol F."
+        </item>
+        <item>"Ketika Hiccup memenuhi mimpinya menciptakan utopia naga yang damai, penemuan Toothless tentang pasangan
+            yang liar dan sulit ditangkap menarik Night Fury pergi. Ketika bahaya meningkat di rumah dan pemerintahan
+            Hiccup sebagai kepala desa diuji, baik naga dan pengendara harus membuat keputusan mustahil untuk
+            menyelamatkan jenisnya. "
+        </item>
+        <item>"Bumi damai setelah Turnamen Kekuasaan. Menyadari bahwa alam semesta masih memiliki banyak orang yang
+            lebih kuat untuk dilihat, Goku menghabiskan seluruh hari pelatihannya untuk mencapai ketinggian yang lebih
+            besar. Lalu suatu hari, Goku dan Vegeta dihadapkan dengan Saiyan memanggil 'Broly' yang belum pernah mereka
+            lihat sebelumnya. Orang-orang Saiyan seharusnya hampir sepenuhnya musnah dalam kehancuran Planet Vegeta,
+            jadi apa yang dilakukan orang ini di Bumi? Pertemuan antara tiga orang Saiyan yang mengikuti sepenuhnya
+            berbeda takdir berubah menjadi pertempuran yang luar biasa, dengan bahkan Frieza (kembali dari Neraka)
+            terperangkap dalam campuran. "
+        </item>
+        <item>"Dalam serangkaian pertemuan yang meningkat, mantan penjaga keamanan David Dunn menggunakan kemampuan
+            supernaturalnya untuk melacak Kevin Wendell Crumb, seorang lelaki terganggu yang memiliki dua puluh empat
+            kepribadian. Sementara itu, kehadiran bayangan Elia Price muncul sebagai seorang orkestra yang memegang
+            rahasia yang penting bagi keduanya. "
+        </item>
+        <item>"Kapten Glass dari USS Arkansas menemukan bahwa kudeta sedang terjadi di Rusia, jadi ia dan krunya
+            bergabung dengan kelompok elit yang bekerja di tanah untuk mencegah perang."
+        </item>
+        <item>"Dalam era Depresi London, seorang Jane dan Michael Banks yang sudah dewasa, bersama dengan ketiga anak
+            Michael, dikunjungi oleh Mary Poppins yang penuh teka-teki setelah kehilangan diri. Melalui keterampilan
+            sihirnya yang unik, dan dengan bantuan temannya Jack, dia membantu keluarga menemukan kembali kegembiraan
+            dan keajaiban yang hilang dalam hidup mereka. "
+        </item>
+        <item>"Beribu-ribu tahun di masa depan, kota-kota di bumi menjelajah dunia dengan roda besar, saling melahap
+            dalam perjuangan untuk sumber daya yang semakin berkurang. Di salah satu kota traksi besar ini, London tua,
+            Tom Natsworthy mengalami pertemuan tak terduga dengan seorang wanita muda misterius dari tanah terlantar
+            yang akan mengubah jalan hidupnya selamanya. "
+        </item>
+        <item>"Kami tidak memiliki ikhtisar yang diterjemahkan dalam bahasa Inggris. Bantu kami memperluas basis data
+            kami dengan menambahkannya."
+        </item>
+        <item>"Tentara Salib yang mengeras perang dan komandan Moornya melancarkan pemberontakan berani melawan mahkota
+            Inggris yang korup."
+        </item>
+        <item>"Di Stockholm, Swedia, peretas Lisbeth Salander disewa oleh Frans Balder, seorang insinyur komputer, untuk
+            mengambil sebuah program yang menurutnya terlalu berbahaya untuk ada."
+        </item>
+        <item>"Earl Stone, seorang pria berusia 80-an, bangkrut, sendirian, dan menghadapi penyitaan bisnisnya ketika
+            dia ditawari pekerjaan yang hanya mengharuskannya mengemudi. Cukup mudah, tapi, tanpa diketahui oleh Earl,
+            dia baru saja masuk sebagai kurir obat bius untuk kartel Meksiko. Dia melakukannya dengan sangat baik
+            sehingga muatannya meningkat secara eksponensial, dan Earl menabrak radar agen DEA Colin Bates yang mengisi
+            daya keras. "
+        </item>
+        <item>"Wartawan investigasi Eddie Brock berusaha untuk kembali setelah skandal, tetapi secara tidak sengaja
+            menjadi tuan rumah Venom, seorang simbiot alien yang sangat kuat dan sangat kuat. Segera, ia harus
+            mengandalkan kekuatan barunya untuk melindungi dunia dari sebuah organisasi bayangan yang mencari symbiote
+            mereka sendiri. "
+        </item>
+    </string-array>
+    <string-array name="movie_released_time_list">
+        <item>3 Oktober 2018</item>
+        <item>7 Desember 2018</item>
+        <item>25 April 2018</item>
+        <item>13 Desember 2018</item>
+        <item>24 Oktober 2018</item>
+        <item>15 Desember 2018</item>
+        <item>21 November 2018</item>
+        <item>11 Desember 2018</item>
+        <item>3 Januari 2019</item>
+        <item>14 Desember 2018</item>
+        <item>16 Januari 2019</item>
+        <item>19 Oktober 2018</item>
+        <item>13 Desember 2018</item>
+        <item>27 November 2018</item>
+        <item>17 Januari 2019</item>
+        <item>20 November 2018</item>
+        <item>25 Oktober 2018</item>
+        <item>14 Desember 2018</item>
+        <item>5 Oktober 2018</item>
+    </string-array>
+</resources>
