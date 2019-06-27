@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp"
+    tools:context=".DetailMovies"
+    tools:ignore="ContentDescription">
+
+    <TextView
+        android:id="@+id/text_movie_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        tools:text="Aquaman" />
+
+    <TextView
+        android:id="@+id/text_movie_released"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text_movie_title"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center_horizontal"
+        tools:text="October 29, 2018" />
+
+    <ImageView
+        android:id="@+id/image_movies"
+        android:layout_width="@dimen/item_poster_width"
+        android:layout_height="@dimen/item_poster_height"
+        android:layout_below="@id/text_movie_released"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:scaleType="fitXY"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <ListView
+
+        android:id="@+id/list_side_left"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/item_poster_height"
+        android:layout_below="@id/text_movie_released"
+        android:layout_marginStart="8dp"
+        android:layout_toEndOf="@id/image_movies" />
+
+    <TextView
+        android:id="@+id/detail_overview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/image_movies"
+        android:layout_marginTop="10dp"
+        android:gravity="start"
+        android:text="@string/overview_text"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/detail_overview"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:id="@+id/detail_text_overview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            tools:text="Lorem ipsum dolor" />
+
+    </ScrollView>
+
+</RelativeLayout>

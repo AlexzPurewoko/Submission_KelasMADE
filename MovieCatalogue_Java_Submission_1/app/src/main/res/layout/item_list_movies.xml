@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp">
+
+    <ImageView
+        android:id="@+id/item_list_image_movies"
+        android:layout_width="@dimen/item_poster_width"
+        android:layout_height="@dimen/item_poster_height"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:contentDescription="@string/image_poster_description"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/item_list_text_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="10dp"
+        android:layout_toEndOf="@id/item_list_image_movies"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        tools:text="Aquaman" />
+
+    <TextView
+        android:id="@+id/item_list_release_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/item_list_text_title"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_toEndOf="@id/item_list_image_movies"
+        tools:text="December 12, 2018" />
+
+    <TextView
+        android:id="@+id/item_list_overview_movies"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/item_list_release_date"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:layout_toEndOf="@id/item_list_image_movies"
+        android:ellipsize="end"
+        android:maxLines="4"
+        tools:text="Lorem ipsum dolor sit amet" />
+</RelativeLayout>

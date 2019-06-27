@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/item_side_movie_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        tools:text="Release Date : " />
+
+    <TextView
+        android:id="@+id/item_side_movie_query"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="December 9, 2018" />
+</LinearLayout>
