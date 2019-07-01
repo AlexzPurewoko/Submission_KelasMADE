@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Katalog MoTv</string>
+
+    <string name="title_activity_detail_movies">Detail Film</string>
+    <string name="overview_text">Ikhtisar isi</string>
+    <string name="as_text">Sebagai</string>
+    <string name="menu_list_actor">Daftar Aktor</string>
+
+    <string name="list_movies">Daftar Film</string>
+    <string name="list_tv_views">Daftar TV</string>
+    <string name="activity_user_mode_list_movie">Katalog Film</string>
+    <string name="activity_user_mode_list_tv">Katalog TV</string>
+    <string name="short_about_original_language">Bahasa Asli :</string>
+    <string name="short_about_long_runtime">Durasi waktu :</string>
+    <string name="short_about_movie_budget">Anggaran film :</string>
+    <string name="short_about_revenue">Pendapatan ($) :</string>
+    <string name="short_about_type">Tipe :</string>
+    <string name="short_about_status">Status :</string>
+    <string name="short_about_genre">Genre :</string>
+    <string name="search">Cari</string>
+    <string name="list_mode">Mode Daftar</string>
+    <string name="settings">Pengaturan</string>
+    <string name="system_language_setting">Pengaturan bahasa sistem</string>
+    <string name="search_query_hint">Cari TV atau Film</string>
+    <string name="grid_view">Tampilan kisi</string>
+    <string name="staggerred_list_mode">Daftar tak beraturan</string>
+    <string name="search_result_text">Hasil pencarian dari :</string>
+    <string name="onclose_toast">Gulir layar ke atas dan ke bawah untuk menerapkan perubahan ke daftar</string>
+    <string name="string_okay">Oke!</string>
+    <string name="img_poster_contentdesc">Mendeskripsikan gambar poster dari sebuah acara tv atau fim</string>
+    <string name="act_detail_movie">Detail Film</string>
+    <string name="act_detail_tv">Detail TV</string>
+</resources>
