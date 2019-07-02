@@ -2,6 +2,10 @@ package id.apwdevs.moTvCatalogue
 
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
+import com.androidnetworking.AndroidNetworking
+import id.apwdevs.moTvCatalogue.plugin.ApiRepository
+import id.apwdevs.moTvCatalogue.viewModel.DetailMovieViewModel
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -17,6 +21,12 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getTargetContext()
-        assertEquals("id.apwdevs.moviecatalogue", appContext.packageName)
+        AndroidNetworking.initialize(appContext)
+        val viewModel = DetailMovieViewModel()
+        runBlocking {
+            val results = viewModel.setListSocmedId(ApiRepository(), 301528).await()
+            assertEquals(null, results)
+
+        }
     }
 }
