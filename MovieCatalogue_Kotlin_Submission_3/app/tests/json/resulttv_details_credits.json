@@ -1,0 +1,87 @@
+{
+  "cast": [
+    {
+      "character": "Rene Ramirez",
+      "credit_id": "597845db925141751c00add7",
+      "id": 53184,
+      "name": "Rick Gonzalez",
+      "gender": 2,
+      "profile_path": "/kOvmhXFdj8fH7Q1WgMc53peBkv4.jpg",
+      "order": 5
+    },
+    {
+      "character": "Laurel Lance",
+      "credit_id": "5256ce3819c2956ff608296b",
+      "id": 55775,
+      "name": "Katie Cassidy",
+      "gender": 1,
+      "profile_path": "/lRhzzdmt29n8PDi63QX5MLPAUFz.jpg",
+      "order": 3
+    },
+    {
+      "character": "Oliver Queen",
+      "credit_id": "5256ce3819c2956ff608293d",
+      "id": 76110,
+      "name": "Stephen Amell",
+      "gender": 2,
+      "profile_path": "/kTe4RYfqFze7N6HX1HEnNfHBZ2w.jpg",
+      "order": 0
+    },
+    {
+      "character": "Curtis Holt",
+      "credit_id": "55ff4ee692514152b100491c",
+      "id": 1255907,
+      "name": "Echo Kellum",
+      "gender": 2,
+      "profile_path": "/6siIeGB7dEirsdjHF2BE5MCXSbG.jpg",
+      "order": 4
+    },
+    {
+      "character": "Felicity Smoak",
+      "credit_id": "5256ce3b19c2956ff6082a5d",
+      "id": 1224027,
+      "name": "Emily Bett Rickards",
+      "gender": 1,
+      "profile_path": "/zkx3Xwy7w4hFpBNnvfFsKOBQP9V.jpg",
+      "order": 1
+    },
+    {
+      "character": "John Diggle",
+      "credit_id": "5256ce3819c2956ff608298b",
+      "id": 116774,
+      "name": "David Ramsey",
+      "gender": 2,
+      "profile_path": "/bZWO7WfBYI8iojTFozzqN2X3RWL.jpg",
+      "order": 2
+    },
+    {
+      "character": "Roy Harper",
+      "credit_id": "56995db0925141193e0001dd",
+      "id": 211800,
+      "name": "Colton Haynes",
+      "gender": 2,
+      "profile_path": "/gBWDLczwlKDrWcgI8MY126GehEt.jpg",
+      "order": 80
+    },
+    {
+      "character": "Dinah Drake",
+      "credit_id": "589c5263c3a3687734003353",
+      "id": 576474,
+      "name": "Juliana Harkavy",
+      "gender": 1,
+      "profile_path": "/6AyzuqtaPKG8kyiFTdjQ21kXY1b.jpg",
+      "order": 6
+    },
+    {
+      "character": "Emiko Queen",
+      "credit_id": "5ce3e35c9251414a92b8fa78",
+      "id": 2194282,
+      "name": "Sea Shimooka",
+      "gender": 0,
+      "profile_path": "/lPzspBWBX0agxrsyJvnbCGdDnjU.jpg",
+      "order": 500
+    }
+  ],
+  "crew": [],
+  "id": 1412
+}

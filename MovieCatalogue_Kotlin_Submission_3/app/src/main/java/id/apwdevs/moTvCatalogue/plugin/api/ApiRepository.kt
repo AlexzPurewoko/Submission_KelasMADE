@@ -1,4 +1,4 @@
-package id.apwdevs.moTvCatalogue.plugin
+package id.apwdevs.moTvCatalogue.plugin.api
 
 import com.androidnetworking.AndroidNetworking
 import com.androidnetworking.common.Priority

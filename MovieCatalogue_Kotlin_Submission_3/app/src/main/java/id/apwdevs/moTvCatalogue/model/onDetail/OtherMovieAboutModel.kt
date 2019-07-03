@@ -11,7 +11,7 @@ data class OtherMovieAboutModel(
     val productionCompanies: MutableList<ProductionCompaniesModel>,
     val productionCountry: MutableList<ProductionCountryModel>?,
     val revenue: Int,
-    val runtime: Int,
+    val runtime: Int?,
     val status: String,
     val tagLine: String?
 )

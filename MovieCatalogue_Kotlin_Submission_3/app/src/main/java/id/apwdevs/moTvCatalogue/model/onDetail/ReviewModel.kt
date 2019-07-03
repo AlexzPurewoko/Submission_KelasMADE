@@ -9,7 +9,7 @@ data class ReviewModel(
 )
 
 data class ReviewResultModel(
-    val id: Int,
+    val id: String,
     val author: String,
     val content: String,
     val url: String
