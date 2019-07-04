@@ -6,10 +6,10 @@ import android.arch.lifecycle.ViewModel
 import com.androidnetworking.common.Priority
 import com.androidnetworking.error.ANError
 import id.apwdevs.moTvCatalogue.model.onDetail.*
-import id.apwdevs.moTvCatalogue.model.onUserMain.MovieAboutModel
+import id.apwdevs.moTvCatalogue.model.onUserMain.TvAboutModel
 import id.apwdevs.moTvCatalogue.plugin.CoroutineContextProvider
 import id.apwdevs.moTvCatalogue.plugin.api.ApiRepository
-import id.apwdevs.moTvCatalogue.plugin.api.GetMovies
+import id.apwdevs.moTvCatalogue.plugin.api.GetTVShows
 import id.apwdevs.moTvCatalogue.plugin.jsonCheckAndGet
 import id.apwdevs.moTvCatalogue.view.MainDetailView
 import kotlinx.coroutines.GlobalScope
@@ -17,13 +17,12 @@ import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
 
-class DetailMovieViewModel : ViewModel() {
-    val shortListDetais: MutableLiveData<MovieAboutModel> = MutableLiveData()
-    val listOtherDetails: MutableLiveData<OtherMovieAboutModel> = MutableLiveData()
+class DetailTVViewModel : ViewModel() {
+    val shortDetails: MutableLiveData<TvAboutModel> = MutableLiveData()
+    val otherDetails: MutableLiveData<OtherTVAboutModel> = MutableLiveData()
     val socmedIds: MutableLiveData<SocmedIDModel> = MutableLiveData()
     val reviews: MutableLiveData<ReviewModel> = MutableLiveData()
     val credits: MutableLiveData<CreditsModel> = MutableLiveData()
-
 
     fun setAll(
         activity: Activity,
@@ -36,11 +35,11 @@ class DetailMovieViewModel : ViewModel() {
         GlobalScope.launch(coroutineContextProvider.main) {
             view.onLoad()
             activity.intent?.apply {
-                val otherAboutFilmModel = getParcelableExtra<MovieAboutModel>("MOVIE_DETAILS")
-                shortListDetais.postValue(otherAboutFilmModel)
+                val otherAboutTv = getParcelableExtra<TvAboutModel>("TV_DETAILS")
+                shortDetails.postValue(otherAboutTv)
             }
 
-            setCredits(apiRepository, idMovies)?.let {
+            getCredits(apiRepository, idMovies)?.let {
                 view.onLoadFailed(it.errorCode, it.errorBody, it.cause)
                 return@launch
             }
@@ -48,36 +47,67 @@ class DetailMovieViewModel : ViewModel() {
                 view.onLoadFailed(it.errorCode, it.errorBody, it.cause)
                 return@launch
             }
-            setReviews(apiRepository, idMovies)?.let {
+            getReviews(apiRepository, idMovies)?.let {
                 view.onLoadFailed(it.errorCode, it.errorBody, it.cause)
                 return@launch
             }
-            setListSocmedId(apiRepository, idMovies)?.let {
+            getSocmedID(apiRepository, idMovies)?.let {
                 view.onLoadFailed(it.errorCode, it.errorBody, it.cause)
                 return@launch
             }
 
-            view.onLoadFinished(this@DetailMovieViewModel)
+            view.onLoadFinished(this@DetailTVViewModel)
         }
     }
 
-    suspend fun otherDetails(apiRepository: ApiRepository, idMovies: Int): ANError? =
+    suspend fun otherDetails(apiRepository: ApiRepository, idTv: Int): ANError? =
         apiRepository.doRequestAndReturnJSON(
-            GetMovies.getOtherDetails(idMovies),
-            "getOtherDetails$idMovies",
+            GetTVShows.getOtherDetails(idTv),
+            "getTvOtherDetailsId$idTv",
             Priority.HIGH
         ).await()?.let {
             return if (it.isSuccess && !it.response.isNullOrEmpty()) {
                 try {
                     JSONObject(it.response).apply {
-                        val resultProductionCompaniesModel = mutableListOf<ProductionCompaniesModel>()
-                        val resultProductionCountryModel = mutableListOf<ProductionCountryModel>()
+                        val resultProductionCompaniesModel = mutableListOf<ProductionTVCompaniesModel>()
+                        val resultProductionSeasonModel = mutableListOf<ProductionTVSeasons>()
+                        val resultNetworks = mutableListOf<TvNetworkModel>()
+                        val resultCreatedBy = mutableListOf<ModelTvCreatedBy>()
                         val jsonProdComp = getJSONArray("production_companies")
-                        val jsonProdCountry = getJSONArray("production_countries")
+                        val jsonProdSeasons = getJSONArray("seasons")
+                        val jsonCreatedBy = getJSONArray("created_by")
+                        val jsonNetworks = getJSONArray("networks")
                         for (index in 0 until jsonProdComp.length()) {
                             jsonProdComp.getJSONObject(index).apply {
                                 resultProductionCompaniesModel.add(
-                                    ProductionCompaniesModel(
+                                    ProductionTVCompaniesModel(
+                                        logoPath = jsonCheckAndGet(get("logo_path"))?.toString(),
+                                        id = getInt("id"),
+                                        originCountry = getString("origin_country"),
+                                        name = getString("name")
+                                    )
+                                )
+                            }
+                        }
+                        for (index in 0 until jsonProdSeasons.length()) {
+                            jsonProdSeasons.getJSONObject(index).apply {
+                                resultProductionSeasonModel.add(
+                                    ProductionTVSeasons(
+                                        airDate = getString("air_date"),
+                                        episodeCount = getInt("episode_count"),
+                                        id = getInt("id"),
+                                        name = getString("name"),
+                                        overview = getString("overview"),
+                                        posterPath = getString("poster_path"),
+                                        seasonNumber = getInt("season_number")
+                                    )
+                                )
+                            }
+                        }
+                        for (index in 0 until jsonNetworks.length()) {
+                            jsonNetworks.getJSONObject(index).apply {
+                                resultNetworks.add(
+                                    TvNetworkModel(
                                         logoPath = getString("logo_path"),
                                         id = getInt("id"),
                                         originCountry = getString("origin_country"),
@@ -86,31 +116,39 @@ class DetailMovieViewModel : ViewModel() {
                                 )
                             }
                         }
-
-                        for (index in 0 until jsonProdCountry.length()) {
-                            jsonProdCountry.getJSONObject(index).apply {
-                                resultProductionCountryModel.add(
-                                    ProductionCountryModel(
-                                        stringName = getString("name"),
-                                        iso31661 = getString("iso_3166_1")
+                        for (index in 0 until jsonCreatedBy.length()) {
+                            jsonCreatedBy.getJSONObject(index).apply {
+                                resultCreatedBy.add(
+                                    ModelTvCreatedBy(
+                                        creditId = getString("profile_path"),
+                                        id = getInt("id"),
+                                        gender = getInt("gender"),
+                                        name = getString("name"),
+                                        profilePath = getString("profile_path")
                                     )
                                 )
                             }
                         }
-
-                        val homepage = jsonCheckAndGet(get("homepage"))?.toString()
-                        val tagLine = jsonCheckAndGet(get("tagline"))?.toString()
-                        val runtime = jsonCheckAndGet(get("runtime"))?.toString()?.toInt()
-                        listOtherDetails.postValue(
-                            OtherMovieAboutModel(
-                                movieBudget = getInt("budget"),
-                                homepage = homepage,
-                                revenue = getInt("revenue"),
-                                runtime = runtime,
+                        val originCountry = mutableListOf<String>()
+                        val jsonOriginCountry = getJSONArray("origin_country")
+                        for (index in 0 until jsonOriginCountry.length()) {
+                            originCountry.add(jsonOriginCountry.getString(index))
+                        }
+                        otherDetails.postValue(
+                            OtherTVAboutModel(
+                                createdBy = resultCreatedBy,
+                                homepage = getString("homepage"),
+                                firstAirDate = getString("first_air_date"),
+                                inProduction = getBoolean("in_production"),
+                                lastAirDate = getString("last_air_date"),
+                                numberOfEpisodes = getInt("number_of_episodes"),
+                                numberOfSeasons = getInt("number_of_seasons"),
+                                originCountry = originCountry,
                                 status = getString("status"),
-                                tagLine = tagLine,
+                                type = getString("type"),
+                                networks = resultNetworks,
                                 productionCompanies = resultProductionCompaniesModel,
-                                productionCountry = resultProductionCountryModel
+                                productionTvSeasons = resultProductionSeasonModel
                             )
                         )
                     }
@@ -125,10 +163,10 @@ class DetailMovieViewModel : ViewModel() {
         }
 
 
-    suspend fun setCredits(apiRepository: ApiRepository, idMovies: Int): ANError? =
+    suspend fun getCredits(apiRepository: ApiRepository, idTv: Int): ANError? =
         apiRepository.doRequestAndReturnJSON(
-            GetMovies.getCredits(idMovies),
-            "getCreditsMoviesId$idMovies",
+            GetTVShows.getCredits(idTv),
+            "getCreditsMoviesId$idTv",
             Priority.HIGH
         ).await()?.let {
             return if (it.isSuccess && !it.response.isNullOrEmpty()) {
@@ -159,7 +197,7 @@ class DetailMovieViewModel : ViewModel() {
                                 resultCasts.add(
                                     CastModel(
                                         id = getInt("id"),
-                                        castId = getInt("cast_id"),
+                                        castId = null,
                                         asCharacter = getString("character"),
                                         creditId = getString("credit_id"),
                                         gender = jsonCheckAndGet(get("gender"))?.toString()?.toInt(),
@@ -188,10 +226,10 @@ class DetailMovieViewModel : ViewModel() {
             }
         }
 
-    suspend fun setReviews(apiRepository: ApiRepository, idMovies: Int): ANError? =
+    suspend fun getReviews(apiRepository: ApiRepository, idTv: Int): ANError? =
         apiRepository.doRequestAndReturnJSON(
-            GetMovies.getReviews(idMovies),
-            "getReviewsMoviesId$idMovies",
+            GetTVShows.getReviews(idTv),
+            "getReviewsTVId$idTv",
             Priority.HIGH
         ).await()?.let {
             return if (it.isSuccess && !it.response.isNullOrEmpty()) {
@@ -232,10 +270,10 @@ class DetailMovieViewModel : ViewModel() {
             }
         }
 
-    suspend fun setListSocmedId(apiRepository: ApiRepository, idMovies: Int): ANError? =
+    suspend fun getSocmedID(apiRepository: ApiRepository, idTv: Int): ANError? =
         apiRepository.doRequestAndReturnJSON(
-            GetMovies.getSocmedID(idMovies),
-            "getSocmedMoviesId$idMovies",
+            GetTVShows.getSocmedID(idTv),
+            "getSocmedTVId$idTv",
             Priority.HIGH
         ).await()?.let {
             return if (it.isSuccess && !it.response.isNullOrEmpty()) {

@@ -18,7 +18,7 @@ data class CreditsModel(
 }
 
 data class CastModel(
-    val castId: Int,
+    val castId: Int?,
     val asCharacter: String,
     val creditId: String,
     val gender: Int?,

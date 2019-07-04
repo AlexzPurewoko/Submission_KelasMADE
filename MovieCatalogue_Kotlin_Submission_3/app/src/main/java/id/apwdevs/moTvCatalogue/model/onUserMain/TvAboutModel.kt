@@ -8,7 +8,7 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 data class TvAboutModel(
     val posterPath: String?,
-    val popularity: Int,
+    val popularity: Double,
     val idTv: Int,
     val backdropPath: String?,
     val voteAverage: Double,
