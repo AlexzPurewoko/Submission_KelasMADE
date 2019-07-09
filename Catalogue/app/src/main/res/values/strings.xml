@@ -1,0 +1,43 @@
+<resources>
+    <string name="app_name">MoTv Catalogue</string>
+
+    <string name="list_movies">List Movies</string>
+    <string name="list_tv_views">List TV</string>
+    <string name="activity_user_mode_list_movie">Movie Catalogue</string>
+    <string name="activity_user_mode_list_tv">TV Catalogue</string>
+    <string name="search">Search</string>
+    <string name="list_mode">List Mode</string>
+    <string name="system_language_setting">System Language Setting</string>
+    <string name="grid_view">Grid View</string>
+    <string name="search_query_hint">Try to search date, title…</string>
+    <string name="staggerred_list_mode">Staggerred List</string>
+    <string name="search_result_text">Search result from :</string>
+    <string name="onclose_toast">Scroll screen lower and upper to take the effect after searching</string>
+    <string name="string_okay">Okay!</string>
+    <string name="img_poster_contentdesc">Describe an image poster of a movies or tv</string>
+    <string name="button_search_contentdesc">Button Search</string>
+    <string name="search_hint">Look for something...</string>
+    <string name="btn_menu_more">Menu More</string>
+    <string name="nav_popular">Popular</string>
+    <string name="nav_discover">Discover</string>
+    <string name="nav_tv_airing_today">Airing Today</string>
+    <string name="nav_tv_ota">Over The Air</string>
+    <string name="nav_now_playing">Now Playing</string>
+    <string name="nav_top_rated">Top Rated</string>
+    <string name="nav_upcoming">Upcoming</string>
+    <string name="error_picture">Error picture</string>
+    <string name="movie_title">Movies</string>
+    <string name="tv_title">Tv Shows</string>
+    <string name="on_network_failed">Network Failed!</string>
+    <string name="msg_on_net_error">Please ensure your phone to be connected to the internet and swipe down to refresh
+        again
+    </string>
+    <string name="on_no_network">No Network Available!</string>
+    <string name="msg_on_no_network">Connect to a network and swipe down to refresh again</string>
+    <string name="on_parse_failed">Parse Failed!</string>
+    <string name="err_suspected">Suspected Error!</string>
+    <string name="err_msg_unspecified_default">Swipe down to refresh or if this problem is ocurred again, you can tell
+        the developer
+    </string>
+
+</resources>
