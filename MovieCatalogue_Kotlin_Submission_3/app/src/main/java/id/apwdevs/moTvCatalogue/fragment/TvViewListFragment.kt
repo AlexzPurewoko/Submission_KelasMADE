@@ -5,20 +5,26 @@ import android.content.pm.ActivityInfo
 import android.graphics.Point
 import android.graphics.Typeface
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.widget.*
 import android.text.SpannableString
 import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import id.apwdevs.moTvCatalogue.R
 import id.apwdevs.moTvCatalogue.activities.DetailMovieOrTv
 import id.apwdevs.moTvCatalogue.activities.MainUserActivity
 import id.apwdevs.moTvCatalogue.adapter.GridAdapter
 import id.apwdevs.moTvCatalogue.adapter.ListAdapter
+import id.apwdevs.moTvCatalogue.model.ResettableItem
 import id.apwdevs.moTvCatalogue.model.ShortListModel
+import id.apwdevs.moTvCatalogue.model.onUserMain.TvAboutModel
 import id.apwdevs.moTvCatalogue.plugin.ItemClickSupport
 import id.apwdevs.moTvCatalogue.plugin.OnListModeChanged
 import id.apwdevs.moTvCatalogue.plugin.OnSearchViewCallback
@@ -30,9 +36,9 @@ class TvViewListFragment : Fragment(), MainListTvOrMovieView, OnListModeChanged,
 
     private var mListTvRecycler: RecyclerView? = null
     private var mTextStateSearch: TextView? = null
-    private var tvListAdapter: ListAdapter? = null
-    private var tvGridAdapter: GridAdapter? = null
-    private var data: List<ShortListModel>? = null
+    private var tvListAdapter: ListAdapter<TvAboutModel>? = null
+    private var tvGridAdapter: GridAdapter<TvAboutModel>? = null
+    private var data: List<TvAboutModel>? = null
     private var measuredColumn = 1
     private var currentMode = MainUserActivity.MODE_LIST
 
@@ -53,7 +59,7 @@ class TvViewListFragment : Fragment(), MainListTvOrMovieView, OnListModeChanged,
     private fun setRecyclerList() {
         mListTvRecycler?.apply {
             tvListAdapter = ListAdapter(context)
-            tvListAdapter?.resetAllData(data as ArrayList<ShortListModel>)
+            tvListAdapter?.resetAllData(data as ArrayList<TvAboutModel>)
             adapter = tvListAdapter
             layoutManager = LinearLayoutManager(context)
             ItemClickSupport.addTo(this).onItemClickListener = object : ItemClickSupport.OnItemClickListener {
@@ -63,7 +69,7 @@ class TvViewListFragment : Fragment(), MainListTvOrMovieView, OnListModeChanged,
                     startActivity(
                         Intent(context, DetailMovieOrTv::class.java).apply {
                             putExtra(DetailMovieOrTv.EXTRA_MOVIE_OR_TV_NUM, position)
-                            putExtra(DetailMovieOrTv.EXTRA_MOVIE_OR_TV_DATA, tvListAdapter?.getItemData(position))
+                            putExtra(DetailMovieOrTv.EXTRA_MOVIE_OR_TV_DATA, tvListAdapter?.getItemData(position) as TvAboutModel)
                             putExtra(DetailMovieOrTv.EXTRA_MODES, DetailMovieOrTv.MODE_TV)
                         }
                     )
@@ -75,7 +81,7 @@ class TvViewListFragment : Fragment(), MainListTvOrMovieView, OnListModeChanged,
     private fun setRecyclerGrid(mode: Int) {
         mListTvRecycler?.apply {
             tvGridAdapter = GridAdapter(requireContext())
-            tvGridAdapter?.resetAllData(data as ArrayList<ShortListModel>)
+            tvGridAdapter?.resetAllData(data as ArrayList<TvAboutModel>)
             adapter = tvGridAdapter
             layoutManager =
                 when (mode) {
@@ -91,7 +97,7 @@ class TvViewListFragment : Fragment(), MainListTvOrMovieView, OnListModeChanged,
                     startActivity(
                         Intent(context, DetailMovieOrTv::class.java).apply {
                             putExtra(DetailMovieOrTv.EXTRA_MOVIE_OR_TV_NUM, position)
-                            putExtra(DetailMovieOrTv.EXTRA_MOVIE_OR_TV_DATA, tvGridAdapter?.getItemData(position))
+                            putExtra(DetailMovieOrTv.EXTRA_MOVIE_OR_TV_DATA, tvGridAdapter?.getItemData(position) as TvAboutModel?)
                             putExtra(DetailMovieOrTv.EXTRA_MODES, DetailMovieOrTv.MODE_TV)
                         }
                     )
@@ -135,9 +141,9 @@ class TvViewListFragment : Fragment(), MainListTvOrMovieView, OnListModeChanged,
 
     }
 
-    override fun onLoadFinished(data: List<ShortListModel>, measuredMaxColumnCount: Int) {
+    override fun <T : ResettableItem> onLoadFinished(data: List<T>, measuredMaxColumnCount: Int) {
 
-        this.data = data
+        this.data = data as List<TvAboutModel>
         measuredColumn = measuredMaxColumnCount
         setRecycler()
     }
@@ -158,12 +164,12 @@ class TvViewListFragment : Fragment(), MainListTvOrMovieView, OnListModeChanged,
 
         when (currentMode) {
             MainUserActivity.MODE_GRID, MainUserActivity.MODE_STAGERRED_LIST -> {
-                tvGridAdapter?.resetAllData(data as ArrayList<ShortListModel>)
+                tvGridAdapter?.resetAllData(data?.toMutableList())
                 if (!strQuery.isNullOrEmpty())
                     tvGridAdapter?.filter?.filter(strQuery)
             }
             MainUserActivity.MODE_LIST -> {
-                tvListAdapter?.resetAllData(data as ArrayList<ShortListModel>)
+                tvListAdapter?.resetAllData(data as ArrayList<TvAboutModel>)
                 if (!strQuery.isNullOrEmpty())
                     tvListAdapter?.filter?.filter(strQuery)
             }
@@ -178,10 +184,10 @@ class TvViewListFragment : Fragment(), MainListTvOrMovieView, OnListModeChanged,
     override fun onSearchEnded(searchView: SearchView) {
         when (currentMode) {
             MainUserActivity.MODE_GRID, MainUserActivity.MODE_STAGERRED_LIST -> {
-                tvGridAdapter?.resetAllData(data as ArrayList<ShortListModel>)
+                tvGridAdapter?.resetAllData(data as ArrayList<TvAboutModel>)
             }
             MainUserActivity.MODE_LIST -> {
-                tvListAdapter?.resetAllData(data as ArrayList<ShortListModel>)
+                tvListAdapter?.resetAllData(data as ArrayList<TvAboutModel>)
             }
         }
         mTextStateSearch?.text = ""

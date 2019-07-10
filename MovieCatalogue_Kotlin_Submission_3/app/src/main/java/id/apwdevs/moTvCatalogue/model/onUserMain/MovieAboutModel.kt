@@ -8,7 +8,7 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 data class MovieAboutModel(
     val id: Int,
-    var releaseDate: String?,
+    var releaseDate: CharSequence?,
     val posterPath: String?,
     val isAdult: Boolean,
     val overview: String?,

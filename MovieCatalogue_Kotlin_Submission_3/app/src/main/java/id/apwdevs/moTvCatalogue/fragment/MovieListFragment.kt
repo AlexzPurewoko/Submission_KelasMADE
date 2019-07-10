@@ -5,20 +5,26 @@ import android.content.pm.ActivityInfo
 import android.graphics.Point
 import android.graphics.Typeface
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.widget.*
 import android.text.SpannableString
 import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import id.apwdevs.moTvCatalogue.R
 import id.apwdevs.moTvCatalogue.activities.DetailMovieOrTv
 import id.apwdevs.moTvCatalogue.activities.MainUserActivity
 import id.apwdevs.moTvCatalogue.adapter.GridAdapter
 import id.apwdevs.moTvCatalogue.adapter.ListAdapter
+import id.apwdevs.moTvCatalogue.model.ResettableItem
 import id.apwdevs.moTvCatalogue.model.ShortListModel
+import id.apwdevs.moTvCatalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.moTvCatalogue.plugin.ItemClickSupport
 import id.apwdevs.moTvCatalogue.plugin.OnListModeChanged
 import id.apwdevs.moTvCatalogue.plugin.OnSearchViewCallback
@@ -31,9 +37,9 @@ class MovieListFragment : Fragment(), MainListTvOrMovieView, OnListModeChanged, 
 
     private var mListMovieRecycler: RecyclerView? = null
     private var mTextStateSearch: TextView? = null
-    private var listAdapter: ListAdapter? = null
-    private var gridAdapter: GridAdapter? = null
-    private var data: List<ShortListModel>? = null
+    private var listAdapter: ListAdapter<MovieAboutModel>? = null
+    private var gridAdapter: GridAdapter<MovieAboutModel>? = null
+    private var data: List<MovieAboutModel>? = null
     private var measuredColumn = 1
     private var currentMode = MainUserActivity.MODE_LIST
 
@@ -69,7 +75,7 @@ class MovieListFragment : Fragment(), MainListTvOrMovieView, OnListModeChanged, 
     private fun setRecyclerList() {
         mListMovieRecycler?.apply {
             listAdapter = ListAdapter(context)
-            listAdapter?.resetAllData(data!! as ArrayList<ShortListModel>)
+            listAdapter?.resetAllData(data!! as ArrayList<MovieAboutModel>)
             adapter = listAdapter
             layoutManager = LinearLayoutManager(context)
             ItemClickSupport.addTo(this).onItemClickListener = object : ItemClickSupport.OnItemClickListener {
@@ -79,7 +85,7 @@ class MovieListFragment : Fragment(), MainListTvOrMovieView, OnListModeChanged, 
                     startActivity(
                         Intent(context, DetailMovieOrTv::class.java).apply {
                             putExtra(DetailMovieOrTv.EXTRA_MOVIE_OR_TV_NUM, position)
-                            putExtra(DetailMovieOrTv.EXTRA_MOVIE_OR_TV_DATA, listAdapter?.getItemData(position))
+                            putExtra(DetailMovieOrTv.EXTRA_MOVIE_OR_TV_DATA, listAdapter?.getItemData(position) as MovieAboutModel?)
                             putExtra(DetailMovieOrTv.EXTRA_MODES, DetailMovieOrTv.MODE_MOVIE)
                         }
                     )
@@ -91,7 +97,7 @@ class MovieListFragment : Fragment(), MainListTvOrMovieView, OnListModeChanged, 
     private fun setRecyclerGrid(mode: Int) {
         mListMovieRecycler?.apply {
             gridAdapter = GridAdapter(requireContext())
-            gridAdapter?.resetAllData(data!! as ArrayList<ShortListModel>)
+            gridAdapter?.resetAllData(data!! as ArrayList<MovieAboutModel>)
             adapter = gridAdapter
             layoutManager =
                 when (mode) {
@@ -133,8 +139,8 @@ class MovieListFragment : Fragment(), MainListTvOrMovieView, OnListModeChanged, 
 
     }
 
-    override fun onLoadFinished(data: List<ShortListModel>, measuredMaxColumnCount: Int) {
-        this.data = data
+    override fun <T : ResettableItem> onLoadFinished(data: List<T>, measuredMaxColumnCount: Int) {
+        this.data = data as List<MovieAboutModel>
         measuredColumn = measuredMaxColumnCount
         setRecycler()
     }
@@ -155,12 +161,12 @@ class MovieListFragment : Fragment(), MainListTvOrMovieView, OnListModeChanged, 
         mTextStateSearch?.text = spannedString
         when (currentMode) {
             MainUserActivity.MODE_GRID, MainUserActivity.MODE_STAGERRED_LIST -> {
-                gridAdapter?.resetAllData(data as ArrayList<ShortListModel>)
+                gridAdapter?.resetAllData(data as ArrayList<MovieAboutModel>)
                 if (!strQuery.isNullOrEmpty())
                     gridAdapter?.filter?.filter(strQuery)
             }
             MainUserActivity.MODE_LIST -> {
-                listAdapter?.resetAllData(data as ArrayList<ShortListModel>)
+                listAdapter?.resetAllData(data as ArrayList<MovieAboutModel>)
                 if (!strQuery.isNullOrEmpty())
                     listAdapter?.filter?.filter(strQuery)
             }
@@ -175,10 +181,10 @@ class MovieListFragment : Fragment(), MainListTvOrMovieView, OnListModeChanged, 
     override fun onSearchEnded(searchView: SearchView) {
         when (currentMode) {
             MainUserActivity.MODE_GRID, MainUserActivity.MODE_STAGERRED_LIST -> {
-                gridAdapter?.resetAllData(data as ArrayList<ShortListModel>)
+                gridAdapter?.resetAllData(data as ArrayList<MovieAboutModel>)
             }
             MainUserActivity.MODE_LIST -> {
-                listAdapter?.resetAllData(data as ArrayList<ShortListModel>)
+                listAdapter?.resetAllData(data as ArrayList<MovieAboutModel>)
             }
         }
         mTextStateSearch?.text = ""

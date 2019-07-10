@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
                                     xmlns:tools="http://schemas.android.com/tools"
                                     xmlns:app="http://schemas.android.com/apk/res-auto"
                                     app:cardCornerRadius="6dp"
@@ -32,6 +32,19 @@
                 android:gravity="center"
                 android:layout_marginTop="8dp"
                 tools:text="December 12, 2018"/>
+        <RatingBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/item_list_ratingBar"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_gravity="center_horizontal"
+                android:rating="4.5"
+                android:layout_marginTop="8dp"/>
+        <TextView
+                tools:text="(8873)"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:id="@+id/item_list_votecount"
+                android:gravity="center_horizontal"/>
     </LinearLayout>
 
-</android.support.v7.widget.CardView>
+</androidx.cardview.widget.CardView>

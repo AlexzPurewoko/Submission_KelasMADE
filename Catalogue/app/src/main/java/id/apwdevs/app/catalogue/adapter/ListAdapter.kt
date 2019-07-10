@@ -26,9 +26,10 @@ import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
 import id.apwdevs.app.catalogue.plugin.SearchComponent
 import id.apwdevs.app.catalogue.plugin.api.GetImageFiles
 import id.apwdevs.app.catalogue.plugin.view.WrappedLayout
+import java.util.*
 
 class ListAdapter<T : ResettableItem>(private val mContext: Context) : RecyclerView.Adapter<ListAdapter<T>.ListViewHolder<T>>(), Filterable {
-    private var dataModel: MutableList<T> = mutableListOf()
+    var dataModel: ArrayList<T> = arrayListOf()
     private val requestedWidth: Int = mContext.resources.getDimension(R.dimen.item_poster_width).toInt()
     private val requestedHeight: Int = mContext.resources.getDimension(R.dimen.item_poster_height).toInt()
     private val searchMethod = OnSearchMethod()
@@ -65,13 +66,19 @@ class ListAdapter<T : ResettableItem>(private val mContext: Context) : RecyclerV
         }
     }
 
-    fun resetAllData(newDataModel: MutableList<T>?) {
+    fun resetAllData(newDataModel: ArrayList<T>?) {
         newDataModel?.let {
             dataModel.clear()
             dataModel.addAll(it)
-            for (model in dataModel) {
-                model.onReset()
-            }
+            resetAllSpannables()
+        }
+    }
+
+    fun restoreOldData(oldData: ArrayList<T>?) {
+        oldData?.let {
+            dataModel.clear()
+            dataModel.addAll(it)
+            notifyDataSetChanged()
         }
     }
 

@@ -30,5 +30,8 @@
     <string name="img_poster_contentdesc">Describe an image poster of a movies or tv</string>
     <string name="act_detail_movie">Detail Movie</string>
     <string name="act_detail_tv">Detail TV</string>
+    <string name="title_activity_main_tab_user">MainTabUserActivity</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
 
 </resources>

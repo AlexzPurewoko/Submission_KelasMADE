@@ -4,7 +4,6 @@ import android.os.Parcelable
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.androidnetworking.common.Priority
-import com.androidnetworking.error.ANError
 import id.apwdevs.app.catalogue.model.GenreModel
 import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.model.onUserMain.PageListModel
@@ -20,18 +19,19 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
-import java.net.UnknownHostException
 
 class MainListMovieViewModel : ViewModel() {
     val dataListObj: MutableLiveData<PageListModel<MovieAboutModel>> = MutableLiveData()
     val hasFirstInstantiate : MutableLiveData<Boolean> = MutableLiveData()
     val currentListMode : MutableLiveData<Int> = MutableLiveData()
+    val fragmentIsRefreshing: MutableLiveData<Boolean> = MutableLiveData()
     private val dataGenres: MutableLiveData<MutableList<GenreModel>> = MutableLiveData()
 
     init {
         // we have to initialize these variables to be available for first instance
         hasFirstInstantiate.value = false
         currentListMode.value = PublicConfig.RecyclerMode.MODE_LIST
+        fragmentIsRefreshing.value = false
     }
     fun setup(
         apiRepository: ApiRepository,
@@ -118,7 +118,7 @@ class MainListMovieViewModel : ViewModel() {
                         val inPage = getInt("page")
                         val totalResults = getInt("total_results")
                         val totalPages = getInt("total_pages")
-                        val contents = mutableListOf<MovieAboutModel>()
+                        val contents = arrayListOf<MovieAboutModel>()
                         //inflate the contents
                         val jsonContents = getJSONArray("results")
                         for (index in 0 until jsonContents.length()) {

@@ -3,6 +3,7 @@ package id.apwdevs.app.catalogue.fragment
 import android.content.pm.ActivityInfo
 import android.graphics.Point
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,9 +31,8 @@ import id.apwdevs.app.catalogue.plugin.view.ErrorSectionAdapter
 import id.apwdevs.app.catalogue.plugin.view.SearchToolbarCard
 import id.apwdevs.app.catalogue.view.MainUserListView
 import id.apwdevs.app.catalogue.viewModel.MainListMovieViewModel
-import id.apwdevs.app.catalogue.viewModel.MainListMovieViewModel.SupportedType.DISCOVER
 
-class FragmentMovieContent: Fragment(), MainUserListView, SearchToolbarCard.OnSearchCallback {
+class FragmentMovieContent : Fragment(), MainUserListView, SearchToolbarCard.OnSearchCallback, OnSelectedFragment {
 
 
     private lateinit var refreshPage : SwipeRefreshLayout
@@ -40,13 +40,25 @@ class FragmentMovieContent: Fragment(), MainUserListView, SearchToolbarCard.OnSe
     private lateinit var recyclerContent : RecyclerView
     private lateinit var mainView: View
 
-    private lateinit var viewModel : MainListMovieViewModel
+    private var viewModel: MainListMovieViewModel? = null
     private lateinit var errorAdapter: ErrorSectionAdapter
     private lateinit var types : MainListMovieViewModel.SupportedType
     private lateinit var strTag : String
     private lateinit var recyclerListAdapter: ListAdapter<MovieAboutModel>
     private lateinit var recyclerGridAdapter: GridAdapter<MovieAboutModel>
 
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        recyclerGridAdapter = GridAdapter(requireContext())
+        recyclerListAdapter = ListAdapter(requireContext())
+        types = requireNotNull(arguments).getParcelable(EXTRA_MOVIE_REQUESTED_TYPE)
+        if (savedInstanceState == null) {
+
+        } else {
+            recyclerListAdapter.restoreOldData(savedInstanceState.getParcelableArrayList("ListDataMovie${types.name}"))
+        }
+    }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
         inflater.inflate(R.layout.fg_holder_content, container, false)
 
@@ -62,34 +74,36 @@ class FragmentMovieContent: Fragment(), MainUserListView, SearchToolbarCard.OnSe
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        recyclerGridAdapter = GridAdapter(requireContext())
-        recyclerListAdapter = ListAdapter(requireContext())
         // we have to obtain a value of ViewModel
-        viewModel = ViewModelProviders.of(this).get(MainListMovieViewModel::class.java)
-        viewModel.dataListObj.observe(this, Observer {
-            if(viewModel.hasFirstInstantiate.value == false)
-                viewModel.hasFirstInstantiate.postValue(true)
-            setupRecycler(it)
-        })
-        viewModel.currentListMode.observe(this, Observer {
-            // update the layoutManager
-            setupRecycler(viewModel.dataListObj.value)
-        })
+        initViewModel()
 
-        types = arguments?.getParcelable(EXTRA_MOVIE_REQUESTED_TYPE) ?: DISCOVER
         strTag = "${FragmentMovieContent::class.java.simpleName}Type${types.name}"
         refreshPage.setOnRefreshListener {
-            viewModel.setup(ApiRepository(), types, 1, strTag, this)
+            viewModel?.setup(ApiRepository(), types, 1, strTag, this)
         }
+    }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putParcelableArrayList("ListDataMovie${types.name}", recyclerListAdapter.dataModel)
+    }
 
-
-        // change condition into swipeRefreshLayout to refresh the page if hasFirstInstantiate is false
-        if(viewModel.hasFirstInstantiate.value == false) {
-            viewModel.setup(ApiRepository(), types, 1, strTag, this)
-            refreshPage.isRefreshing = true
+    private fun initViewModel() {
+        //if(viewModel != null) return
+        viewModel = ViewModelProviders.of(this).get(MainListMovieViewModel::class.java).apply {
+            dataListObj.observe(this@FragmentMovieContent, Observer {
+                if (hasFirstInstantiate.value == false)
+                    hasFirstInstantiate.postValue(true)
+                setupRecycler(it)
+            })
+            currentListMode.observe(this@FragmentMovieContent, Observer {
+                // update the layoutManager
+                setupRecycler(dataListObj.value)
+            })
+            fragmentIsRefreshing.observe(this@FragmentMovieContent, Observer {
+                refreshPage.isRefreshing = it
+            })
         }
-
     }
 
     private fun setupRecycler(page: PageListModel<MovieAboutModel>?) {
@@ -99,7 +113,7 @@ class FragmentMovieContent: Fragment(), MainUserListView, SearchToolbarCard.OnSe
                 // find the windowSize
                 val wSize = Point()
                 requireActivity().windowManager.defaultDisplay.getSize(wSize)
-                when (viewModel.currentListMode.value) {
+                when (viewModel?.currentListMode?.value) {
                     PublicConfig.RecyclerMode.MODE_LIST -> {
                         layoutManager = LinearLayoutManager(context)
                         adapter = recyclerListAdapter
@@ -134,7 +148,7 @@ class FragmentMovieContent: Fragment(), MainUserListView, SearchToolbarCard.OnSe
 
     //////////////// OVERRIDDEN FROM MainListUserView interfaces \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     override fun onLoadFinished() {
-        refreshPage.isRefreshing = false
+        viewModel?.fragmentIsRefreshing?.postValue(false)
     }
 
     override fun onLoadSuccess(viewModel: ViewModel) {
@@ -154,7 +168,7 @@ class FragmentMovieContent: Fragment(), MainUserListView, SearchToolbarCard.OnSe
     ///////////////////////////// OVERRIDDEN FROM OnSearchCallback \\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
     override fun querySearch(view: View, query: CharSequence?, start: Int, before: Int, count: Int) {
-            when(viewModel.currentListMode.value){
+        when (viewModel?.currentListMode?.value) {
                 PublicConfig.RecyclerMode.MODE_LIST -> {
                     recyclerListAdapter.filter.filter(query)
                 }
@@ -169,8 +183,8 @@ class FragmentMovieContent: Fragment(), MainUserListView, SearchToolbarCard.OnSe
     }
 
     override fun onSearchCancelled() {
-        viewModel.dataListObj.value?.let {
-            when(viewModel.currentListMode.value){
+        viewModel?.dataListObj?.value?.let {
+            when (viewModel?.currentListMode?.value) {
                 PublicConfig.RecyclerMode.MODE_LIST -> {
                     recyclerListAdapter.resetAllData(it.contents)
                     recyclerListAdapter.notifyDataSetChanged()
@@ -192,9 +206,24 @@ class FragmentMovieContent: Fragment(), MainUserListView, SearchToolbarCard.OnSe
     }
 
     override fun onListModeChange(listMode: Int) {
-        viewModel.currentListMode.postValue(listMode)
+        viewModel?.currentListMode?.postValue(listMode)
     }
     ///////////////////////////// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    //////////////////////////////////////  OVERRIDDEN FROM OnSelectedFragment \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+    override fun start(fragment: Fragment, position: Int) {
+        Log.e("Start Fragment", "FragmentStart ${fragment.javaClass.simpleName}")
+        //initViewModel()
+        viewModel?.let {
+            if (it.hasFirstInstantiate.value == false) {
+                it.setup(ApiRepository(), types, 1, strTag, this)
+                it.fragmentIsRefreshing.value = true
+            }
+        }
+
+
+    }
+    ////////////////////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
     companion object {
         const val EXTRA_MOVIE_REQUESTED_TYPE = "MOVIE_REQ_TYPE"

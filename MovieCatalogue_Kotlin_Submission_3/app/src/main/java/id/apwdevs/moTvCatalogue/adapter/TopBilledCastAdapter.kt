@@ -1,11 +1,11 @@
 package id.apwdevs.moTvCatalogue.adapter
 
 import android.content.Context
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import id.apwdevs.moTvCatalogue.R
 import id.apwdevs.moTvCatalogue.model.FilmTopBilledCastModel
 

@@ -1,5 +1,6 @@
 package id.apwdevs.app.catalogue.activities
 
+import android.graphics.Point
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,6 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.viewpager.widget.ViewPager
 import com.androidnetworking.AndroidNetworking
@@ -18,19 +20,81 @@ import id.apwdevs.app.catalogue.fragment.HolderPageAdapter
 import id.apwdevs.app.catalogue.plugin.view.SearchToolbarCard
 import kotlinx.android.synthetic.main.activity_main_tab_user.*
 import kotlinx.android.synthetic.main.search_toolbar.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallback, FragmentListCallback {
 
     private lateinit var searchToolbarCard: SearchToolbarCard
+    private lateinit var listFragmentContainer: MutableList<Fragment>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_tab_user)
         AndroidNetworking.initialize(applicationContext)
-        view_pager.adapter = HolderPageAdapter(supportFragmentManager, this)
-        view_pager.offscreenPageLimit = 2
         searchToolbarCard = SearchToolbarCard(this, toolbar_card, this)
+
+        if (savedInstanceState == null) {
+            listFragmentContainer = mutableListOf(
+                FragmentListContainer.newInstance(FragmentListContainer.Type.MOVIES),
+                FragmentListContainer.newInstance(FragmentListContainer.Type.TV_SHOWS)
+            )
+        } else {
+            savedInstanceState.let {
+                var idx = 0
+                listFragmentContainer = mutableListOf()
+                while (true) {
+                    try {
+                        val fg = supportFragmentManager.getFragment(savedInstanceState, "FragmentListContainer${idx++}")
+                            ?: break
+                        listFragmentContainer.add(fg)
+                    } catch (e: Exception) {
+                        break
+                    }
+                }
+            }
+        }
+        view_pager.adapter = HolderPageAdapter(supportFragmentManager, listFragmentContainer, this)
+        view_pager.offscreenPageLimit = 2
         setupTabs()
         setupVPager()
+        //removeExtraSpacing()
+    }
+
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        // we wants to save container fragments
+        outState?.let {
+            for ((idx, fg) in listFragmentContainer.withIndex()) {
+                supportFragmentManager.putFragment(it, "FragmentListContainer$idx", fg)
+            }
+        }
+    }
+
+    private fun removeExtraSpacing() {
+        val wSize = Point()
+        windowManager.defaultDisplay.getSize(wSize)
+
+        GlobalScope.launch {
+            var currHeight = 0
+            var appBarHeight = 0
+            view_pager.post {
+                currHeight = view_pager.height
+            }
+            main_tab_appbar.post {
+                appBarHeight = main_tab_appbar.height
+            }
+
+            while (currHeight == 0 || appBarHeight == 0) delay(200)
+            val result = currHeight - appBarHeight
+            view_pager.post {
+                view_pager.layoutParams = (view_pager.layoutParams as CoordinatorLayout.LayoutParams).apply {
+                    setMargins(0, 0, 0, appBarHeight)
+                    //height = result
+                }
+            }
+        }
     }
 
     private fun setupVPager() {
@@ -90,7 +154,7 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
         (view_pager.adapter as HolderPageAdapter?)?.apply {
             // broadcasts to all of fragment in this view pager
                 val fg = this.getAt(view_pager.currentItem)
-                if(fg is SearchToolbarCard.OnSearchCallback)
+            if (fg is SearchToolbarCard.OnSearchCallback && fg.isResumed)
                     fg.querySearch(view, query, start, before, count)
         }
     }
@@ -100,15 +164,15 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
         (view_pager.adapter as HolderPageAdapter?)?.apply {
             // broadcasts to all of fragment in this view pager
                 val fg = this.getAt(view_pager.currentItem)
-                if(fg is SearchToolbarCard.OnSearchCallback)
+            if (fg is SearchToolbarCard.OnSearchCallback && fg.isResumed)
                     fg.onSubmit(query)
 
         }
     }
     override fun onSearchCancelled() {
         (view_pager.adapter as HolderPageAdapter?)?.apply {
-                val fg = this.getAt(view_pager.currentItem)
-                if(fg is SearchToolbarCard.OnSearchCallback)
+            val fg = this.getAt(view_pager.currentItem)
+            if (fg is SearchToolbarCard.OnSearchCallback && fg.isResumed)
                     fg.onSearchCancelled()
         }
     }
@@ -117,7 +181,7 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
 
         (view_pager.adapter as HolderPageAdapter?)?.apply {
                 val fg = this.getAt(view_pager.currentItem)
-                if(fg is SearchToolbarCard.OnSearchCallback)
+            if (fg is SearchToolbarCard.OnSearchCallback && fg.isResumed)
                     fg.onTextCleared(searchHistory)
         }
     }
@@ -126,7 +190,7 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
 
         (view_pager.adapter as HolderPageAdapter?)?.apply {
                 val fg = this.getAt(view_pager.currentItem)
-                if(fg is SearchToolbarCard.OnSearchCallback)
+            if (fg is SearchToolbarCard.OnSearchCallback && fg.isResumed)
                     fg.onSearchStarted()
         }
     }

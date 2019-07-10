@@ -33,7 +33,7 @@ class MainListTvPresenter(
             )
         }
         arrMoviePoster.recycle()
-        view.onLoadFinished(listResult, calculateMaxColumn())
+        view.onLoadFinished(mutableListOf(), calculateMaxColumn())
     }
 
     private fun calculateMaxColumn(): Int {

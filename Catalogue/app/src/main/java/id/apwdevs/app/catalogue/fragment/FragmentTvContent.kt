@@ -3,6 +3,7 @@ package id.apwdevs.app.catalogue.fragment
 import android.content.pm.ActivityInfo
 import android.graphics.Point
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,7 +33,7 @@ import id.apwdevs.app.catalogue.plugin.view.SearchToolbarCard
 import id.apwdevs.app.catalogue.view.MainUserListView
 import id.apwdevs.app.catalogue.viewModel.MainListTvViewModel
 
-class FragmentTvContent: Fragment(), MainUserListView, SearchToolbarCard.OnSearchCallback {
+class FragmentTvContent : Fragment(), MainUserListView, SearchToolbarCard.OnSearchCallback, OnSelectedFragment {
 
 
     private lateinit var refreshPage : SwipeRefreshLayout
@@ -46,6 +47,7 @@ class FragmentTvContent: Fragment(), MainUserListView, SearchToolbarCard.OnSearc
     private lateinit var strTag : String
     private lateinit var recyclerListAdapter: ListAdapter<TvAboutModel>
     private lateinit var recyclerGridAdapter: GridAdapter<TvAboutModel>
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
         inflater.inflate(R.layout.fg_holder_content, container, false)
@@ -192,6 +194,17 @@ class FragmentTvContent: Fragment(), MainUserListView, SearchToolbarCard.OnSearc
         viewModel.currentListMode.postValue(listMode)
     }
     ///////////////////////////// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    //////////////////////////////////  OVERRIDDEN FROM OnSelectedFragment \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+    override fun start(fragment: Fragment, position: Int) {
+        Log.e("Start Fragment", "FragmentStart ${fragment.javaClass.simpleName}")
+        if (viewModel.hasFirstInstantiate.value == false) {
+            viewModel.setup(ApiRepository(), types, 1, strTag, this)
+            refreshPage.isRefreshing = true
+        }
+
+    }
+    ////////////////////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
     companion object {
         const val EXTRA_TV_REQUESTED_TYPE = "TV_REQ_TYPE"

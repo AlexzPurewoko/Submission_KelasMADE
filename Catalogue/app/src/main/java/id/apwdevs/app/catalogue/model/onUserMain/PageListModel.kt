@@ -6,7 +6,7 @@ data class PageListModel<T : ResettableItem>(
     val inPage: Int,
     val totalResults: Int,
     val totalPages: Int,
-    val contents: MutableList<T>?,
+    val contents: ArrayList<T>?,
     val errorCode: Int,
     val errorMessage: String?
 )

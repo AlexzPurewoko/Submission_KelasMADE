@@ -22,7 +22,7 @@ import java.io.File
 
 class DetailMovieViewModelTestUnit {
 
-    val idMovies = 301528
+    private val idMovies = 301528
 
     @Mock
     private lateinit var activity: Activity
@@ -40,6 +40,7 @@ class DetailMovieViewModelTestUnit {
     fun setUp() {
         MockitoAnnotations.initMocks(this)
         viewModel = spy(DetailMovieViewModel())
+
     }
 
     @Test

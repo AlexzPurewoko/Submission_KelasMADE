@@ -5,12 +5,12 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.Menu
 import android.view.MenuItem
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import id.apwdevs.moTvCatalogue.R
 import id.apwdevs.moTvCatalogue.adapter.AboutAdapter
 import id.apwdevs.moTvCatalogue.adapter.TopBilledCastAdapter

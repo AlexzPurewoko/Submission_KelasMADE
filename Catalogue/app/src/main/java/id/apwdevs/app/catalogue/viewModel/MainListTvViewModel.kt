@@ -4,7 +4,6 @@ import android.os.Parcelable
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.androidnetworking.common.Priority
-import com.androidnetworking.error.ANError
 import id.apwdevs.app.catalogue.model.GenreModel
 import id.apwdevs.app.catalogue.model.onUserMain.PageListModel
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
@@ -20,7 +19,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
-import java.net.UnknownHostException
 
 class MainListTvViewModel : ViewModel() {
 
@@ -121,7 +119,7 @@ class MainListTvViewModel : ViewModel() {
                         val inPage = getInt("page")
                         val totalResults = getInt("total_results")
                         val totalPages = getInt("total_pages")
-                        val contents = mutableListOf<TvAboutModel>()
+                        val contents = arrayListOf<TvAboutModel>()
                         //inflate the contents
                         val jsonContents = getJSONArray("results")
                         for (index in 0 until jsonContents.length()) {

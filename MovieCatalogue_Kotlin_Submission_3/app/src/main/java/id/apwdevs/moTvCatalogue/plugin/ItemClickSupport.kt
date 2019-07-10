@@ -1,7 +1,7 @@
 package id.apwdevs.moTvCatalogue.plugin
 
-import android.support.v7.widget.RecyclerView
 import android.view.View
+import androidx.recyclerview.widget.RecyclerView
 import id.apwdevs.moTvCatalogue.R
 
 class ItemClickSupport private constructor(private val mRecyclerView: RecyclerView) {

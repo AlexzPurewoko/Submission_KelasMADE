@@ -1,6 +1,6 @@
 package id.apwdevs.moTvCatalogue.plugin
 
-import android.support.v7.widget.SearchView
+import androidx.appcompat.widget.SearchView
 
 
 interface OnSearchViewCallback {
