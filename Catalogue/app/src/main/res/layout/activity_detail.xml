@@ -21,8 +21,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:toolbarId="@+id/toolbar"
-                app:layout_scrollFlags="scroll|exitUntilCollapsed"
-                app:contentScrim="?attr/colorPrimary">
+                app:titleEnabled="false"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <androidx.appcompat.widget.Toolbar
                     android:id="@+id/toolbar"
@@ -33,8 +33,7 @@
             <ImageView
                     tools:srcCompat="@drawable/test"
                     android:tint="#313131"
-                    android:tintMode="src_over"
-                    android:backgroundTintMode="screen"
+                    android:tintMode="screen"
                     android:layout_width="match_parent"
                     android:layout_height="250dp" android:scaleType="fitXY"/>
             <include

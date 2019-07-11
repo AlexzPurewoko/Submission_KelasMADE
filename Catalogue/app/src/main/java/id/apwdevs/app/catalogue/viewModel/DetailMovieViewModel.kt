@@ -4,7 +4,6 @@ import android.app.Activity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.androidnetworking.common.Priority
-import com.androidnetworking.error.ANError
 import id.apwdevs.app.catalogue.model.onDetail.*
 import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.plugin.CoroutineContextProvider
@@ -25,6 +24,11 @@ class DetailMovieViewModel : ViewModel() {
     val reviews: MutableLiveData<ReviewModel> = MutableLiveData()
     val credits: MutableLiveData<CreditsModel> = MutableLiveData()
 
+    val hasFirstInitialize: MutableLiveData<Boolean> = MutableLiveData()
+
+    init {
+        hasFirstInitialize.value = false
+    }
 
     fun setAll(
         activity: Activity,
@@ -33,7 +37,6 @@ class DetailMovieViewModel : ViewModel() {
         view: MainDetailView,
         coroutineContextProvider: CoroutineContextProvider = CoroutineContextProvider()
     ) {
-        view.onStart()
         GlobalScope.launch(coroutineContextProvider.main) {
             view.onLoad()
             activity.intent?.apply {
@@ -63,11 +66,11 @@ class DetailMovieViewModel : ViewModel() {
     }
 
     suspend fun otherDetails(apiRepository: ApiRepository, idMovies: Int): ApiRepository.RetError? =
-        apiRepository.doReqandRetResponse(
+        apiRepository.doReqAndRetResponseAsync(
             GetMovies.getOtherDetails(idMovies),
             "getOtherDetails$idMovies",
             Priority.HIGH
-        )?.let {
+        ).await()?.let {
             return if (it.isSuccess && !it.response.isNullOrEmpty()) {
                 try {
                     JSONObject(it.response).apply {
@@ -127,11 +130,11 @@ class DetailMovieViewModel : ViewModel() {
 
 
     suspend fun setCredits(apiRepository: ApiRepository, idMovies: Int): ApiRepository.RetError? =
-        apiRepository.doReqandRetResponse(
+        apiRepository.doReqAndRetResponseAsync(
             GetMovies.getCredits(idMovies),
             "getCreditsMoviesId$idMovies",
             Priority.HIGH
-        )?.let {
+        ).await()?.let {
             return if (it.isSuccess && !it.response.isNullOrEmpty()) {
                 try {
                     JSONObject(it.response).apply {
@@ -190,11 +193,11 @@ class DetailMovieViewModel : ViewModel() {
         }
 
     suspend fun setReviews(apiRepository: ApiRepository, idMovies: Int): ApiRepository.RetError? =
-        apiRepository.doReqandRetResponse(
+        apiRepository.doReqAndRetResponseAsync(
             GetMovies.getReviews(idMovies),
             "getReviewsMoviesId$idMovies",
             Priority.HIGH
-        )?.let {
+        ).await()?.let {
             return if (it.isSuccess && !it.response.isNullOrEmpty()) {
                 try {
                     JSONObject(it.response).apply {
@@ -234,11 +237,11 @@ class DetailMovieViewModel : ViewModel() {
         }
 
     suspend fun setListSocmedId(apiRepository: ApiRepository, idMovies: Int): ApiRepository.RetError? =
-        apiRepository.doReqandRetResponse(
+        apiRepository.doReqAndRetResponseAsync(
             GetMovies.getSocmedID(idMovies),
             "getSocmedMoviesId$idMovies",
             Priority.HIGH
-        )?.let {
+        ).await()?.let {
             return if (it.isSuccess && !it.response.isNullOrEmpty()) {
                 JSONObject(it.response).apply {
                     socmedIds.postValue(

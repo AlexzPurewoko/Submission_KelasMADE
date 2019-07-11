@@ -16,11 +16,11 @@
         <ImageView
                 android:contentDescription="@string/img_poster_contentdesc"
                 style="@style/ImagePosterStyle.Grid"
-                android:id="@+id/item_list_image"
+                android:id="@+id/item_cast_image"
                 tools:srcCompat="@tools:sample/avatars"/>
 
         <TextView
-                android:id="@+id/item_list_text_title"
+                android:id="@+id/item_cast_name"
                 style="@style/ItemListTextViewTitle"
                 android:gravity="center"
                 tools:text="Aquaman" android:layout_marginTop="8dp"/>

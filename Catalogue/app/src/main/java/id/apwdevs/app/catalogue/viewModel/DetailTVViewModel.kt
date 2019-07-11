@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 
 import androidx.lifecycle.ViewModel
 import com.androidnetworking.common.Priority
-import com.androidnetworking.error.ANError
 import id.apwdevs.app.catalogue.model.onDetail.*
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
 import id.apwdevs.app.catalogue.plugin.CoroutineContextProvider
@@ -28,6 +27,11 @@ class DetailTVViewModel : ViewModel() {
     val reviews: MutableLiveData<ReviewModel> = MutableLiveData()
     val credits: MutableLiveData<CreditsModel> = MutableLiveData()
 
+    val hasFirstInitialize: MutableLiveData<Boolean> = MutableLiveData()
+
+    init {
+        hasFirstInitialize.value = false
+    }
     fun setAll(
         activity: Activity,
         apiRepository: ApiRepository,
@@ -35,7 +39,6 @@ class DetailTVViewModel : ViewModel() {
         view: MainDetailView,
         coroutineContextProvider: CoroutineContextProvider = CoroutineContextProvider()
     ) {
-        view.onStart()
         GlobalScope.launch(coroutineContextProvider.main) {
             view.onLoad()
             activity.intent?.apply {
@@ -65,11 +68,11 @@ class DetailTVViewModel : ViewModel() {
     }
 
     suspend fun otherDetails(apiRepository: ApiRepository, idTv: Int): ApiRepository.RetError? =
-        apiRepository.doReqandRetResponse(
+        apiRepository.doReqAndRetResponseAsync(
             GetTVShows.getOtherDetails(idTv),
             "getTvOtherDetailsId$idTv",
             Priority.HIGH
-        )?.let {
+        ).await()?.let {
             return if (it.isSuccess && !it.response.isNullOrEmpty()) {
                 try {
                     JSONObject(it.response).apply {
@@ -168,11 +171,11 @@ class DetailTVViewModel : ViewModel() {
 
 
     suspend fun getCredits(apiRepository: ApiRepository, idTv: Int): ApiRepository.RetError? =
-        apiRepository.doReqandRetResponse(
+        apiRepository.doReqAndRetResponseAsync(
             GetTVShows.getCredits(idTv),
             "getCreditsMoviesId$idTv",
             Priority.HIGH
-        )?.let {
+        ).await()?.let {
             return if (it.isSuccess && !it.response.isNullOrEmpty()) {
                 try {
                     JSONObject(it.response).apply {
@@ -231,11 +234,11 @@ class DetailTVViewModel : ViewModel() {
         }
 
     suspend fun getReviews(apiRepository: ApiRepository, idTv: Int): ApiRepository.RetError? =
-        apiRepository.doReqandRetResponse(
+        apiRepository.doReqAndRetResponseAsync(
             GetTVShows.getReviews(idTv),
             "getReviewsTVId$idTv",
             Priority.HIGH
-        )?.let {
+        ).await()?.let {
             return if (it.isSuccess && !it.response.isNullOrEmpty()) {
                 try {
                     JSONObject(it.response).apply {
@@ -275,11 +278,11 @@ class DetailTVViewModel : ViewModel() {
         }
 
     suspend fun getSocmedID(apiRepository: ApiRepository, idTv: Int): ApiRepository.RetError? =
-        apiRepository.doReqandRetResponse(
+        apiRepository.doReqAndRetResponseAsync(
             GetTVShows.getSocmedID(idTv),
             "getSocmedTVId$idTv",
             Priority.HIGH
-        )?.let {
+        ).await()?.let {
             return if (it.isSuccess && !it.response.isNullOrEmpty()) {
                 JSONObject(it.response).apply {
                     socmedIds.postValue(

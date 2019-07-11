@@ -1,5 +1,10 @@
-package id.apwdevs.moTvCatalogue.model.onDetail
+package id.apwdevs.app.catalogue.model.onDetail
 
+import android.os.Parcelable
+import id.apwdevs.app.catalogue.model.ResettableItem
+import kotlinx.android.parcel.Parcelize
+
+@Parcelize
 data class OtherTVAboutModel(
     val createdBy: MutableList<ModelTvCreatedBy>,
     val homepage: String,
@@ -14,15 +19,22 @@ data class OtherTVAboutModel(
     val networks: MutableList<TvNetworkModel>,
     val productionCompanies: MutableList<ProductionTVCompaniesModel>,
     val productionTvSeasons: MutableList<ProductionTVSeasons>
-)
+) : Parcelable, ResettableItem {
+    override fun onReset() {
 
+    }
+
+}
+
+@Parcelize
 class TvNetworkModel(
     val name: String,
     val id: Int,
     val logoPath: String,
     val originCountry: String
-)
+) : Parcelable
 
+@Parcelize
 data class ProductionTVSeasons(
     val airDate: String,
     val episodeCount: Int,
@@ -31,19 +43,21 @@ data class ProductionTVSeasons(
     val overview: String,
     val posterPath: String,
     val seasonNumber: Int
-)
+) : Parcelable
 
+@Parcelize
 data class ProductionTVCompaniesModel(
     val id: Int,
     val logoPath: String?,
     val name: String,
     val originCountry: String
-)
+) : Parcelable
 
+@Parcelize
 data class ModelTvCreatedBy(
     val id: Int,
     val creditId: String,
     val name: String,
     val gender: Int,
     val profilePath: String
-)
+) : Parcelable
