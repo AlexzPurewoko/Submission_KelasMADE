@@ -1,11 +1,13 @@
 package id.apwdevs.app.catalogue.model.onDetail
 
+import android.os.Parcelable
 import id.apwdevs.app.catalogue.model.ResettableItem
+import kotlinx.android.parcel.Parcelize
 
 data class CreditsModel(
     val id: Int,
-    val allCasts: MutableList<CastModel>,
-    val allCrew: MutableList<CrewModel>
+    val allCasts: ArrayList<CastModel>,
+    val allCrew: ArrayList<CrewModel>
 ) : ResettableItem {
     override fun onReset() {
         allCasts.forEach {
@@ -17,6 +19,7 @@ data class CreditsModel(
     }
 }
 
+@Parcelize
 data class CastModel(
     val castId: Int?,
     val asCharacter: String,
@@ -26,12 +29,13 @@ data class CastModel(
     var name: CharSequence,
     val order: Int,
     val profilePath: String?
-) : ResettableItem {
+) : ResettableItem, Parcelable {
     override fun onReset() {
         name = name.toString()
     }
 }
 
+@Parcelize
 data class CrewModel(
     val job: String,
     val creditId: String,
@@ -40,7 +44,7 @@ data class CrewModel(
     var name: CharSequence,
     val department: String,
     val profilePath: String?
-) : ResettableItem {
+) : ResettableItem, Parcelable {
     override fun onReset() {
         name = name.toString()
     }

@@ -16,10 +16,12 @@ import com.androidnetworking.interfaces.BitmapRequestListener
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.model.onDetail.CastModel
 import id.apwdevs.app.catalogue.plugin.api.GetImageFiles
+import kotlin.math.min
 
 class RecyclerCastsAdapter(
     private val context: Context,
-    private val mListCasts: List<CastModel>
+    private val mListCasts: List<CastModel>,
+    internal val maxContentLimits: Int
 ) : RecyclerView.Adapter<RecyclerCastsAdapter.RecyclerCastsViewHolder>() {
 
     init {
@@ -29,7 +31,13 @@ class RecyclerCastsAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerCastsViewHolder =
         RecyclerCastsViewHolder(LayoutInflater.from(context).inflate(R.layout.adapter_item_list_casts, parent, false))
 
-    override fun getItemCount(): Int = mListCasts.size
+    override fun getItemCount(): Int = mListCasts.size.let {
+        if (maxContentLimits == NO_LIMITS)
+            it
+        else {
+            min(it, maxContentLimits)
+        }
+    }
 
     override fun onBindViewHolder(holder: RecyclerCastsViewHolder, position: Int) {
         holder.bind(mListCasts[position])
@@ -63,6 +71,10 @@ class RecyclerCastsAdapter(
                     })
             }
         }
+    }
+
+    companion object {
+        const val NO_LIMITS = -1
     }
 
 }

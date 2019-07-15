@@ -4,6 +4,7 @@ import android.app.Activity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.androidnetworking.common.Priority
+import id.apwdevs.app.catalogue.activities.DetailActivity
 import id.apwdevs.app.catalogue.model.onDetail.*
 import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.plugin.CoroutineContextProvider
@@ -18,11 +19,12 @@ import org.json.JSONException
 import org.json.JSONObject
 
 class DetailMovieViewModel : ViewModel() {
-    val shortListDetais: MutableLiveData<MovieAboutModel> = MutableLiveData()
-    val listOtherDetails: MutableLiveData<OtherMovieAboutModel> = MutableLiveData()
+    val details: MutableLiveData<MovieAboutModel> = MutableLiveData()
+    val otherDetails: MutableLiveData<OtherMovieAboutModel> = MutableLiveData()
     val socmedIds: MutableLiveData<SocmedIDModel> = MutableLiveData()
     val reviews: MutableLiveData<ReviewModel> = MutableLiveData()
     val credits: MutableLiveData<CreditsModel> = MutableLiveData()
+    val movieIds: MutableLiveData<Int> = MutableLiveData()
 
     val hasFirstInitialize: MutableLiveData<Boolean> = MutableLiveData()
 
@@ -33,31 +35,33 @@ class DetailMovieViewModel : ViewModel() {
     fun setAll(
         activity: Activity,
         apiRepository: ApiRepository,
-        idMovies: Int,
         view: MainDetailView,
         coroutineContextProvider: CoroutineContextProvider = CoroutineContextProvider()
     ) {
         GlobalScope.launch(coroutineContextProvider.main) {
             view.onLoad()
-            activity.intent?.apply {
-                val otherAboutFilmModel = getParcelableExtra<MovieAboutModel>("MOVIE_DETAILS")
-                shortListDetais.postValue(otherAboutFilmModel)
+            activity.intent.extras?.apply {
+                val otherAboutFilmModel = getParcelable<MovieAboutModel>(DetailActivity.EXTRA_CONTENT_DETAILS)
+                details.postValue(otherAboutFilmModel)
+                movieIds.value = getInt(DetailActivity.EXTRA_ID)
             }
 
+            val idMovies = movieIds.value ?: 0
+
             setCredits(apiRepository, idMovies)?.let {
-                view.onLoadFailed(it.errorCode, it.cause?.message, it.cause)
+                view.onLoadFailed(it)
                 return@launch
             }
             otherDetails(apiRepository, idMovies)?.let {
-                view.onLoadFailed(it.errorCode, it.cause?.message, it.cause)
+                view.onLoadFailed(it)
                 return@launch
             }
             setReviews(apiRepository, idMovies)?.let {
-                view.onLoadFailed(it.errorCode, it.cause?.message, it.cause)
+                view.onLoadFailed(it)
                 return@launch
             }
             setListSocmedId(apiRepository, idMovies)?.let {
-                view.onLoadFailed(it.errorCode, it.cause?.message, it.cause)
+                view.onLoadFailed(it)
                 return@launch
             }
 
@@ -105,7 +109,7 @@ class DetailMovieViewModel : ViewModel() {
                         val homepage = jsonCheckAndGet(get("homepage"))?.toString()
                         val tagLine = jsonCheckAndGet(get("tagline"))?.toString()
                         val runtime = jsonCheckAndGet(get("runtime"))?.toString()?.toInt()
-                        listOtherDetails.postValue(
+                        otherDetails.postValue(
                             OtherMovieAboutModel(
                                 movieBudget = getInt("budget"),
                                 homepage = homepage,
@@ -138,8 +142,8 @@ class DetailMovieViewModel : ViewModel() {
             return if (it.isSuccess && !it.response.isNullOrEmpty()) {
                 try {
                     JSONObject(it.response).apply {
-                        val resultCasts = mutableListOf<CastModel>()
-                        val resultCrews = mutableListOf<CrewModel>()
+                        val resultCasts = arrayListOf<CastModel>()
+                        val resultCrews = arrayListOf<CrewModel>()
                         val jsonCrews = getJSONArray("crew")
                         val jsonCast = getJSONArray("cast")
                         for (index in 0 until jsonCrews.length()) {
@@ -203,7 +207,7 @@ class DetailMovieViewModel : ViewModel() {
                     JSONObject(it.response).apply {
 
                         val ret = getJSONArray("results")
-                        val results = mutableListOf<ReviewResultModel>()
+                        val results = arrayListOf<ReviewResultModel>()
                         for (index in 0 until ret.length()) {
                             ret.getJSONObject(index).apply {
                                 results.add(
@@ -244,14 +248,13 @@ class DetailMovieViewModel : ViewModel() {
         ).await()?.let {
             return if (it.isSuccess && !it.response.isNullOrEmpty()) {
                 JSONObject(it.response).apply {
-                    socmedIds.postValue(
+                    socmedIds.value =
                         SocmedIDModel(
                             id = getInt("id"),
                             facebookId = jsonCheckAndGet(get("facebook_id"))?.toString(),
                             instagramId = jsonCheckAndGet(get("instagram_id"))?.toString(),
                             twitterId = jsonCheckAndGet(get("twitter_id"))?.toString()
                         )
-                    )
                 }
                 null
             } else {

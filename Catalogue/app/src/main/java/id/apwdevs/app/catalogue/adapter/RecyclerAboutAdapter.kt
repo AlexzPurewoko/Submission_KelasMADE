@@ -1,9 +1,11 @@
 package id.apwdevs.app.catalogue.adapter
 
 import android.content.Context
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import id.apwdevs.app.catalogue.R
@@ -14,7 +16,7 @@ import id.apwdevs.app.catalogue.model.onDetail.OtherMovieAboutModel
 import id.apwdevs.app.catalogue.model.onDetail.OtherTVAboutModel
 import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
-import id.apwdevs.app.catalogue.plugin.view.WrappedLayout
+import id.apwdevs.app.catalogue.plugin.view.WrappedView
 
 class RecyclerAboutAdapter(
     private val context: Context,
@@ -27,7 +29,14 @@ class RecyclerAboutAdapter(
 
     init {
         setData()
+        setHasStableIds(true)
     }
+
+    override fun getItemId(position: Int): Long =
+        position.toLong()
+
+    override fun getItemViewType(position: Int): Int = position
+
 
     private fun setData() {
         when (type) {
@@ -77,7 +86,7 @@ class RecyclerAboutAdapter(
     override fun getItemCount(): Int = listToBeAdded.size
 
     override fun onBindViewHolder(holder: RecyclerAboutVH, position: Int) {
-        holder.bind(listToBeAdded[position])
+        holder.bind(listToBeAdded[position], position)
     }
 
     data class Item(
@@ -87,38 +96,47 @@ class RecyclerAboutAdapter(
 
     class RecyclerAboutVH(view: View) : RecyclerView.ViewHolder(view) {
         private val mTitle: TextView = view.findViewById(R.id.adapter_about_text_title)
-        private val wrapLayout: WrappedLayout = view.findViewById(R.id.adapter_about_contents)
+        private val wrapView: WrappedView = view.findViewById(R.id.adapter_about_contents)
 
-        fun bind(item: Item) {
+        fun bind(item: Item, position: Int) {
             mTitle.text = item.title
             getValuesAndAppendIntoLayout(item.values)
+            //if odd, we change into right position
+            if (position % 2 == 0) {
+                if (itemView is LinearLayout)
+                    itemView.gravity = Gravity.END
+            } else {
+
+                if (itemView is LinearLayout)
+                    itemView.gravity = Gravity.START
+            }
         }
 
         fun getValuesAndAppendIntoLayout(anyVal: Any?) {
             if (anyVal == null) {
-                wrapLayout.addText("-")
+                wrapView.addText("-")
                 return
             }
             when (anyVal) {
                 is CharSequence? -> {
-                    wrapLayout.addText(anyVal)
+                    wrapView.addText(anyVal)
                 }
                 is String? -> {
-                    wrapLayout.addText(anyVal)
+                    wrapView.addText(anyVal)
                 }
                 is Int? -> {
-                    wrapLayout.addText(anyVal.toString())
+                    wrapView.addText(anyVal.toString())
                 }
                 is List<*> -> {
                     anyVal.forEach {
                         if (it is GenreModel)
-                            wrapLayout.addText(it.genreName)
+                            wrapView.addText(it.genreName)
                         else if (it is String)
-                            wrapLayout.addText(it)
+                            wrapView.addText(it)
                     }
                 }
                 is Boolean? -> {
-                    wrapLayout.addText(itemView.context.getString(if (anyVal) R.string.true_text else R.string.false_text))
+                    wrapView.addText(itemView.context.getString(if (anyVal) R.string.true_text else R.string.false_text))
                 }
             }
         }

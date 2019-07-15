@@ -39,5 +39,4 @@ object GetTVShows {
         "${PublicConfig.URL_API}/${PublicConfig.GENRE}/${PublicConfig.TV_DIR_PATH}/list?${PublicConfig.API_KEY_QNAME}=${PublicConfig.API_KEY}&language=$languageString"
 
 
-
 }

@@ -15,9 +15,11 @@ import com.androidnetworking.interfaces.BitmapRequestListener
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.model.onDetail.CrewModel
 import id.apwdevs.app.catalogue.plugin.api.GetImageFiles
+import kotlin.math.min
 
 class RecyclerCrewsAdapter(
-    private val crewModels: MutableList<CrewModel>
+    private val crewModels: List<CrewModel>,
+    internal val maxContentLimits: Int
 ) : RecyclerView.Adapter<RecyclerCrewsAdapter.RecyclerCrewsVH>() {
 
     init {
@@ -33,7 +35,13 @@ class RecyclerCrewsAdapter(
             LayoutInflater.from(parent.context).inflate(R.layout.adapter_item_list_crews, parent, false)
         )
 
-    override fun getItemCount(): Int = crewModels.size
+    override fun getItemCount(): Int = crewModels.size.let {
+        if (maxContentLimits == NO_LIMITS)
+            it
+        else {
+            min(it, maxContentLimits)
+        }
+    }
 
     override fun onBindViewHolder(holder: RecyclerCrewsVH, position: Int) {
         holder.bind(crewModels[position])
@@ -66,5 +74,9 @@ class RecyclerCrewsAdapter(
                     })
             }
         }
+    }
+
+    companion object {
+        const val NO_LIMITS = -1
     }
 }

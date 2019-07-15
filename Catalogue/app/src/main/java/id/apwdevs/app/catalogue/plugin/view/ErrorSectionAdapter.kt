@@ -7,9 +7,10 @@ import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.plugin.api.ApiRepository
 
 class ErrorSectionAdapter(private val itemError: View) {
-    private var imgError : ImageView
-    private var errorTitle : TextView
-    private var errorBody : TextView
+    private var imgError: ImageView
+    private var errorTitle: TextView
+    private var errorBody: TextView
+
     init {
         itemError.visibility = View.INVISIBLE
         imgError = itemError.findViewById(R.id.error_image)
@@ -18,10 +19,10 @@ class ErrorSectionAdapter(private val itemError: View) {
     }
 
     //@SuppressLint("SetTextI18n")
-    fun displayError(retError: ApiRepository.RetError){
+    fun displayError(retError: ApiRepository.RetError) {
         itemError.visibility = View.VISIBLE
         val ctx = itemError.context
-        when(retError.errorCode){
+        when (retError.errorCode) {
             ERR_CODE_NET_FAILED -> {
                 imgError.setImageResource(R.drawable.ic_signal_wifi_off_grey_24dp)
                 errorTitle.text = ctx.getString(R.string.on_network_failed)
@@ -37,7 +38,7 @@ class ErrorSectionAdapter(private val itemError: View) {
             ERR_CODE_PARSE_FAILED -> {
                 imgError.setImageResource(R.drawable.ic_parse_failed)
                 errorTitle.text = ctx.getString(R.string.on_parse_failed)
-                
+
                 //override from cause Exception
                 errorBody.text = retError.cause?.localizedMessage
                 errorBody.append("\nCaused by : ${retError.cause?.javaClass?.simpleName}")
@@ -49,7 +50,7 @@ class ErrorSectionAdapter(private val itemError: View) {
                 // if error is specified, then will override into caused exception
                 errorBody.text = ctx.getString(R.string.err_msg_unspecified_default)
                 errorBody.append("\nCaused by : ${retError.cause?.javaClass?.simpleName}")
-                retError.cause?.let { 
+                retError.cause?.let {
                     errorBody.text = it.message
                     errorBody.append("\nCaused by : ${it.javaClass.simpleName}")
                     return
@@ -58,7 +59,7 @@ class ErrorSectionAdapter(private val itemError: View) {
         }
     }
 
-    fun unDisplayError(){
+    fun unDisplayError() {
         itemError.visibility = View.INVISIBLE
     }
 

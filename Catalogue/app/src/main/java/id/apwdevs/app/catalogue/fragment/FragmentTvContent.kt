@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -24,6 +23,7 @@ import id.apwdevs.app.catalogue.adapter.ListAdapter
 import id.apwdevs.app.catalogue.model.onUserMain.PageListModel
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
 import id.apwdevs.app.catalogue.plugin.ItemClickSupport
+import id.apwdevs.app.catalogue.plugin.OnItemFragmentClickListener
 import id.apwdevs.app.catalogue.plugin.PublicConfig
 import id.apwdevs.app.catalogue.plugin.PublicConfig.RecyclerMode
 import id.apwdevs.app.catalogue.plugin.api.ApiRepository
@@ -36,19 +36,19 @@ import id.apwdevs.app.catalogue.viewModel.MainListTvViewModel
 class FragmentTvContent : Fragment(), MainUserListView, SearchToolbarCard.OnSearchCallback, OnSelectedFragment {
 
 
-    private lateinit var refreshPage : SwipeRefreshLayout
-    private lateinit var errorLayout : LinearLayout
-    private lateinit var recyclerContent : RecyclerView
+    private lateinit var refreshPage: SwipeRefreshLayout
+    private lateinit var errorLayout: LinearLayout
+    private lateinit var recyclerContent: RecyclerView
     private lateinit var mainView: View
 
-    private lateinit var viewModel : MainListTvViewModel
+    internal lateinit var viewModel: MainListTvViewModel
     private lateinit var errorAdapter: ErrorSectionAdapter
-    private lateinit var types : MainListTvViewModel.SupportedType
-    private lateinit var strTag : String
+    private lateinit var types: MainListTvViewModel.SupportedType
+    private lateinit var strTag: String
     private lateinit var recyclerListAdapter: ListAdapter<TvAboutModel>
     private lateinit var recyclerGridAdapter: GridAdapter<TvAboutModel>
 
-
+    var onItemClickListener: OnItemFragmentClickListener? = null
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
         inflater.inflate(R.layout.fg_holder_content, container, false)
 
@@ -69,7 +69,7 @@ class FragmentTvContent : Fragment(), MainUserListView, SearchToolbarCard.OnSear
         // we have to obtain a value of ViewModel
         viewModel = ViewModelProviders.of(this).get(MainListTvViewModel::class.java)
         viewModel.dataListObj.observe(this, Observer {
-            if(viewModel.hasFirstInstantiate.value == false)
+            if (viewModel.hasFirstInstantiate.value == false)
                 viewModel.hasFirstInstantiate.postValue(true)
             setupRecycler(it)
         })
@@ -85,7 +85,7 @@ class FragmentTvContent : Fragment(), MainUserListView, SearchToolbarCard.OnSear
         }
 
 
-        ItemClickSupport.addTo(recyclerContent).onItemClickListener = object : ItemClickSupport.OnItemClickListener {
+        ItemClickSupport.addTo(recyclerContent)?.onItemClickListener = object : ItemClickSupport.OnItemClickListener {
             override fun onItemClicked(recyclerView: RecyclerView, position: Int, v: View) {
                 onRecyclerItemClicked(recyclerView, position, v)
             }
@@ -93,7 +93,7 @@ class FragmentTvContent : Fragment(), MainUserListView, SearchToolbarCard.OnSear
         }
 
         // change condition into swipeRefreshLayout to refresh the page if hasFirstInstantiate is false
-        if(viewModel.hasFirstInstantiate.value == false) {
+        if (viewModel.hasFirstInstantiate.value == false) {
             viewModel.setup(ApiRepository(), types, 1, strTag, this)
             refreshPage.isRefreshing = true
         }
@@ -120,7 +120,10 @@ class FragmentTvContent : Fragment(), MainUserListView, SearchToolbarCard.OnSear
                         recyclerGridAdapter.resetAllData(it.contents)
                     }
                     RecyclerMode.MODE_STAGERRED_LIST -> {
-                        layoutManager = StaggeredGridLayoutManager(calculateMaxColumn(context, wSize), ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+                        layoutManager = StaggeredGridLayoutManager(
+                            calculateMaxColumn(context, wSize),
+                            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                        )
                         adapter = recyclerGridAdapter
                         recyclerGridAdapter.resetAllData(it.contents)
                     }
@@ -131,7 +134,7 @@ class FragmentTvContent : Fragment(), MainUserListView, SearchToolbarCard.OnSear
     }
 
     private fun onRecyclerItemClicked(recyclerView: RecyclerView, position: Int, v: View) {
-        Toast.makeText(requireContext(), "Clicked RecyclerView at position $position", Toast.LENGTH_SHORT).show()
+        onItemClickListener?.onItemClicked(this, recyclerView, position, v)
     }
 
     //////////////// OVERRIDDEN FROM MainListUserView interfaces \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -142,7 +145,7 @@ class FragmentTvContent : Fragment(), MainUserListView, SearchToolbarCard.OnSear
     override fun onLoadSuccess(viewModel: ViewModel) {
         errorAdapter.unDisplayError()
         recyclerContent.apply {
-            if(visibility == View.INVISIBLE)
+            if (visibility == View.INVISIBLE)
                 visibility = View.VISIBLE
         }
 
@@ -152,10 +155,11 @@ class FragmentTvContent : Fragment(), MainUserListView, SearchToolbarCard.OnSear
         recyclerContent.visibility = View.INVISIBLE
         errorAdapter.displayError(err)
     }
+
     ////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////// OVERRIDDEN FROM OnListModeChanged \\\\\\\\\\\\\\\\\\\\\\\\\\\\
     override fun querySearch(view: View, query: CharSequence?, start: Int, before: Int, count: Int) {
-        when(viewModel.currentListMode.value){
+        when (viewModel.currentListMode.value) {
             PublicConfig.RecyclerMode.MODE_LIST -> {
                 recyclerListAdapter.filter.filter(query)
             }
@@ -171,7 +175,7 @@ class FragmentTvContent : Fragment(), MainUserListView, SearchToolbarCard.OnSear
 
     override fun onSearchCancelled() {
         viewModel.dataListObj.value?.let {
-            when(viewModel.currentListMode.value){
+            when (viewModel.currentListMode.value) {
                 PublicConfig.RecyclerMode.MODE_LIST -> {
                     recyclerListAdapter.resetAllData(it.contents)
                 }
@@ -210,7 +214,7 @@ class FragmentTvContent : Fragment(), MainUserListView, SearchToolbarCard.OnSear
         const val EXTRA_TV_REQUESTED_TYPE = "TV_REQ_TYPE"
 
         @JvmStatic
-        fun newInstance(typeOfMovie: MainListTvViewModel.SupportedType) : FragmentTvContent =
+        fun newInstance(typeOfMovie: MainListTvViewModel.SupportedType): FragmentTvContent =
             FragmentTvContent().apply {
                 arguments = Bundle().apply {
                     putParcelable(EXTRA_TV_REQUESTED_TYPE, typeOfMovie)

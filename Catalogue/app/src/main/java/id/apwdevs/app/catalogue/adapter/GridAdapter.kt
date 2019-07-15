@@ -27,8 +27,9 @@ import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
 import id.apwdevs.app.catalogue.plugin.SearchComponent
 import id.apwdevs.app.catalogue.plugin.api.GetImageFiles
 
-class GridAdapter<T : ResettableItem>(private val mContext: Context) : RecyclerView.Adapter<GridAdapter<T>.GridViewHolder<T>>(), Filterable {
-    private var shortListModels: MutableList<T> = mutableListOf()
+class GridAdapter<T : ResettableItem>(private val mContext: Context) :
+    RecyclerView.Adapter<GridAdapter<T>.GridViewHolder<T>>(), Filterable {
+    internal var shortListModels: MutableList<T> = mutableListOf()
     private val requestedWidth: Int = mContext.resources.getDimension(R.dimen.item_poster_width).toInt()
     private val requestedHeight: Int = mContext.resources.getDimension(R.dimen.item_poster_height).toInt()
     private val searchMethod = OnSearchMethod()
@@ -58,7 +59,7 @@ class GridAdapter<T : ResettableItem>(private val mContext: Context) : RecyclerV
     }
 
     fun resetAllData(shortListModels: MutableList<T>?) {
-        if(shortListModels.isNullOrEmpty())return
+        if (shortListModels.isNullOrEmpty()) return
         this.shortListModels.clear()
         for (model in shortListModels) {
             model.onReset()
@@ -92,7 +93,7 @@ class GridAdapter<T : ResettableItem>(private val mContext: Context) : RecyclerV
         override fun objectToBeSearch(): MutableList<T>? = shortListModels
 
         override fun compareObject(constraint: String, obj: T): Boolean {
-            when(obj){
+            when (obj) {
                 is MovieAboutModel -> {
                     val str1 = obj.title
                     val str2 = obj.releaseDate
@@ -171,9 +172,10 @@ class GridAdapter<T : ResettableItem>(private val mContext: Context) : RecyclerV
 
     }
 
-    inner class GridViewHolder<T : ResettableItem> internal constructor(private val view: View) : RecyclerView.ViewHolder(view) {
+    inner class GridViewHolder<T : ResettableItem> internal constructor(private val view: View) :
+        RecyclerView.ViewHolder(view) {
 
-        private val moviePoster: ImageView = view.findViewById(R.id.item_list_image)
+        private val moviePoster: ImageView = view.findViewById(R.id.item_poster_image)
         private val title: TextView = view.findViewById(R.id.item_list_text_title)
         private val releaseDate: TextView = view.findViewById(R.id.item_list_release_date)
         private val ratingBar: RatingBar = view.findViewById(R.id.item_list_ratingBar)
@@ -181,7 +183,7 @@ class GridAdapter<T : ResettableItem>(private val mContext: Context) : RecyclerV
 
         @SuppressLint("SetTextI18n")
         internal fun bind(dataModel: T) {
-            when(dataModel){
+            when (dataModel) {
                 is MovieAboutModel -> {
                     title.text = dataModel.title
                     releaseDate.text = dataModel.releaseDate
@@ -189,9 +191,9 @@ class GridAdapter<T : ResettableItem>(private val mContext: Context) : RecyclerV
                     voteCount.text = "(${dataModel.voteCount})"
                     dataModel.posterPath?.let {
                         Glide.with(view.context)
-                        .load(GetImageFiles.getImg(requestedWidth, it))
-                        .apply(RequestOptions().override(requestedWidth, requestedHeight))
-                        .into(moviePoster)
+                            .load(GetImageFiles.getImg(requestedWidth, it))
+                            .apply(RequestOptions().override(requestedWidth, requestedHeight))
+                            .into(moviePoster)
                     }
 
                 }
@@ -222,7 +224,9 @@ class GridAdapter<T : ResettableItem>(private val mContext: Context) : RecyclerV
             }
 
         }
-        private fun getRating(originalRating: Double, stars: Int = 5, maxRating : Int = 10): Float = (originalRating * stars / maxRating).toFloat()
+
+        private fun getRating(originalRating: Double, stars: Int = 5, maxRating: Int = 10): Float =
+            (originalRating * stars / maxRating).toFloat()
 
     }
 }

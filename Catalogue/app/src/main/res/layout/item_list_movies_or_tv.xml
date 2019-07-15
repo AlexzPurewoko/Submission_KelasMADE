@@ -15,7 +15,7 @@
 
         <ImageView
                 android:contentDescription="@string/img_poster_contentdesc"
-                android:id="@+id/item_list_image"
+                android:id="@+id/item_poster_image"
                 style="@style/ImagePosterStyle"
                 tools:srcCompat="@tools:sample/avatars" android:layout_marginTop="8dp"
                 app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
@@ -24,23 +24,23 @@
         <TextView
                 android:id="@+id/item_list_text_title"
                 style="@style/ItemListTextViewTitle"
-                android:layout_toEndOf="@id/item_list_image"
+                android:layout_toEndOf="@id/item_poster_image"
                 tools:text="Aquaman"
                 android:layout_height="wrap_content" android:layout_width="0dp"
-                app:layout_constraintStart_toEndOf="@+id/item_list_image" android:layout_marginStart="8dp"
+                app:layout_constraintStart_toEndOf="@+id/item_poster_image" android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp" app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/item_list_image" android:maxLines="2" android:ellipsize="end"/>
+                app:layout_constraintTop_toTopOf="@+id/item_poster_image" android:maxLines="2" android:ellipsize="end"/>
 
         <TextView
                 android:id="@+id/item_list_overview"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_toEndOf="@id/item_list_image"
+                android:layout_toEndOf="@id/item_poster_image"
                 android:ellipsize="end"
                 tools:text="Lorem ipsum dolor sit amet"
                 app:layout_constraintStart_toStartOf="@+id/item_list_genres"
                 app:layout_constraintEnd_toEndOf="@+id/item_list_genres"
-                app:layout_constraintBottom_toBottomOf="@+id/item_list_image" android:layout_marginTop="12dp"
+                app:layout_constraintBottom_toBottomOf="@+id/item_poster_image" android:layout_marginTop="12dp"
                 app:layout_constraintTop_toBottomOf="@+id/item_list_genres" android:gravity="bottom|top"
                 android:maxLines="3"/>
         <RatingBar
@@ -48,7 +48,7 @@
                 android:layout_height="wrap_content" android:id="@+id/item_list_ratingBar"
                 android:layout_marginTop="8dp"
                 app:layout_constraintTop_toBottomOf="@+id/item_list_text_title"
-                app:layout_constraintStart_toEndOf="@+id/item_list_image"
+                app:layout_constraintStart_toEndOf="@+id/item_poster_image"
                 android:layout_marginStart="8dp"
                 android:rating="4.3"
                 android:isIndicator="true"
@@ -62,13 +62,13 @@
                 app:layout_constraintBottom_toBottomOf="@+id/item_list_ratingBar"
                 app:layout_constraintStart_toEndOf="@+id/item_list_ratingBar" android:layout_marginStart="8dp"
         />
-        <id.apwdevs.app.catalogue.plugin.view.WrappedLayout
+        <id.apwdevs.app.catalogue.plugin.view.WrappedView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintStart_toStartOf="@+id/item_list_ratingBar" android:layout_marginTop="8dp"
                 app:layout_constraintTop_toBottomOf="@+id/item_list_ratingBar"
                 app:layout_constraintEnd_toEndOf="@+id/item_list_text_title" android:id="@+id/item_list_genres">
 
-        </id.apwdevs.app.catalogue.plugin.view.WrappedLayout>
+        </id.apwdevs.app.catalogue.plugin.view.WrappedView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

@@ -4,14 +4,14 @@
               android:orientation="vertical"
               tools:background="@color/colorPrimary"
               android:layout_width="wrap_content"
-              android:layout_height="wrap_content">
+              android:layout_height="wrap_content" tools:ignore="UseCompoundDrawables">
 
     <ImageView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" app:srcCompat="@drawable/ic_tv_black_24dp"
-            android:id="@+id/tab_icon"/>
+            android:layout_height="wrap_content" app:srcCompat="@drawable/ic_tv_24dp"
+            android:id="@+id/tab_icon" tools:ignore="ContentDescription"/>
     <TextView
-            android:text="TextView"
+            tools:text="TextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" android:id="@+id/tab_title" android:gravity="center_horizontal"
             android:textColor="#FFFFFFFF" android:textSize="12sp"/>

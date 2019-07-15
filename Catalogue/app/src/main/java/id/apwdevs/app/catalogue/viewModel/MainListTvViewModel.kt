@@ -22,8 +22,8 @@ import org.json.JSONObject
 
 class MainListTvViewModel : ViewModel() {
 
-    val hasFirstInstantiate : MutableLiveData<Boolean> = MutableLiveData()
-    val currentListMode : MutableLiveData<Int> = MutableLiveData()
+    val hasFirstInstantiate: MutableLiveData<Boolean> = MutableLiveData()
+    val currentListMode: MutableLiveData<Int> = MutableLiveData()
     val dataListObj: MutableLiveData<PageListModel<TvAboutModel>> = MutableLiveData()
     private val dataGenres: MutableLiveData<MutableList<GenreModel>> = MutableLiveData()
 
@@ -31,6 +31,7 @@ class MainListTvViewModel : ViewModel() {
         hasFirstInstantiate.value = false
         currentListMode.value = PublicConfig.RecyclerMode.MODE_LIST
     }
+
     fun setup(
         apiRepository: ApiRepository,
         types: SupportedType,
@@ -98,7 +99,10 @@ class MainListTvViewModel : ViewModel() {
         tag: String
     ): ApiRepository.RetError? {
         if (pages < 0 || pages > 1000) {
-            return ApiRepository.RetError(ErrorSectionAdapter.ERR_CODE_PARSE_FAILED, IllegalArgumentException("pages must between 0 and maxPages or 1000 : page $pages"))
+            return ApiRepository.RetError(
+                ErrorSectionAdapter.ERR_CODE_PARSE_FAILED,
+                IllegalArgumentException("pages must between 0 and maxPages or 1000 : page $pages")
+            )
         }
         /*dataListObj.value.totalPages.apply {
             if (pages > it)
@@ -180,14 +184,14 @@ class MainListTvViewModel : ViewModel() {
                 }
             } else {
                 return it.anErrorIfAny
-                }
-
             }
+
+        }
         return ApiRepository.RetError(ErrorSectionAdapter.ERR_CODE_UNSPECIFIED, null)
     }
 
     @Parcelize
-    enum class SupportedType : Parcelable{
+    enum class SupportedType : Parcelable {
         DISCOVER,
         TV_AIRING_TODAY,
         TV_OTA,

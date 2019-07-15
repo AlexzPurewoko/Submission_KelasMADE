@@ -5,12 +5,15 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
-import kotlin.math.max
+import androidx.annotation.DrawableRes
 import id.apwdevs.app.catalogue.R
+import kotlin.math.max
 
-class WrappedLayout : ViewGroup {
+class WrappedView : ViewGroup {
     private var lineHeight = 0
+
     constructor(context: Context) : super(context)
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
@@ -26,19 +29,19 @@ class WrappedLayout : ViewGroup {
         var ypos = paddingRight
 
         val childHeightMeasureSpec =
-            if(MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.AT_MOST)
+            if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.AT_MOST)
                 MeasureSpec.makeMeasureSpec(h, MeasureSpec.AT_MOST)
-        else
+            else
                 MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
 
-        for(i in 0 until count){
+        for (i in 0 until count) {
             getChildAt(i).apply {
-                if(visibility != GONE){
+                if (visibility != GONE) {
                     measure(MeasureSpec.makeMeasureSpec(w, MeasureSpec.AT_MOST), childHeightMeasureSpec)
                     val lp = layoutParams as LayoutParams
                     lineHeight = max(lineHeight, measuredHeight + lp.verticalSpacing)
 
-                    if(xpos + measuredWidth > w){
+                    if (xpos + measuredWidth > w) {
                         xpos = paddingLeft
                         ypos += lineHeight
                     }
@@ -48,12 +51,13 @@ class WrappedLayout : ViewGroup {
         }
 
         this.lineHeight = lineHeight
-        when(MeasureSpec.getMode(heightMeasureSpec)){
+        when (MeasureSpec.getMode(heightMeasureSpec)) {
             MeasureSpec.UNSPECIFIED -> h = ypos + lineHeight
-            MeasureSpec.AT_MOST -> if(ypos + lineHeight < h){
+            MeasureSpec.AT_MOST -> if (ypos + lineHeight < h) {
                 h = ypos + lineHeight
             }
-            else -> {}
+            else -> {
+            }
         }
         setMeasuredDimension(w, h)
     }
@@ -66,8 +70,17 @@ class WrappedLayout : ViewGroup {
         return LayoutParams(2, 2)
     }
 
-    fun addText(str: CharSequence?){
-        if(str.isNullOrEmpty())return
+    fun addImageIcon(@DrawableRes resId: Int, otherSettings: (view: ImageView) -> Unit) {
+        addView(
+            (LayoutInflater.from(context).inflate(R.layout.item_icon_socmed, this, false) as ImageView).apply {
+                setImageResource(resId)
+                otherSettings(this)
+            }
+        )
+    }
+
+    fun addText(str: CharSequence?) {
+        if (str.isNullOrEmpty()) return
 
         addView(
             (LayoutInflater.from(context)
@@ -77,21 +90,20 @@ class WrappedLayout : ViewGroup {
         )
     }
 
-    override fun checkLayoutParams(p: ViewGroup.LayoutParams?): Boolean {
-        return p is LayoutParams
-    }
+
+    override fun checkLayoutParams(p: ViewGroup.LayoutParams?): Boolean = p is LayoutParams
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         val count = childCount
-        val w = r-l
+        val w = r - l
         var xpos = paddingLeft
         var ypos = paddingTop
-        for (i in 0 until count){
+        for (i in 0 until count) {
             getChildAt(i).apply {
-                if(visibility != View.GONE){
+                if (visibility != View.GONE) {
                     val childW = measuredWidth
                     val childH = measuredHeight
                     val lp = layoutParams as LayoutParams
-                    if(xpos + childW > w){
+                    if (xpos + childW > w) {
                         xpos = paddingLeft
                         ypos += lineHeight
                     }
@@ -103,6 +115,7 @@ class WrappedLayout : ViewGroup {
     }
 
     companion object {
-        class LayoutParams(internal val horizontalSpacing : Int, internal val verticalSpacing: Int): ViewGroup.LayoutParams(0, 0)
+        class LayoutParams(internal val horizontalSpacing: Int, internal val verticalSpacing: Int) :
+            ViewGroup.LayoutParams(0, 0)
     }
 }

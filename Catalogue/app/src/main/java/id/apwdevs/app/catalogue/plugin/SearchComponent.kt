@@ -4,7 +4,7 @@ import android.widget.Filter
 import android.widget.Filterable
 import id.apwdevs.app.catalogue.model.ResettableItem
 
-abstract class SearchComponent<T : ResettableItem>: Filterable {
+abstract class SearchComponent<T : ResettableItem> : Filterable {
 
     /**
      * Call this method if you have to filter your data model
@@ -16,7 +16,7 @@ abstract class SearchComponent<T : ResettableItem>: Filterable {
     override fun getFilter(): Filter = object : Filter() {
         override fun performFiltering(constraint: CharSequence?): FilterResults {
             val objSearch = objectToBeSearch()
-            if(objSearch.isNullOrEmpty())return FilterResults()
+            if (objSearch.isNullOrEmpty()) return FilterResults()
             val charString = constraint.toString()
             val newLists: MutableList<T> = if (charString.isEmpty()) objSearch else {
                 val filteredList = mutableListOf<T>()
@@ -125,7 +125,7 @@ abstract class SearchComponent<T : ResettableItem>: Filterable {
      * @author Alexzander Purwoko Widiantoro
      * @since 1.0
      */
-    protected abstract fun objectToBeSearch() : MutableList<T>?
+    protected abstract fun objectToBeSearch(): MutableList<T>?
 
     /**
      * This method will be called when looping,
@@ -143,10 +143,10 @@ abstract class SearchComponent<T : ResettableItem>: Filterable {
      * @author Alexzander Purwoko Widiantoro
      * @since 1.0
      */
-    protected abstract fun compareObject(constraint: String, obj: T) : Boolean
+    protected abstract fun compareObject(constraint: String, obj: T): Boolean
 
     data class ItemPosition(
-        var startPosition : Int,
+        var startPosition: Int,
         var endPosition: Int
     )
 }

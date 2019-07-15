@@ -7,14 +7,16 @@ import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
-import androidx.viewpager.widget.ViewPager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.plugin.CoroutineContextProvider
+import id.apwdevs.app.catalogue.plugin.OnItemFragmentClickListener
 import id.apwdevs.app.catalogue.plugin.view.SearchToolbarCard
 import id.apwdevs.app.catalogue.viewModel.MainListMovieViewModel
 import id.apwdevs.app.catalogue.viewModel.MainListTvViewModel
@@ -23,15 +25,20 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback {
+class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback, OnItemFragmentClickListener {
 
     private lateinit var bottomNavigationView: BottomNavigationView
-    private lateinit var vpager: ViewPager
+    //private lateinit var vpager: ViewPager
+    private lateinit var frame: FrameLayout
 
     private lateinit var mFragments: MutableList<Fragment>
     private lateinit var type: Type
+    private var selectedPosition = 1
 
-    private val FRAGMENT_TAG: String?
+
+    var onItemClickListener: OnItemFragmentClickListener? = null
+
+    private val fragmentTag: String
         get() {
             when (type) {
                 Type.MOVIES -> {
@@ -56,7 +63,7 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        vpager = view.findViewById(R.id.fg_content_pager)
+        frame = view.findViewById(R.id.fg_content_frame)
         bottomNavigationView = view.findViewById(R.id.fg_content_bottomnav)
     }
 
@@ -90,19 +97,30 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback {
             while (true) {
                 try {
                     val fg =
-                        childFragmentManager.getFragment(savedInstanceState, "Content$FRAGMENT_TAG${idx++}") ?: break
+                        childFragmentManager.getFragment(savedInstanceState, "Content$fragmentTag${idx++}") ?: break
                     mFragments.add(fg)
                 } catch (e: Exception) {
                     break
                 }
             }
         }
+        for (mFragment in mFragments) {
+            if (mFragment is FragmentTvContent)
+                mFragment.onItemClickListener = this
+            else if (mFragment is FragmentMovieContent)
+                mFragment.onItemClickListener = this
+        }
+    }
+
+
+    override fun onItemClicked(fg: Fragment, recyclerView: RecyclerView, position: Int, v: View) {
+        onItemClickListener?.onItemClicked(fg, recyclerView, position, v)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         for ((idx, fg) in mFragments.withIndex()) {
-            childFragmentManager.putFragment(outState, "Content$FRAGMENT_TAG$idx", fg)
+            childFragmentManager.putFragment(outState, "Content$fragmentTag$idx", fg)
         }
     }
 
@@ -113,37 +131,30 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback {
         val currItem =
             if (menuSize % 2 == 0) 0
             else (menuSize / 2)
-        vpager.offscreenPageLimit = menuSize
-        vpager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
-            override fun onPageScrollStateChanged(state: Int) {
-            }
 
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-            }
-
-            override fun onPageSelected(position: Int) {
-                bottomNavigationView.selectedItemId = bottomNavigationView.menu.getItem(position).itemId
-                fragmentListCb?.onFragmentChange(mFragments[position], type)
-                startPrepareFragment(position)
-
-            }
-
-        })
         bottomNavigationView.setOnNavigationItemSelectedListener { itemSelectedMenu ->
             val menus = bottomNavigationView.menu
             for (menuPos in 0 until menus.size()) {
                 if (menus[menuPos].itemId == itemSelectedMenu.itemId) {
-                    vpager.setCurrentItem(menuPos, true)
+                    setCurrentFragment(menuPos)
                     fragmentListCb?.onFragmentChange(mFragments[menuPos], type)
+                    selectedPosition = menuPos
                     startPrepareFragment(menuPos)
                     break
                 }
             }
             true
         }
-        vpager.adapter = ContentPageAdapter(childFragmentManager, mFragments)
-        vpager.setCurrentItem(currItem, true)
-        bottomNavigationView.selectedItemId = bottomNavigationView.menu.getItem(currItem).itemId
+        //vpager.adapter = ContentPageAdapter(childFragmentManager, mFragments)
+        //bottomNavigationView.selectedItemId = bottomNavigationView.menu.getItem(currItem).itemId
+    }
+
+    private fun setCurrentFragment(position: Int) {
+        fragmentManager?.beginTransaction()?.apply {
+            replace(R.id.fg_content_frame, mFragments[position])
+            addToBackStack("$fragmentTag$position")
+            commit()
+        }
     }
 
     private fun startPrepareFragment(position: Int) {
@@ -160,7 +171,7 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback {
 
 
     override fun querySearch(view: View, query: CharSequence?, start: Int, before: Int, count: Int) {
-        val fg = mFragments[vpager.currentItem]
+        val fg = mFragments[selectedPosition]
         if (fg is SearchToolbarCard.OnSearchCallback) {
             fg.querySearch(view, query, start, before, count)
         }
@@ -171,7 +182,7 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback {
     }
 
     override fun onSearchCancelled() {
-        val fg = mFragments[vpager.currentItem]
+        val fg = mFragments[selectedPosition]
         if (fg is SearchToolbarCard.OnSearchCallback) {
             fg.onSearchCancelled()
         }

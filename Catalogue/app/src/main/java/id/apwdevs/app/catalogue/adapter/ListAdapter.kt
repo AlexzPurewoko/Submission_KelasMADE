@@ -25,10 +25,11 @@ import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
 import id.apwdevs.app.catalogue.plugin.SearchComponent
 import id.apwdevs.app.catalogue.plugin.api.GetImageFiles
-import id.apwdevs.app.catalogue.plugin.view.WrappedLayout
+import id.apwdevs.app.catalogue.plugin.view.WrappedView
 import java.util.*
 
-class ListAdapter<T : ResettableItem>(private val mContext: Context) : RecyclerView.Adapter<ListAdapter<T>.ListViewHolder<T>>(), Filterable {
+class ListAdapter<T : ResettableItem>(private val mContext: Context) :
+    RecyclerView.Adapter<ListAdapter<T>.ListViewHolder<T>>(), Filterable {
     var dataModel: ArrayList<T> = arrayListOf()
     private val requestedWidth: Int = mContext.resources.getDimension(R.dimen.item_poster_width).toInt()
     private val requestedHeight: Int = mContext.resources.getDimension(R.dimen.item_poster_height).toInt()
@@ -90,7 +91,7 @@ class ListAdapter<T : ResettableItem>(private val mContext: Context) : RecyclerV
 
     private inner class OnSearchMethod : SearchComponent<T>() {
         override fun onSearchFinished(aList: MutableList<T>?) {
-            aList?.let{
+            aList?.let {
                 dataModel.clear()
                 dataModel.addAll(it)
                 notifyDataSetChanged()
@@ -100,7 +101,7 @@ class ListAdapter<T : ResettableItem>(private val mContext: Context) : RecyclerV
         override fun objectToBeSearch(): MutableList<T>? = dataModel
 
         override fun compareObject(constraint: String, obj: T): Boolean {
-            when(obj){
+            when (obj) {
                 is MovieAboutModel -> {
                     val str1 = obj.title
                     val str2 = obj.releaseDate
@@ -179,18 +180,19 @@ class ListAdapter<T : ResettableItem>(private val mContext: Context) : RecyclerV
 
     }
 
-    inner class ListViewHolder<T : ResettableItem> internal constructor(private val view: View) : RecyclerView.ViewHolder(view) {
+    inner class ListViewHolder<T : ResettableItem> internal constructor(private val view: View) :
+        RecyclerView.ViewHolder(view) {
 
-        private val moviePoster: ImageView = view.findViewById(R.id.item_list_image)
+        private val moviePoster: ImageView = view.findViewById(R.id.item_poster_image)
         private val title: TextView = view.findViewById(R.id.item_list_text_title)
         private val overview: TextView = view.findViewById(R.id.item_list_overview)
         private val rating: RatingBar = view.findViewById(R.id.item_list_ratingBar)
         private val voteCount: TextView = view.findViewById(R.id.item_list_votecount)
-        private val itemGenres: WrappedLayout = view.findViewById(R.id.item_list_genres)
+        private val itemGenres: WrappedView = view.findViewById(R.id.item_list_genres)
 
         @SuppressLint("SetTextI18n")
         internal fun bind(dataModel: T) {
-            when(dataModel){
+            when (dataModel) {
                 is MovieAboutModel -> {
                     title.text = dataModel.title
                     overview.text = dataModel.overview
@@ -215,7 +217,7 @@ class ListAdapter<T : ResettableItem>(private val mContext: Context) : RecyclerV
                             })
                     }
 
-                    if(itemGenres.childCount == 0) {
+                    if (itemGenres.childCount == 0) {
                         dataModel.genres?.forEach {
                             itemGenres.addText(it.genreName)
                         }
@@ -232,7 +234,7 @@ class ListAdapter<T : ResettableItem>(private val mContext: Context) : RecyclerV
                             .apply(RequestOptions().override(requestedWidth, requestedHeight))
                             .into(moviePoster)
                     }
-                    if(itemGenres.childCount == 0) {
+                    if (itemGenres.childCount == 0) {
                         dataModel.genres?.forEach {
                             itemGenres.addText(it.genreName)
                         }
@@ -243,6 +245,7 @@ class ListAdapter<T : ResettableItem>(private val mContext: Context) : RecyclerV
 
         }
 
-        private fun getRating(originalRating: Double, stars: Int = 5, maxRating : Int = 10): Float = (originalRating * stars / maxRating).toFloat()
+        private fun getRating(originalRating: Double, stars: Int = 5, maxRating: Int = 10): Float =
+            (originalRating * stars / maxRating).toFloat()
     }
 }

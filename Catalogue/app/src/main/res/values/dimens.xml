@@ -5,8 +5,6 @@
     <dimen name="cardview_grid_content_padding">10dp</dimen>
     <dimen name="viewpager_user_marginstart">8dp</dimen>
     <dimen name="viewpager_user_marginend">8dp</dimen>
-    <dimen name="viewpager_user_margintop">8dp</dimen>
-    <dimen name="app_bar_height">180dp</dimen>
-    <dimen name="fab_margin">16dp</dimen>
-    <dimen name="text_margin">16dp</dimen>
+    <dimen name="actdetail_header_height">250dp</dimen>
+    <dimen name="socmed_icon_wh">15dp</dimen>
 </resources>

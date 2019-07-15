@@ -17,41 +17,46 @@ class CustomEditText : AppCompatEditText {
     constructor(context: Context) : super(context) {
         init()
     }
-    constructor(context: Context, attrs: AttributeSet) :super(context, attrs) {
+
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
         init()
     }
-    constructor(context: Context, attrs: AttributeSet, defStyleAttrs: Int): super(context, attrs, defStyleAttrs) {
+
+    constructor(context: Context, attrs: AttributeSet, defStyleAttrs: Int) : super(context, attrs, defStyleAttrs) {
         init()
     }
+
     var mClearButtonImage: Drawable? = null
-    var onBtnClearClicked : OnClrBtnClicked? = null
-    private fun init(){
+    var onBtnClearClicked: OnClrBtnClicked? = null
+    private fun init() {
         mClearButtonImage = ResourcesCompat.getDrawable(resources, R.drawable.ic_close_black_24dp, null)
         setOnTouchListener(object : OnTouchListener {
             @SuppressLint("ClickableViewAccessibility")
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-                if(event == null) return false
+                if (event == null) return false
                 compoundDrawablesRelative[2]?.apply {
-                    val clearBtnStart : Int
-                    val clearBtnEnd : Int
+                    val clearBtnStart: Int
+                    val clearBtnEnd: Int
                     var isClrBtnClicked = false
-                    if(Build.VERSION.SDK_INT >= 23 && layoutDirection == View.LAYOUT_DIRECTION_RTL) {
+                    if (Build.VERSION.SDK_INT >= 23 && layoutDirection == View.LAYOUT_DIRECTION_RTL) {
                         clearBtnEnd = (mClearButtonImage?.intrinsicWidth ?: 0) + paddingStart
                         if (event.x < clearBtnEnd)
                             isClrBtnClicked = true
                     } else {
                         clearBtnStart = width - paddingEnd - (mClearButtonImage?.intrinsicWidth ?: 0)
-                        if(event.x > clearBtnStart)
+                        if (event.x > clearBtnStart)
                             isClrBtnClicked = true
                     }
 
-                    if(isClrBtnClicked){
-                        if(event.action == MotionEvent.ACTION_DOWN){
-                            mClearButtonImage = ResourcesCompat.getDrawable(resources, R.drawable.ic_close_black_24dp, null)
+                    if (isClrBtnClicked) {
+                        if (event.action == MotionEvent.ACTION_DOWN) {
+                            mClearButtonImage =
+                                ResourcesCompat.getDrawable(resources, R.drawable.ic_close_black_24dp, null)
                             showClrBtn()
                             return true
-                        } else if(event.action == MotionEvent.ACTION_UP){
-                            mClearButtonImage = ResourcesCompat.getDrawable(resources, R.drawable.ic_close_black_24dp, null)
+                        } else if (event.action == MotionEvent.ACTION_UP) {
+                            mClearButtonImage =
+                                ResourcesCompat.getDrawable(resources, R.drawable.ic_close_black_24dp, null)
                             onBtnClearClicked?.onClear(text?.toString())
                             text?.clear()
                             hideClrBtn()
@@ -77,7 +82,7 @@ class CustomEditText : AppCompatEditText {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if(!s.toString().isEmpty())
+                if (!s.toString().isEmpty())
                     showClrBtn()
             }
 
@@ -87,6 +92,7 @@ class CustomEditText : AppCompatEditText {
     private fun showClrBtn() {
         setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, mClearButtonImage, null)
     }
+
     fun hideClrBtn() {
         setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, null, null)
     }

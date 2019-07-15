@@ -2,9 +2,10 @@ package id.apwdevs.app.catalogue.view
 
 
 import androidx.lifecycle.ViewModel
+import id.apwdevs.app.catalogue.plugin.api.ApiRepository
 
 interface MainDetailView {
     fun onLoad()
-    fun onLoadFailed(errorCode: Int, message: String?, cause: Throwable?)
+    fun onLoadFailed(err: ApiRepository.RetError)
     fun onLoadFinished(viewModel: ViewModel)
 }

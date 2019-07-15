@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -24,6 +23,7 @@ import id.apwdevs.app.catalogue.adapter.ListAdapter
 import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.model.onUserMain.PageListModel
 import id.apwdevs.app.catalogue.plugin.ItemClickSupport
+import id.apwdevs.app.catalogue.plugin.OnItemFragmentClickListener
 import id.apwdevs.app.catalogue.plugin.PublicConfig
 import id.apwdevs.app.catalogue.plugin.api.ApiRepository
 import id.apwdevs.app.catalogue.plugin.calculateMaxColumn
@@ -35,17 +35,19 @@ import id.apwdevs.app.catalogue.viewModel.MainListMovieViewModel
 class FragmentMovieContent : Fragment(), MainUserListView, SearchToolbarCard.OnSearchCallback, OnSelectedFragment {
 
 
-    private lateinit var refreshPage : SwipeRefreshLayout
-    private lateinit var errorLayout : LinearLayout
-    private lateinit var recyclerContent : RecyclerView
+    private lateinit var refreshPage: SwipeRefreshLayout
+    private lateinit var errorLayout: LinearLayout
+    private lateinit var recyclerContent: RecyclerView
     private lateinit var mainView: View
 
-    private var viewModel: MainListMovieViewModel? = null
+    internal var viewModel: MainListMovieViewModel? = null
     private lateinit var errorAdapter: ErrorSectionAdapter
-    private lateinit var types : MainListMovieViewModel.SupportedType
-    private lateinit var strTag : String
+    private lateinit var types: MainListMovieViewModel.SupportedType
+    private lateinit var strTag: String
     private lateinit var recyclerListAdapter: ListAdapter<MovieAboutModel>
     private lateinit var recyclerGridAdapter: GridAdapter<MovieAboutModel>
+
+    var onItemClickListener: OnItemFragmentClickListener? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,6 +61,7 @@ class FragmentMovieContent : Fragment(), MainUserListView, SearchToolbarCard.OnS
             recyclerListAdapter.restoreOldData(savedInstanceState.getParcelableArrayList("ListDataMovie${types.name}"))
         }
     }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
         inflater.inflate(R.layout.fg_holder_content, container, false)
 
@@ -125,13 +128,16 @@ class FragmentMovieContent : Fragment(), MainUserListView, SearchToolbarCard.OnS
                         recyclerGridAdapter.resetAllData(it.contents)
                     }
                     PublicConfig.RecyclerMode.MODE_STAGERRED_LIST -> {
-                        layoutManager = StaggeredGridLayoutManager(calculateMaxColumn(context, wSize), ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+                        layoutManager = StaggeredGridLayoutManager(
+                            calculateMaxColumn(context, wSize),
+                            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                        )
                         adapter = recyclerGridAdapter
                         recyclerGridAdapter.resetAllData(it.contents)
                     }
                 }
 
-                ItemClickSupport.addTo(this).onItemClickListener = object : ItemClickSupport.OnItemClickListener {
+                ItemClickSupport.addTo(this)?.onItemClickListener = object : ItemClickSupport.OnItemClickListener {
                     override fun onItemClicked(recyclerView: RecyclerView, position: Int, v: View) {
                         onRecyclerItemClicked(recyclerView, position, v)
                     }
@@ -143,7 +149,7 @@ class FragmentMovieContent : Fragment(), MainUserListView, SearchToolbarCard.OnS
     }
 
     private fun onRecyclerItemClicked(recyclerView: RecyclerView, position: Int, v: View) {
-        Toast.makeText(requireContext(), "Clicked RecyclerView at position $position", Toast.LENGTH_SHORT).show()
+        onItemClickListener?.onItemClicked(this, recyclerView, position, v)
     }
 
     //////////////// OVERRIDDEN FROM MainListUserView interfaces \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -154,7 +160,7 @@ class FragmentMovieContent : Fragment(), MainUserListView, SearchToolbarCard.OnS
     override fun onLoadSuccess(viewModel: ViewModel) {
         errorAdapter.unDisplayError()
         recyclerContent.apply {
-            if(visibility == View.INVISIBLE)
+            if (visibility == View.INVISIBLE)
                 visibility = View.VISIBLE
         }
 
@@ -169,13 +175,13 @@ class FragmentMovieContent : Fragment(), MainUserListView, SearchToolbarCard.OnS
 
     override fun querySearch(view: View, query: CharSequence?, start: Int, before: Int, count: Int) {
         when (viewModel?.currentListMode?.value) {
-                PublicConfig.RecyclerMode.MODE_LIST -> {
-                    recyclerListAdapter.filter.filter(query)
-                }
-                PublicConfig.RecyclerMode.MODE_GRID, PublicConfig.RecyclerMode.MODE_STAGERRED_LIST -> {
-                    recyclerGridAdapter.filter.filter(query)
-                }
+            PublicConfig.RecyclerMode.MODE_LIST -> {
+                recyclerListAdapter.filter.filter(query)
             }
+            PublicConfig.RecyclerMode.MODE_GRID, PublicConfig.RecyclerMode.MODE_STAGERRED_LIST -> {
+                recyclerGridAdapter.filter.filter(query)
+            }
+        }
     }
 
     override fun onSubmit(query: String) {
@@ -229,7 +235,7 @@ class FragmentMovieContent : Fragment(), MainUserListView, SearchToolbarCard.OnS
         const val EXTRA_MOVIE_REQUESTED_TYPE = "MOVIE_REQ_TYPE"
 
         @JvmStatic
-        internal fun newInstance(typeOfMovie: MainListMovieViewModel.SupportedType) : FragmentMovieContent =
+        internal fun newInstance(typeOfMovie: MainListMovieViewModel.SupportedType): FragmentMovieContent =
             FragmentMovieContent().apply {
                 arguments = Bundle().apply {
                     putParcelable(EXTRA_MOVIE_REQUESTED_TYPE, typeOfMovie)

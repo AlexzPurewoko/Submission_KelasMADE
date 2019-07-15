@@ -60,7 +60,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/img_more"
                 app:layout_constraintTop_toTopOf="@+id/text_search"
                 app:layout_constraintBottom_toBottomOf="@+id/text_search" android:paddingEnd="4dp"
-                android:paddingStart="4dp" android:contentDescription="List Mode"/>
+                android:paddingStart="4dp" android:contentDescription="@string/list_mode_contentdesc"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

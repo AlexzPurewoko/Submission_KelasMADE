@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:app="http://schemas.android.com/apk/res-auto"
-                xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-    <androidx.viewpager.widget.ViewPager
+    <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" android:id="@+id/fg_content_pager"
+            android:layout_height="match_parent"
+            android:id="@+id/fg_content_frame"
             android:layout_marginBottom="0dp" android:layout_above="@+id/fg_content_bottomnav"/>
     <com.google.android.material.bottomnavigation.BottomNavigationView
             android:layout_width="match_parent"

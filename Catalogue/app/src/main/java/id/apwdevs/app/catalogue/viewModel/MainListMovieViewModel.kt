@@ -22,8 +22,8 @@ import org.json.JSONObject
 
 class MainListMovieViewModel : ViewModel() {
     val dataListObj: MutableLiveData<PageListModel<MovieAboutModel>> = MutableLiveData()
-    val hasFirstInstantiate : MutableLiveData<Boolean> = MutableLiveData()
-    val currentListMode : MutableLiveData<Int> = MutableLiveData()
+    val hasFirstInstantiate: MutableLiveData<Boolean> = MutableLiveData()
+    val currentListMode: MutableLiveData<Int> = MutableLiveData()
     val fragmentIsRefreshing: MutableLiveData<Boolean> = MutableLiveData()
     private val dataGenres: MutableLiveData<MutableList<GenreModel>> = MutableLiveData()
 
@@ -33,6 +33,7 @@ class MainListMovieViewModel : ViewModel() {
         currentListMode.value = PublicConfig.RecyclerMode.MODE_LIST
         fragmentIsRefreshing.value = false
     }
+
     fun setup(
         apiRepository: ApiRepository,
         types: SupportedType,
@@ -59,7 +60,8 @@ class MainListMovieViewModel : ViewModel() {
     }
 
     private suspend fun getAllGenre(apiRepository: ApiRepository): ApiRepository.RetError? {
-        val retApi = apiRepository.doReqAndRetResponseAsync(GetMovies.getAllGenre(), "GetAllMovieGenre", Priority.MEDIUM).await()
+        val retApi =
+            apiRepository.doReqAndRetResponseAsync(GetMovies.getAllGenre(), "GetAllMovieGenre", Priority.MEDIUM).await()
         retApi?.let {
             if (it.isSuccess && !it.response.isNullOrEmpty()) {
                 try {
@@ -97,7 +99,10 @@ class MainListMovieViewModel : ViewModel() {
         tag: String
     ): ApiRepository.RetError? {
         if (pages < 0 || pages > 1000) {
-            return ApiRepository.RetError(ErrorSectionAdapter.ERR_CODE_PARSE_FAILED, IllegalArgumentException("pages must between 0 and maxPages or 1000 : page $pages"))
+            return ApiRepository.RetError(
+                ErrorSectionAdapter.ERR_CODE_PARSE_FAILED,
+                IllegalArgumentException("pages must between 0 and maxPages or 1000 : page $pages")
+            )
         }
         /*dataListObj.value?.totalPages?.let {
             if (pages > it)
@@ -171,14 +176,14 @@ class MainListMovieViewModel : ViewModel() {
                     return null
                 } catch (e: JSONException) {
                     e.printStackTrace()
-                        e.printStackTrace()
-                        return ApiRepository.RetError(ErrorSectionAdapter.ERR_CODE_PARSE_FAILED, e)
-                    }
-                } else {
-                    return it.anErrorIfAny
+                    e.printStackTrace()
+                    return ApiRepository.RetError(ErrorSectionAdapter.ERR_CODE_PARSE_FAILED, e)
                 }
+            } else {
+                return it.anErrorIfAny
             }
-            return ApiRepository.RetError(ErrorSectionAdapter.ERR_CODE_UNSPECIFIED, null)
+        }
+        return ApiRepository.RetError(ErrorSectionAdapter.ERR_CODE_UNSPECIFIED, null)
     }
 
     @Parcelize

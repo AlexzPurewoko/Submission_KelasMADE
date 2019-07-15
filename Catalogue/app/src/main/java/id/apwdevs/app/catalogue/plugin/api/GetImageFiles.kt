@@ -10,15 +10,15 @@ object GetImageFiles {
         780
     )
 
-    fun getImg(width: Int, link : String) : String {
-        var selectedW : String? = null
+    fun getImg(width: Int, link: String): String {
+        var selectedW: String? = null
         for (wSize in LIST_SUPPORTED_WSIZES) {
             if (width <= wSize) {
                 selectedW = "w$wSize"
                 break
             }
         }
-        if(selectedW == null)
+        if (selectedW == null)
             selectedW = "original"
         return "https://image.tmdb.org/t/p/$selectedW$link"
     }

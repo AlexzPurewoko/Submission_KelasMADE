@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 
 import androidx.lifecycle.ViewModel
 import com.androidnetworking.common.Priority
+import id.apwdevs.app.catalogue.activities.DetailActivity
 import id.apwdevs.app.catalogue.model.onDetail.*
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
 import id.apwdevs.app.catalogue.plugin.CoroutineContextProvider
@@ -13,7 +14,6 @@ import id.apwdevs.app.catalogue.plugin.api.GetTVShows
 import id.apwdevs.app.catalogue.plugin.jsonCheckAndGet
 import id.apwdevs.app.catalogue.plugin.view.ErrorSectionAdapter
 import id.apwdevs.app.catalogue.view.MainDetailView
-import id.apwdevs.moTvCatalogue.model.onDetail.*
 
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -27,39 +27,44 @@ class DetailTVViewModel : ViewModel() {
     val reviews: MutableLiveData<ReviewModel> = MutableLiveData()
     val credits: MutableLiveData<CreditsModel> = MutableLiveData()
 
+    val tvIds: MutableLiveData<Int> = MutableLiveData()
+
     val hasFirstInitialize: MutableLiveData<Boolean> = MutableLiveData()
 
     init {
         hasFirstInitialize.value = false
     }
+
     fun setAll(
         activity: Activity,
         apiRepository: ApiRepository,
-        idMovies: Int,
         view: MainDetailView,
         coroutineContextProvider: CoroutineContextProvider = CoroutineContextProvider()
     ) {
         GlobalScope.launch(coroutineContextProvider.main) {
             view.onLoad()
-            activity.intent?.apply {
-                val otherAboutTv = getParcelableExtra<TvAboutModel>("TV_DETAILS")
+            activity.intent.extras?.apply {
+                val otherAboutTv = getParcelable<TvAboutModel>(DetailActivity.EXTRA_CONTENT_DETAILS)
                 shortDetails.postValue(otherAboutTv)
+                tvIds.value = getInt(DetailActivity.EXTRA_ID)
             }
 
-            getCredits(apiRepository, idMovies)?.let {
-                view.onLoadFailed(it.errorCode, it.cause?.message, it.cause)
+            val idTv = tvIds.value ?: 0
+
+            getCredits(apiRepository, idTv)?.let {
+                view.onLoadFailed(it)
                 return@launch
             }
-            otherDetails(apiRepository, idMovies)?.let {
-                view.onLoadFailed(it.errorCode, it.cause?.message, it.cause)
+            otherDetails(apiRepository, idTv)?.let {
+                view.onLoadFailed(it)
                 return@launch
             }
-            getReviews(apiRepository, idMovies)?.let {
-                view.onLoadFailed(it.errorCode, it.cause?.message, it.cause)
+            getReviews(apiRepository, idTv)?.let {
+                view.onLoadFailed(it)
                 return@launch
             }
-            getSocmedID(apiRepository, idMovies)?.let {
-                view.onLoadFailed(it.errorCode, it.cause?.message, it.cause)
+            getSocmedID(apiRepository, idTv)?.let {
+                view.onLoadFailed(it)
                 return@launch
             }
 
@@ -129,7 +134,6 @@ class DetailTVViewModel : ViewModel() {
                                     ModelTvCreatedBy(
                                         creditId = getString("profile_path"),
                                         id = getInt("id"),
-                                        gender = getInt("gender"),
                                         name = getString("name"),
                                         profilePath = getString("profile_path")
                                     )
@@ -179,8 +183,8 @@ class DetailTVViewModel : ViewModel() {
             return if (it.isSuccess && !it.response.isNullOrEmpty()) {
                 try {
                     JSONObject(it.response).apply {
-                        val resultCasts = mutableListOf<CastModel>()
-                        val resultCrews = mutableListOf<CrewModel>()
+                        val resultCasts = arrayListOf<CastModel>()
+                        val resultCrews = arrayListOf<CrewModel>()
                         val jsonCrews = getJSONArray("crew")
                         val jsonCast = getJSONArray("cast")
                         for (index in 0 until jsonCrews.length()) {
@@ -244,7 +248,7 @@ class DetailTVViewModel : ViewModel() {
                     JSONObject(it.response).apply {
 
                         val ret = getJSONArray("results")
-                        val results = mutableListOf<ReviewResultModel>()
+                        val results = arrayListOf<ReviewResultModel>()
                         for (index in 0 until ret.length()) {
                             ret.getJSONObject(index).apply {
                                 results.add(
