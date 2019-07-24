@@ -19,7 +19,7 @@ import kotlin.math.min
 
 class RecyclerCrewsAdapter(
     private val crewModels: List<CrewModel>,
-    internal val maxContentLimits: Int
+    private val maxContentLimits: Int
 ) : RecyclerView.Adapter<RecyclerCrewsAdapter.RecyclerCrewsVH>() {
 
     init {

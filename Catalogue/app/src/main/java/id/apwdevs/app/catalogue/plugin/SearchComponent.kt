@@ -34,6 +34,7 @@ abstract class SearchComponent<T : ResettableItem> : Filterable {
             return filterResults
         }
 
+        @SuppressWarnings("unchecked")
         override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
             onSearchFinished(results?.values as MutableList<T>?)
         }

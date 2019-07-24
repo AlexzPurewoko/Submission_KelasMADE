@@ -1,76 +1,69 @@
 package id.apwdevs.app.catalogue.viewModel
 
-import android.app.Activity
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.androidnetworking.common.Priority
 import id.apwdevs.app.catalogue.activities.DetailActivity
-import id.apwdevs.app.catalogue.model.onDetail.*
+import id.apwdevs.app.catalogue.model.onDetail.OtherMovieAboutModel
+import id.apwdevs.app.catalogue.model.onDetail.ProductionCompaniesModel
+import id.apwdevs.app.catalogue.model.onDetail.ProductionCountryModel
 import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.plugin.CoroutineContextProvider
+import id.apwdevs.app.catalogue.plugin.PublicConfig
 import id.apwdevs.app.catalogue.plugin.api.ApiRepository
 import id.apwdevs.app.catalogue.plugin.api.GetMovies
 import id.apwdevs.app.catalogue.plugin.jsonCheckAndGet
 import id.apwdevs.app.catalogue.plugin.view.ErrorSectionAdapter
-import id.apwdevs.app.catalogue.view.MainDetailView
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
 
-class DetailMovieViewModel : ViewModel() {
+class DetailMovieViewModel : DetailViewModel() {
+
     val details: MutableLiveData<MovieAboutModel> = MutableLiveData()
     val otherDetails: MutableLiveData<OtherMovieAboutModel> = MutableLiveData()
-    val socmedIds: MutableLiveData<SocmedIDModel> = MutableLiveData()
-    val reviews: MutableLiveData<ReviewModel> = MutableLiveData()
-    val credits: MutableLiveData<CreditsModel> = MutableLiveData()
-    val movieIds: MutableLiveData<Int> = MutableLiveData()
 
-    val hasFirstInitialize: MutableLiveData<Boolean> = MutableLiveData()
-
-    init {
-        hasFirstInitialize.value = false
-    }
-
-    fun setAll(
-        activity: Activity,
-        apiRepository: ApiRepository,
-        view: MainDetailView,
-        coroutineContextProvider: CoroutineContextProvider = CoroutineContextProvider()
-    ) {
+    override fun getAll(coroutineContextProvider: CoroutineContextProvider) {
         GlobalScope.launch(coroutineContextProvider.main) {
-            view.onLoad()
-            activity.intent.extras?.apply {
+            view?.get()?.onLoad()
+            hasLoading.value = true
+            loadSuccess.value = false
+            activity?.get()?.intent?.extras?.apply {
                 val otherAboutFilmModel = getParcelable<MovieAboutModel>(DetailActivity.EXTRA_CONTENT_DETAILS)
                 details.postValue(otherAboutFilmModel)
-                movieIds.value = getInt(DetailActivity.EXTRA_ID)
+                id.value = getInt(DetailActivity.EXTRA_ID)
             }
 
-            val idMovies = movieIds.value ?: 0
+            val idMovies = id.value ?: 0
 
-            setCredits(apiRepository, idMovies)?.let {
-                view.onLoadFailed(it)
+            getCredits(apiRepository)?.let {
+                view?.get()?.onLoadFailed(it)
                 return@launch
             }
             otherDetails(apiRepository, idMovies)?.let {
-                view.onLoadFailed(it)
+                view?.get()?.onLoadFailed(it)
                 return@launch
             }
-            setReviews(apiRepository, idMovies)?.let {
-                view.onLoadFailed(it)
+            getReviews(apiRepository)?.let {
+                view?.get()?.onLoadFailed(it)
                 return@launch
             }
-            setListSocmedId(apiRepository, idMovies)?.let {
-                view.onLoadFailed(it)
+            getSocmedId(apiRepository)?.let {
+                view?.get()?.onLoadFailed(it)
                 return@launch
             }
 
-            view.onLoadFinished(this@DetailMovieViewModel)
+            hasLoading.value = false
+            loadSuccess.value = true
+            view?.get()?.onLoadFinished(this@DetailMovieViewModel)
         }
     }
 
-    suspend fun otherDetails(apiRepository: ApiRepository, idMovies: Int): ApiRepository.RetError? =
+    override fun getTypes(): PublicConfig.ContentDisplayType = PublicConfig.ContentDisplayType.MOVIE
+
+    private suspend fun otherDetails(apiRepository: ApiRepository, idMovies: Int): ApiRepository.RetError? =
         apiRepository.doReqAndRetResponseAsync(
+            activity?.get(),
             GetMovies.getOtherDetails(idMovies),
             "getOtherDetails$idMovies",
             Priority.HIGH
@@ -109,7 +102,7 @@ class DetailMovieViewModel : ViewModel() {
                         val homepage = jsonCheckAndGet(get("homepage"))?.toString()
                         val tagLine = jsonCheckAndGet(get("tagline"))?.toString()
                         val runtime = jsonCheckAndGet(get("runtime"))?.toString()?.toInt()
-                        otherDetails.postValue(
+                        otherDetails.value =
                             OtherMovieAboutModel(
                                 movieBudget = getInt("budget"),
                                 homepage = homepage,
@@ -120,7 +113,6 @@ class DetailMovieViewModel : ViewModel() {
                                 productionCompanies = resultProductionCompaniesModel,
                                 productionCountry = resultProductionCountryModel
                             )
-                        )
                     }
                 } catch (e: JSONException) {
                     return ApiRepository.RetError(ErrorSectionAdapter.ERR_CODE_PARSE_FAILED, e)
@@ -132,138 +124,4 @@ class DetailMovieViewModel : ViewModel() {
 
         }
 
-
-    suspend fun setCredits(apiRepository: ApiRepository, idMovies: Int): ApiRepository.RetError? =
-        apiRepository.doReqAndRetResponseAsync(
-            GetMovies.getCredits(idMovies),
-            "getCreditsMoviesId$idMovies",
-            Priority.HIGH
-        ).await()?.let {
-            return if (it.isSuccess && !it.response.isNullOrEmpty()) {
-                try {
-                    JSONObject(it.response).apply {
-                        val resultCasts = arrayListOf<CastModel>()
-                        val resultCrews = arrayListOf<CrewModel>()
-                        val jsonCrews = getJSONArray("crew")
-                        val jsonCast = getJSONArray("cast")
-                        for (index in 0 until jsonCrews.length()) {
-                            jsonCrews.getJSONObject(index).apply {
-                                resultCrews.add(
-                                    CrewModel(
-                                        creditId = getString("credit_id"),
-                                        department = getString("department"),
-                                        gender = jsonCheckAndGet(get("gender"))?.toString()?.toInt(),
-                                        id = getInt("id"),
-                                        job = getString("job"),
-                                        name = getString("name"),
-                                        profilePath = jsonCheckAndGet(get("profile_path"))?.toString()
-                                    )
-                                )
-                            }
-                        }
-
-                        for (index in 0 until jsonCast.length()) {
-                            jsonCast.getJSONObject(index).apply {
-                                resultCasts.add(
-                                    CastModel(
-                                        id = getInt("id"),
-                                        castId = getInt("cast_id"),
-                                        asCharacter = getString("character"),
-                                        creditId = getString("credit_id"),
-                                        gender = jsonCheckAndGet(get("gender"))?.toString()?.toInt(),
-                                        name = getString("name"),
-                                        order = getInt("order"),
-                                        profilePath = jsonCheckAndGet(get("profile_path"))?.toString()
-                                    )
-                                )
-                            }
-                        }
-
-                        credits.postValue(
-                            CreditsModel(
-                                id = getInt("id"),
-                                allCasts = resultCasts,
-                                allCrew = resultCrews
-                            )
-                        )
-                    }
-                } catch (e: JSONException) {
-                    return ApiRepository.RetError(ErrorSectionAdapter.ERR_CODE_PARSE_FAILED, e)
-                }
-                null
-            } else {
-                it.anErrorIfAny
-            }
-        }
-
-    suspend fun setReviews(apiRepository: ApiRepository, idMovies: Int): ApiRepository.RetError? =
-        apiRepository.doReqAndRetResponseAsync(
-            GetMovies.getReviews(idMovies),
-            "getReviewsMoviesId$idMovies",
-            Priority.HIGH
-        ).await()?.let {
-            return if (it.isSuccess && !it.response.isNullOrEmpty()) {
-                try {
-                    JSONObject(it.response).apply {
-
-                        val ret = getJSONArray("results")
-                        val results = arrayListOf<ReviewResultModel>()
-                        for (index in 0 until ret.length()) {
-                            ret.getJSONObject(index).apply {
-                                results.add(
-                                    ReviewResultModel(
-                                        id = getString("id"),
-                                        author = getString("author"),
-                                        content = getString("content"),
-                                        url = getString("url")
-                                    )
-                                )
-                            }
-                        }
-
-                        reviews.postValue(
-                            ReviewModel(
-                                id = getInt("id"),
-                                page = getInt("page"),
-                                totalPages = getInt("total_pages"),
-                                totalResult = getInt("total_results"),
-                                results = results
-                            )
-                        )
-                    }
-                } catch (e: JSONException) {
-                    return ApiRepository.RetError(ErrorSectionAdapter.ERR_CODE_PARSE_FAILED, e)
-                }
-                null
-            } else {
-                it.anErrorIfAny
-            }
-        }
-
-    suspend fun setListSocmedId(apiRepository: ApiRepository, idMovies: Int): ApiRepository.RetError? =
-        apiRepository.doReqAndRetResponseAsync(
-            GetMovies.getSocmedID(idMovies),
-            "getSocmedMoviesId$idMovies",
-            Priority.HIGH
-        ).await()?.let {
-            return if (it.isSuccess && !it.response.isNullOrEmpty()) {
-                JSONObject(it.response).apply {
-                    socmedIds.value =
-                        SocmedIDModel(
-                            id = getInt("id"),
-                            facebookId = jsonCheckAndGet(get("facebook_id"))?.toString(),
-                            instagramId = jsonCheckAndGet(get("instagram_id"))?.toString(),
-                            twitterId = jsonCheckAndGet(get("twitter_id"))?.toString()
-                        )
-                }
-                null
-            } else {
-                it.anErrorIfAny
-            }
-        }
-
-
-    override fun onCleared() {
-
-    }
 }

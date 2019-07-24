@@ -2,8 +2,8 @@ package id.apwdevs.app.catalogue.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Point
 import android.graphics.Typeface
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
@@ -13,18 +13,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
-import com.androidnetworking.AndroidNetworking
-import com.androidnetworking.common.Priority
-import com.androidnetworking.error.ANError
-import com.androidnetworking.interfaces.BitmapRequestListener
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.model.ResettableItem
 import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
 import id.apwdevs.app.catalogue.plugin.SearchComponent
-import id.apwdevs.app.catalogue.plugin.api.GetImageFiles
+import id.apwdevs.app.catalogue.plugin.getBitmap
 import id.apwdevs.app.catalogue.plugin.view.WrappedView
 import java.util.*
 
@@ -74,20 +68,6 @@ class ListAdapter<T : ResettableItem>(private val mContext: Context) :
             resetAllSpannables()
         }
     }
-
-    fun restoreOldData(oldData: ArrayList<T>?) {
-        oldData?.let {
-            dataModel.clear()
-            dataModel.addAll(it)
-            notifyDataSetChanged()
-        }
-    }
-
-    fun getItemData(postionData: Int): ResettableItem? =
-        when {
-            dataModel.isNullOrEmpty() || postionData < 0 || postionData >= dataModel.size -> null
-            else -> dataModel[postionData]
-        }
 
     private inner class OnSearchMethod : SearchComponent<T>() {
         override fun onSearchFinished(aList: MutableList<T>?) {
@@ -180,10 +160,10 @@ class ListAdapter<T : ResettableItem>(private val mContext: Context) :
 
     }
 
-    inner class ListViewHolder<T : ResettableItem> internal constructor(private val view: View) :
+    inner class ListViewHolder<T : ResettableItem> internal constructor(view: View) :
         RecyclerView.ViewHolder(view) {
 
-        private val moviePoster: ImageView = view.findViewById(R.id.item_poster_image)
+        private val poster: ImageView = view.findViewById(R.id.item_poster_image)
         private val title: TextView = view.findViewById(R.id.item_list_text_title)
         private val overview: TextView = view.findViewById(R.id.item_list_overview)
         private val rating: RatingBar = view.findViewById(R.id.item_list_ratingBar)
@@ -199,22 +179,9 @@ class ListAdapter<T : ResettableItem>(private val mContext: Context) :
                     rating.rating = getRating(dataModel.voteAverage)
                     voteCount.text = "(${dataModel.voteCount})"
                     dataModel.posterPath?.let {
-                        AndroidNetworking.get(GetImageFiles.getImg(requestedWidth, it))
-                            .setPriority(Priority.LOW)
-                            .setBitmapMaxHeight(requestedHeight)
-                            .setBitmapMaxWidth(requestedWidth)
-                            .setImageScaleType(ImageView.ScaleType.FIT_XY)
-                            .build()
-                            .getAsBitmap(object : BitmapRequestListener {
-                                override fun onResponse(response: Bitmap?) {
-                                    moviePoster.setImageBitmap(response)
-                                }
-
-                                override fun onError(anError: ANError?) {
-
-                                }
-
-                            })
+                        getBitmap(Point(requestedWidth, requestedHeight), it) { bitmap ->
+                            poster.setImageBitmap(bitmap)
+                        }
                     }
 
                     if (itemGenres.childCount == 0) {
@@ -229,10 +196,9 @@ class ListAdapter<T : ResettableItem>(private val mContext: Context) :
                     rating.rating = getRating(dataModel.voteAverage)
                     voteCount.text = "(${dataModel.voteCount})"
                     dataModel.posterPath?.let {
-                        Glide.with(view.context)
-                            .load(GetImageFiles.getImg(requestedWidth, it))
-                            .apply(RequestOptions().override(requestedWidth, requestedHeight))
-                            .into(moviePoster)
+                        getBitmap(Point(requestedWidth, requestedHeight), it) { bitmap ->
+                            poster.setImageBitmap(bitmap)
+                        }
                     }
                     if (itemGenres.childCount == 0) {
                         dataModel.genres?.forEach {

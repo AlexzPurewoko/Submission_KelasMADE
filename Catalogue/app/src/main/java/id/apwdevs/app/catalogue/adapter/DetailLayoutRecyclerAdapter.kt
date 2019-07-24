@@ -1,7 +1,6 @@
 package id.apwdevs.app.catalogue.adapter
 
 import android.content.Context
-import android.os.Bundle
 import android.os.Parcelable
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,25 +8,28 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import id.apwdevs.app.catalogue.R
-import id.apwdevs.app.catalogue.activities.DetailActivity
 import id.apwdevs.app.catalogue.adapter.RecyclerReviewAdapter.OnLaunchItemClickListener
 import id.apwdevs.app.catalogue.model.ResettableItem
 import id.apwdevs.app.catalogue.model.onDetail.*
 import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
+import id.apwdevs.app.catalogue.plugin.PublicConfig
 import id.apwdevs.app.catalogue.plugin.gone
 import id.apwdevs.app.catalogue.plugin.visible
+import id.apwdevs.app.catalogue.viewModel.DetailMovieViewModel
+import id.apwdevs.app.catalogue.viewModel.DetailTVViewModel
+import id.apwdevs.app.catalogue.viewModel.DetailViewModel
 import kotlinx.android.parcel.Parcelize
 import kotlin.math.abs
 
 class DetailLayoutRecyclerAdapter(
     private val context: Context,
-    private val contentType: DetailActivity.ContentTypes,
-    relatedData: Bundle
+    private val contentType: PublicConfig.ContentDisplayType,
+    private val viewModel: DetailViewModel
 ) : RecyclerView.Adapter<DetailLayoutRecyclerAdapter.DetailLayoutVH>() {
 
     private var data1Model: ResettableItem? = null
@@ -43,12 +45,12 @@ class DetailLayoutRecyclerAdapter(
         fun onAction(viewType: ViewType, vararg action: Any)
     }
 
-    internal var maxReviewLimits = 5
+    private var maxReviewLimits = 5
         set(value) {
             field = value
             notifyDataSetChanged()
         }
-    internal var maxCreditsLimit = 10
+    private var maxCreditsLimit = 10
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -58,48 +60,38 @@ class DetailLayoutRecyclerAdapter(
 
     init {
         setHasStableIds(true)
-        relatedData.apply {
-            contentTypes = mutableListOf(
-                ViewType.CONTENT_OVERVIEW,
-                ViewType.CONTENT_ABOUT,
-                ViewType.CONTENT_LIST_CAST,
-                ViewType.CONTENT_LIST_CREW,
-                ViewType.CONTENT_REVIEWS
-            )
-
-            when (contentType) {
-                DetailActivity.ContentTypes.ITEM_MOVIE -> {
-                    computeRequirements(contentTypes, this).forEach {
-                        when (it) {
-                            EXTRA_DATA_1 -> data1Model = getParcelable<MovieAboutModel>(it)
-                            EXTRA_DATA_2 -> data2OtherModel = getParcelable<OtherMovieAboutModel>(it)
-                            EXTRA_DATA_CASTS -> listCastModel = getParcelableArrayList(it)
-                            EXTRA_DATA_CREWS -> listCrewModel = getParcelableArrayList(it)
-                            EXTRA_DATA_REVIEWS -> reviewModel = getParcelable(it)
-                        }
-                    }
-
-                    Log.d("RecyclerDetailww", "OnSet model data,... Reviews $reviewModel")
+        contentTypes = mutableListOf(
+            ViewType.CONTENT_OVERVIEW,
+            ViewType.CONTENT_ABOUT,
+            ViewType.CONTENT_LIST_CAST,
+            ViewType.CONTENT_LIST_CREW,
+            ViewType.CONTENT_REVIEWS
+        )
+        if (contentType == PublicConfig.ContentDisplayType.TV_SHOWS)
+            contentTypes.add(4, ViewType.CONTENT_CREATED_BY)
+        computeRequirements(contentTypes, viewModel).forEach {
+            when (it) {
+                MODEL_DATA_1 -> data1Model = when (contentType) {
+                    PublicConfig.ContentDisplayType.TV_SHOWS -> (viewModel as DetailTVViewModel).shortDetails.value
+                    PublicConfig.ContentDisplayType.MOVIE -> (viewModel as DetailMovieViewModel).details.value
                 }
-                DetailActivity.ContentTypes.ITEM_TV_SHOWS -> {
-                    contentTypes.add(ViewType.CONTENT_CREATED_BY)
-                    computeRequirements(contentTypes, this).forEach {
-                        when (it) {
-                            EXTRA_DATA_1 -> data1Model = getParcelable<TvAboutModel>(it)
-                            EXTRA_DATA_2 -> data2OtherModel = getParcelable<OtherTVAboutModel>(it)
-                            EXTRA_DATA_CASTS -> listCastModel = getParcelableArrayList(it)
-                            EXTRA_DATA_CREWS -> listCrewModel = getParcelableArrayList(it)
-                            EXTRA_DATA_REVIEWS -> reviewModel = getParcelable(it)
-                        }
-                    }
-                    createdBy = (data2OtherModel as OtherTVAboutModel?)?.createdBy
+                MODEL_DATA_2 -> data2OtherModel = when (contentType) {
+                    PublicConfig.ContentDisplayType.TV_SHOWS -> (viewModel as DetailTVViewModel).otherDetails.value
+                    PublicConfig.ContentDisplayType.MOVIE -> (viewModel as DetailMovieViewModel).otherDetails.value
                 }
+                MODEL_DATA_CASTS -> listCastModel = viewModel.credits.value?.allCasts
+                MODEL_DATA_CREWS -> listCrewModel = viewModel.credits.value?.allCrew
+                MODEL_DATA_REVIEWS -> reviewModel = viewModel.reviews.value
             }
+
+
         }
+        if (contentType == PublicConfig.ContentDisplayType.TV_SHOWS)
+            createdBy = (data2OtherModel as OtherTVAboutModel?)?.createdBy
+        notifyDataSetChanged()
     }
 
-    private fun computeRequirements(contentTypes: MutableList<ViewType>, dataBundle: Bundle): List<String> {
-
+    private fun computeRequirements(contentTypes: MutableList<ViewType>, viewModel: DetailViewModel): List<String> {
         val listRequirementsKey = mutableListOf<String>()
         for ((idx, type) in contentTypes.withIndex()) {
             val count = type.mustContains.size
@@ -108,12 +100,33 @@ class DetailLayoutRecyclerAdapter(
             // check if this key is available in data or not
             // and set notMuchRequirements into false if any data is missing
             for (i in 0 until count) {
-                if (!dataBundle.containsKey(type.mustContains[i])) {
+                if (
+                    when (type.mustContains[i]) {
+                        MODEL_DATA_1 -> {
+                            when (viewModel) {
+                                is DetailMovieViewModel -> viewModel.details.value == null
+                                is DetailTVViewModel -> viewModel.shortDetails.value == null
+                                else -> false
+                            }
+                        }
+                        MODEL_DATA_2 -> {
+                            when (viewModel) {
+                                is DetailMovieViewModel -> viewModel.otherDetails.value == null
+                                is DetailTVViewModel -> viewModel.otherDetails.value == null
+                                else -> false
+                            }
+                        }
+                        MODEL_DATA_CASTS -> viewModel.credits.value?.allCasts == null
+                        MODEL_DATA_CREWS -> viewModel.credits.value?.allCrew == null
+                        MODEL_DATA_REVIEWS -> viewModel.reviews.value == null
+
+                        else -> false
+                    }
+                ) {
                     notMuchRequirements = true
                     break
                 }
             }
-
             // remove the unnecessary content
             if (notMuchRequirements) {
                 contentTypes.removeAt(idx)
@@ -172,10 +185,7 @@ class DetailLayoutRecyclerAdapter(
                 reviewModel?.let {
                     holder.bindItem(it, maxReviewLimits, onItemAction)
 
-                    Log.d("RecyclerDetailww", "Onbind Review")
-
                 }
-                Log.d("RecyclerDetailww", "OnFinish Review")
             }
             else -> {
             }
@@ -197,9 +207,9 @@ class DetailLayoutRecyclerAdapter(
 
         private var textTitle: TextView? = null
         private var textContent: TextView? = null
+        private var textError: TextView? = null
         private var recyclerView: RecyclerView? = null
         private var actionBtn: ImageView? = null
-        private var strLaunchTo: String? = null
 
         init {
             val vType = ViewType.findItem(itemType)
@@ -209,9 +219,10 @@ class DetailLayoutRecyclerAdapter(
                     recyclerView = view.findViewById(R.id.actdetail_recycler_content)
                     actionBtn = view.findViewById(R.id.actdetail_drop_content)
 
-                    actionBtn?.tag = TAG_BTN_ACTION_DROP_DOWN
+                    actionBtn?.tag = TAG_BTN_ACTION_DROP_UP
+                    textTitle?.tag = TAG_BTN_ACTION_DROP_UP
+                    textTitle?.setOnClickListener(this)
                     actionBtn?.setOnClickListener(this)
-                    recyclerView?.gone()
                 }
                 ViewType.CONTENT_OVERVIEW -> {
                     textTitle = view.findViewById(R.id.item_overview_title)
@@ -221,6 +232,7 @@ class DetailLayoutRecyclerAdapter(
                 ViewType.CONTENT_NULL -> {
                 } // do nothing
             }
+            textError = view.findViewById(R.id.actdetail_text_error)
             textTitle?.setText(vType.titleRes)
         }
 
@@ -247,7 +259,9 @@ class DetailLayoutRecyclerAdapter(
                         is Int -> item[1] as Int
                         else -> RecyclerReviewAdapter.NO_LIMITS
                     }
-                    if (content is ReviewModel) {
+                    if (content is ReviewModel && content.results.isNotEmpty()) {
+                        Log.d("RECVIEW", "DATA CONTENT IS $content")
+                        hideErrorText()
                         recyclerView?.apply {
                             layoutManager = LinearLayoutManager(itemView.context)
                             adapter = RecyclerReviewAdapter(content.results, limits).apply {
@@ -264,17 +278,24 @@ class DetailLayoutRecyclerAdapter(
                             }
                         }
                     }
+
                 }
                 ViewType.CONTENT_OVERVIEW -> {
+
                     textContent?.text = ""
                     item.iterator().forEach {
                         if (it is String)
                             textContent?.append(it)
                     }
+                    if (textContent?.text?.isNotBlank() == true) {
+                        textError?.gone()
+                        textContent?.visible()
+                    }
                 }
                 ViewType.CONTENT_CREATED_BY, ViewType.CONTENT_LIST_CREW, ViewType.CONTENT_LIST_CAST -> {
                     val content = item[0] ?: return
                     if ((content is List<*>) && content.size > 0) {
+                        hideErrorText()
                         recyclerView?.layoutManager =
                             LinearLayoutManager(itemView.context, LinearLayoutManager.HORIZONTAL, false)
                         when (ViewType.findItem(itemType)) {
@@ -307,25 +328,27 @@ class DetailLayoutRecyclerAdapter(
                             }
                         }
                     }
+                    Log.d("HHH", "true $content")
                 }
                 ViewType.CONTENT_ABOUT -> {
                     val aboutModel = item[0]
                     val otherAboutModel = item[1]
                     val ctx = itemView.context
+                    hideErrorText()
                     recyclerView?.layoutManager = LinearLayoutManager(ctx, RecyclerView.VERTICAL, false)
                     if (aboutModel is TvAboutModel && otherAboutModel is OtherTVAboutModel) {
                         recyclerView?.adapter = RecyclerAboutAdapter(
                             ctx,
                             aboutModel,
                             otherAboutModel,
-                            DetailActivity.ContentTypes.ITEM_TV_SHOWS
+                            PublicConfig.ContentDisplayType.TV_SHOWS
                         )
                     } else if (aboutModel is MovieAboutModel && otherAboutModel is OtherMovieAboutModel) {
                         recyclerView?.adapter = RecyclerAboutAdapter(
                             ctx,
                             aboutModel,
                             otherAboutModel,
-                            DetailActivity.ContentTypes.ITEM_MOVIE
+                            PublicConfig.ContentDisplayType.MOVIE
                         )
                     }
                 }
@@ -335,40 +358,50 @@ class DetailLayoutRecyclerAdapter(
 
         }
 
+        private fun hideErrorText() {
+            recyclerView?.visible()
+            textError?.gone()
+            textError?.tag = NO_ERROR_AVAILABLE
+        }
+
         override fun onClick(v: View?) {
             when (v?.tag) {
-                TAG_BTN_LAUNCH -> {
-                    Toast.makeText(v.context, "Action launch to -> $strLaunchTo", Toast.LENGTH_SHORT).show()
-                }
                 TAG_BTN_ACTION_DROP_DOWN -> {
                     actionBtn?.tag = TAG_BTN_ACTION_DROP_UP
+                    textTitle?.tag = TAG_BTN_ACTION_DROP_UP
                     actionBtn?.setImageResource(R.drawable.ic_drop_up_24dp)
                     recyclerView?.visible()
+                    if (textError?.isVisible == false && textError?.tag?.equals(NO_ERROR_AVAILABLE) != true)
+                        textError?.visible()
                 }
                 TAG_BTN_ACTION_DROP_UP -> {
                     actionBtn?.tag = TAG_BTN_ACTION_DROP_DOWN
+                    textTitle?.tag = TAG_BTN_ACTION_DROP_DOWN
                     actionBtn?.setImageResource(R.drawable.ic_drop_down_24dp)
                     recyclerView?.gone()
+                    if (textError?.isVisible == true && textError?.tag?.equals(NO_ERROR_AVAILABLE) != true)
+                        textError?.gone()
                 }
             }
         }
 
         companion object {
-            const val TAG_BTN_LAUNCH = "ACTION_LAUNCH"
+            //const val TAG_BTN_LAUNCH = "ACTION_LAUNCH"
             const val TAG_BTN_ACTION_DROP_UP = "ACTION_DROP_UP"
             const val TAG_BTN_ACTION_DROP_DOWN = "ACTION_DROP_DOWN"
         }
+
     }
 
     @Parcelize
     enum class ViewType(val type: Int, val layoutResId: Int, val titleRes: Int, vararg val mustContains: String) :
         Parcelable {
-        CONTENT_LIST_CREW(0x5d, R.layout.actdetail_layout_list, R.string.crews, EXTRA_DATA_CREWS),
-        CONTENT_LIST_CAST(0x4f, R.layout.actdetail_layout_list, R.string.casts, EXTRA_DATA_CASTS),
-        CONTENT_OVERVIEW(0x3f, R.layout.actdetail_overview, R.string.overview, EXTRA_DATA_1),
-        CONTENT_CREATED_BY(0x2a, R.layout.actdetail_layout_list, R.string.created_by, EXTRA_DATA_2),
-        CONTENT_ABOUT(0xffa, R.layout.actdetail_layout_list, R.string.abouts, EXTRA_DATA_1, EXTRA_DATA_2),
-        CONTENT_REVIEWS(0x22, R.layout.actdetail_layout_list, R.string.reviews, EXTRA_DATA_REVIEWS),
+        CONTENT_LIST_CREW(0x5d, R.layout.actdetail_layout_list, R.string.crews, MODEL_DATA_CREWS),
+        CONTENT_LIST_CAST(0x4f, R.layout.actdetail_layout_list, R.string.casts, MODEL_DATA_CASTS),
+        CONTENT_OVERVIEW(0x3f, R.layout.actdetail_overview, R.string.overview, MODEL_DATA_1),
+        CONTENT_CREATED_BY(0x2a, R.layout.actdetail_layout_list, R.string.created_by, MODEL_DATA_2),
+        CONTENT_ABOUT(0xffa, R.layout.actdetail_layout_list, R.string.abouts, MODEL_DATA_1, MODEL_DATA_2),
+        CONTENT_REVIEWS(0x22, R.layout.actdetail_layout_list, R.string.reviews, MODEL_DATA_REVIEWS),
         CONTENT_NULL(0, 0, 0);
 
         companion object {
@@ -386,10 +419,11 @@ class DetailLayoutRecyclerAdapter(
     }
 
     companion object {
-        const val EXTRA_DATA_1 = "EXTRA_DATA_1"
-        const val EXTRA_DATA_2 = "EXTRA_DATA_2"
-        const val EXTRA_DATA_CREWS = "EXTRA_DATA_CREWS"
-        const val EXTRA_DATA_CASTS = "EXTRA_DATA_CASTS"
-        const val EXTRA_DATA_REVIEWS = "EXTRA_DATA_REVIEWS"
+        const val MODEL_DATA_1 = "MODEL_DATA_1"
+        const val MODEL_DATA_2 = "EXTRA_DATA_2"
+        const val MODEL_DATA_CREWS = "EXTRA_DATA_CREWS"
+        const val MODEL_DATA_CASTS = "EXTRA_DATA_CASTS"
+        const val MODEL_DATA_REVIEWS = "EXTRA_DATA_REVIEWS"
+        private const val NO_ERROR_AVAILABLE = "NO_ERROR_AVAILABLE"
     }
 }

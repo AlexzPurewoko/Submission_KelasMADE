@@ -1,15 +1,12 @@
 package id.apwdevs.app.catalogue.activities
 
 import android.content.Intent
-import android.graphics.Point
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
@@ -18,20 +15,20 @@ import com.google.android.material.tabs.TabLayout
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.adapter.GridAdapter
 import id.apwdevs.app.catalogue.adapter.ListAdapter
-import id.apwdevs.app.catalogue.fragment.*
+import id.apwdevs.app.catalogue.fragment.FragmentContents
+import id.apwdevs.app.catalogue.fragment.FragmentListContainer
+import id.apwdevs.app.catalogue.fragment.HolderPageAdapter
 import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
-import id.apwdevs.app.catalogue.plugin.OnItemFragmentClickListener
+import id.apwdevs.app.catalogue.plugin.PublicConfig
+import id.apwdevs.app.catalogue.plugin.callbacks.FragmentListCallback
+import id.apwdevs.app.catalogue.plugin.callbacks.OnItemFragmentClickListener
 import id.apwdevs.app.catalogue.plugin.view.SearchToolbarCard
 import kotlinx.android.synthetic.main.activity_main_tab_user.*
 import kotlinx.android.synthetic.main.search_toolbar.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallback, FragmentListCallback,
-    OnItemFragmentClickListener {
-
+    OnItemFragmentClickListener, GetFromHostActivity {
 
     private lateinit var searchToolbarCard: SearchToolbarCard
     private lateinit var listFragmentContainer: MutableList<Fragment>
@@ -39,11 +36,10 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_tab_user)
         AndroidNetworking.initialize(applicationContext)
-        searchToolbarCard = SearchToolbarCard(this, toolbar_card, this)
         if (savedInstanceState == null) {
             listFragmentContainer = mutableListOf(
-                FragmentListContainer.newInstance(FragmentListContainer.Type.MOVIES),
-                FragmentListContainer.newInstance(FragmentListContainer.Type.TV_SHOWS)
+                FragmentListContainer.newInstance(PublicConfig.ContentDisplayType.MOVIE),
+                FragmentListContainer.newInstance(PublicConfig.ContentDisplayType.TV_SHOWS)
             )
         } else {
             savedInstanceState.let {
@@ -51,7 +47,7 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
                 listFragmentContainer = mutableListOf()
                 while (true) {
                     try {
-                        val fg = supportFragmentManager.getFragment(savedInstanceState, "FragmentListContainer${idx++}")
+                        val fg = supportFragmentManager.getFragment(it, "FgContainer${idx++}")
                             ?: break
                         listFragmentContainer.add(fg)
                     } catch (e: Exception) {
@@ -60,27 +56,33 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
                 }
             }
         }
-        listFragmentContainer.forEach {
-
-            if (it is FragmentListContainer)
-                it.onItemClickListener = this
-        }
-        view_pager.adapter = HolderPageAdapter(supportFragmentManager, listFragmentContainer, this)
+        searchToolbarCard = SearchToolbarCard(this, toolbar_card, this)
+        view_pager.adapter = HolderPageAdapter(supportFragmentManager, listFragmentContainer)
         view_pager.offscreenPageLimit = 2
         setupTabs()
         setupVPager()
-        //removeExtraSpacing()
     }
 
-
-    override fun onSaveInstanceState(outState: Bundle?) {
+    override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         // we wants to save container fragments
-        outState?.let {
-            for ((idx, fg) in listFragmentContainer.withIndex()) {
-                supportFragmentManager.putFragment(it, "FragmentListContainer$idx", fg)
+        for ((idx, fg) in listFragmentContainer.withIndex()) {
+            try {
+                supportFragmentManager.putFragment(outState, "FgContainer$idx", fg)
+            } catch (e: IllegalStateException) {
+                e.printStackTrace()
             }
         }
+    }
+
+    override fun onPause() {
+        searchToolbarCard.close()
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+        searchToolbarCard.close()
+        super.onDestroy()
     }
 
     override fun onItemClicked(fg: Fragment, recyclerView: RecyclerView, position: Int, v: View) {
@@ -92,31 +94,30 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
                     val model = adapter.dataModel
                     if (model.size > 0) {
                         adapter.resetAllSpannables()
-                        when (fg) {
-                            is FragmentMovieContent -> {
-                                val selected = model[position] as MovieAboutModel
-                                putExtras(Bundle().apply {
-                                    putExtra(DetailActivity.EXTRA_ID, selected.id)
-                                    putParcelable(
-                                        DetailActivity.EXTRA_DETAIL_TYPES,
-                                        DetailActivity.ContentTypes.ITEM_MOVIE
-                                    )
-                                    putExtra(DetailActivity.EXTRA_CONTENT_DETAILS, selected)
-                                })
-                            }
-                            is FragmentTvContent -> {
-                                putExtras(Bundle().apply {
+                        if (fg is FragmentContents) {
+                            val type = (listFragmentContainer[view_pager.currentItem] as FragmentListContainer).type
+                            val selected = model[position]
+                            putExtras(Bundle().apply {
+                                putParcelable(
+                                    DetailActivity.EXTRA_DETAIL_TYPES,
+                                    type
+                                )
+                                when (type) {
+                                    PublicConfig.ContentDisplayType.TV_SHOWS -> {
+                                        (selected as TvAboutModel).let {
+                                            putExtra(DetailActivity.EXTRA_ID, it.idTv)
+                                            putExtra(DetailActivity.EXTRA_CONTENT_DETAILS, it)
+                                        }
+                                    }
+                                    PublicConfig.ContentDisplayType.MOVIE -> {
+                                        (selected as MovieAboutModel).let {
+                                            putExtra(DetailActivity.EXTRA_ID, it.id)
+                                            putExtra(DetailActivity.EXTRA_CONTENT_DETAILS, it)
+                                        }
+                                    }
+                                }
 
-                                    val selected = model[position] as TvAboutModel
-                                    putExtra(DetailActivity.EXTRA_ID, selected.idTv)
-                                    putParcelable(
-                                        DetailActivity.EXTRA_DETAIL_TYPES,
-                                        DetailActivity.ContentTypes.ITEM_TV_SHOWS
-                                    )
-                                    putExtra(DetailActivity.EXTRA_CONTENT_DETAILS, selected)
-                                })
-
-                            }
+                            })
                         }
 
                     }
@@ -124,33 +125,31 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
                     val model = adapter.shortListModels
                     if (model.size > 0) {
                         adapter.resetAllSpannables()
-                        when (fg) {
-                            is FragmentMovieContent -> {
-                                val selected = model[position] as MovieAboutModel
-                                putExtras(Bundle().apply {
-                                    putExtra(DetailActivity.EXTRA_ID, selected.id)
-                                    putParcelable(
-                                        DetailActivity.EXTRA_DETAIL_TYPES,
-                                        DetailActivity.ContentTypes.ITEM_MOVIE
-                                    )
-                                    putExtra(DetailActivity.EXTRA_CONTENT_DETAILS, selected)
-                                })
-                            }
-                            is FragmentTvContent -> {
-                                putExtras(Bundle().apply {
+                        if (fg is FragmentContents) {
+                            val type = (listFragmentContainer[view_pager.currentItem] as FragmentListContainer).type
+                            val selected = model[position]
+                            putExtras(Bundle().apply {
+                                putParcelable(
+                                    DetailActivity.EXTRA_DETAIL_TYPES,
+                                    type
+                                )
+                                when (type) {
+                                    PublicConfig.ContentDisplayType.TV_SHOWS -> {
+                                        (selected as TvAboutModel).let {
+                                            putExtra(DetailActivity.EXTRA_ID, it.idTv)
+                                            putExtra(DetailActivity.EXTRA_CONTENT_DETAILS, it)
+                                        }
+                                    }
+                                    PublicConfig.ContentDisplayType.MOVIE -> {
+                                        (selected as MovieAboutModel).let {
+                                            putExtra(DetailActivity.EXTRA_ID, it.id)
+                                            putExtra(DetailActivity.EXTRA_CONTENT_DETAILS, it)
+                                        }
+                                    }
+                                }
 
-                                    val selected = model[position] as TvAboutModel
-                                    putExtra(DetailActivity.EXTRA_ID, selected.idTv)
-                                    putParcelable(
-                                        DetailActivity.EXTRA_DETAIL_TYPES,
-                                        DetailActivity.ContentTypes.ITEM_TV_SHOWS
-                                    )
-                                    putExtra(DetailActivity.EXTRA_CONTENT_DETAILS, selected)
-                                })
-
-                            }
+                            })
                         }
-
                     }
                 }
             }
@@ -159,30 +158,6 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
 
     }
 
-    private fun removeExtraSpacing() {
-        val wSize = Point()
-        windowManager.defaultDisplay.getSize(wSize)
-
-        GlobalScope.launch {
-            var currHeight = 0
-            var appBarHeight = 0
-            view_pager.post {
-                currHeight = view_pager.height
-            }
-            main_tab_appbar.post {
-                appBarHeight = main_tab_appbar.height
-            }
-
-            while (currHeight == 0 || appBarHeight == 0) delay(200)
-            val result = currHeight - appBarHeight
-            view_pager.post {
-                view_pager.layoutParams = (view_pager.layoutParams as CoordinatorLayout.LayoutParams).apply {
-                    setMargins(0, 0, 0, appBarHeight)
-                    //height = result
-                }
-            }
-        }
-    }
 
     private fun setupVPager() {
         view_pager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
@@ -231,7 +206,6 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
 
             override fun onTabSelected(p0: TabLayout.Tab?) {
                 view_pager.setCurrentItem(p0?.position ?: 0, true)
-                main_tab_appbar.setExpanded(true, true)
             }
 
         })
@@ -239,66 +213,55 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
 
     override fun querySearch(view: View, query: CharSequence?, start: Int, before: Int, count: Int) {
         // forward into next-child current fragment
-        (view_pager.adapter as HolderPageAdapter?)?.apply {
-            // broadcasts to all of fragment in this view pager
-            val fg = this.getAt(view_pager.currentItem)
-            if (fg is SearchToolbarCard.OnSearchCallback && fg.isResumed)
-                fg.querySearch(view, query, start, before, count)
+        listFragmentContainer[view_pager.currentItem].apply {
+            if (this is SearchToolbarCard.OnSearchCallback)
+                querySearch(view, query, start, before, count)
         }
     }
 
     override fun onSubmit(query: String) {
-
-        (view_pager.adapter as HolderPageAdapter?)?.apply {
-            // broadcasts to all of fragment in this view pager
-            val fg = this.getAt(view_pager.currentItem)
-            if (fg is SearchToolbarCard.OnSearchCallback && fg.isResumed)
-                fg.onSubmit(query)
-
+        listFragmentContainer[view_pager.currentItem].apply {
+            if (this is SearchToolbarCard.OnSearchCallback)
+                onSubmit(query)
         }
     }
 
     override fun onSearchCancelled() {
-        (view_pager.adapter as HolderPageAdapter?)?.apply {
-            val fg = this.getAt(view_pager.currentItem)
-            if (fg is SearchToolbarCard.OnSearchCallback && fg.isResumed)
-                fg.onSearchCancelled()
+        listFragmentContainer[view_pager.currentItem].apply {
+            if (this is SearchToolbarCard.OnSearchCallback)
+                onSearchCancelled()
         }
     }
 
     override fun onTextCleared(searchHistory: String?) {
-
-        (view_pager.adapter as HolderPageAdapter?)?.apply {
-            val fg = this.getAt(view_pager.currentItem)
-            if (fg is SearchToolbarCard.OnSearchCallback && fg.isResumed)
-                fg.onTextCleared(searchHistory)
+        listFragmentContainer[view_pager.currentItem].apply {
+            if (this is SearchToolbarCard.OnSearchCallback)
+                onTextCleared(searchHistory)
         }
     }
 
     override fun onSearchStarted() {
-
-        (view_pager.adapter as HolderPageAdapter?)?.apply {
-            val fg = this.getAt(view_pager.currentItem)
-            if (fg is SearchToolbarCard.OnSearchCallback && fg.isResumed)
-                fg.onSearchStarted()
+        listFragmentContainer[view_pager.currentItem].apply {
+            if (this is SearchToolbarCard.OnSearchCallback)
+                onSearchStarted()
         }
     }
 
     override fun onListModeChange(listMode: Int) {
-        Toast.makeText(this, "onListModeChange", Toast.LENGTH_SHORT).show()
-        (view_pager.adapter as HolderPageAdapter?)?.apply {
-            // broadcasts to all of fragment in this view pager
-            for (i in 0 until count) {
-                val fg = this.getAt(i)
-                if (fg is SearchToolbarCard.OnSearchCallback)
-                    fg.onListModeChange(listMode)
-            }
+        listFragmentContainer[view_pager.currentItem].apply {
+            if (this is SearchToolbarCard.OnSearchCallback)
+                onListModeChange(listMode)
         }
-    }
-
-
-    override fun onFragmentChange(newFragment: Fragment, fragmentType: FragmentListContainer.Type) {
         searchToolbarCard.forceSearchCancel()
     }
 
+    override fun getListMode(): Int = searchToolbarCard.currentListMode ?: PublicConfig.RecyclerMode.MODE_LIST
+
+    override fun onFragmentChange(newFragment: Fragment, fragmentType: PublicConfig.ContentDisplayType) {
+        searchToolbarCard.forceSearchCancel()
+    }
+}
+
+interface GetFromHostActivity {
+    fun getListMode(): Int
 }

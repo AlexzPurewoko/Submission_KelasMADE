@@ -1,24 +1,28 @@
 package id.apwdevs.app.catalogue.plugin.view
 
+import android.content.Intent
+import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat.getSystemService
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.core.content.ContextCompat.startActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.github.zawadz88.materialpopupmenu.MaterialPopupMenu
+import com.github.zawadz88.materialpopupmenu.popupMenu
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.plugin.PublicConfig
+import id.apwdevs.app.catalogue.viewModel.ToolbarCardViewModel
 
 class SearchToolbarCard(
     private val activity: AppCompatActivity,
-    cardView: CardView,
+    cardView: View,
     private val searchCb: OnSearchCallback
 ) : CustomEditText.OnClrBtnClicked {
 
@@ -27,25 +31,65 @@ class SearchToolbarCard(
     private var contentMore: ImageView = cardView.findViewById(R.id.img_more)
     private var listMode: ImageView = cardView.findViewById(R.id.item_list_modes)
     private lateinit var popupMenu: MaterialPopupMenu
-
     private var dataVModel: ToolbarCardViewModel = ViewModelProviders.of(activity).get(ToolbarCardViewModel::class.java)
+    private var hasToSubmitted: Boolean = false
+    private var hasFirstUserSearch: Boolean = false
+    internal val currentListMode: Int?
+        get() = dataVModel.currentListMode.value
 
 
     init {
-        dataVModel.currentListMode.observeForever {
+        dataVModel.currentListMode.observe(activity, Observer {
             setIconListMode(it)
-        }
-        dataVModel.isInSearchMode.observeForever {
+        })
+        dataVModel.isInSearchMode.observe(activity, Observer {
             imageSearch.setImageResource(
                 when (it) {
-                    true -> R.drawable.ic_arrow_back_black_24dp
-                    false -> R.drawable.ic_search_black_24dp
+                    true -> {
+                        R.drawable.ic_arrow_back_black_24dp
+                    }
+                    false -> {
+                        R.drawable.ic_search_black_24dp
+                    }
                 }
             )
-        }
+        })
+        dataVModel.queryTextSearch.observe(activity, Observer {
+            if (edtSearch.text?.toString() != it.s?.toString()) {
+                edtSearch.setText(it.s)
+            } else {
+                val (s, start, before, count) = it
+                searchCb.querySearch(edtSearch, s, start, before, count)
+            }
+        })
         initEditSearch()
         initImgLeft()
         initImgListMode()
+        initImgMore()
+    }
+
+    private fun initImgMore() {
+        popupMenu = popupMenu {
+            section {
+                item {
+                    icon = R.drawable.ic_translate_black_24dp
+                    label = activity.getString(R.string.language_change_txt)
+                    dismissOnSelect = true
+                    callback = {
+                        startActivity(activity, Intent(Settings.ACTION_LOCALE_SETTINGS), null)
+                    }
+                }
+                item {
+                    label = activity.getString(R.string.close)
+                    icon = R.drawable.ic_close_black_24dp
+                    dismissOnSelect = true
+                }
+            }
+        }
+        contentMore.setOnClickListener {
+            popupMenu.show(activity, it)
+            Toast.makeText(activity, R.string.message_popup, Toast.LENGTH_LONG).show()
+        }
     }
 
     override fun onClear(historyText: String?) {
@@ -55,13 +99,13 @@ class SearchToolbarCard(
     private fun setIconListMode(it: Int?) {
         when (it) {
             PublicConfig.RecyclerMode.MODE_LIST -> {
-                listMode.setImageResource(R.drawable.ic_view_grid_black_24dp)
+                listMode.setImageResource(R.drawable.ic_view_list_black_24dp)
             }
             PublicConfig.RecyclerMode.MODE_GRID -> {
-                listMode.setImageResource(R.drawable.ic_stagerred_black_24dp)
+                listMode.setImageResource(R.drawable.ic_view_grid_black_24dp)
             }
             PublicConfig.RecyclerMode.MODE_STAGERRED_LIST -> {
-                listMode.setImageResource(R.drawable.ic_view_list_black_24dp)
+                listMode.setImageResource(R.drawable.ic_stagerred_black_24dp)
             }
         }
     }
@@ -98,10 +142,7 @@ class SearchToolbarCard(
             when (dataVModel.isInSearchMode.value) {
                 true -> {
                     setFocusable(false)
-                    searchCb.onSearchCancelled()
-                    edtSearch.text?.clear()
                     dataVModel.isInSearchMode.value = false
-                    edtSearch.hideClrBtn()
                 }
                 false -> {
                     setFocusable(true)
@@ -114,8 +155,9 @@ class SearchToolbarCard(
         edtSearch.onBtnClearClicked = this
         edtSearch.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                setFocusable(false)
                 searchCb.onSubmit(edtSearch.text.toString())
+                hasToSubmitted = true
+                setFocusable(false)
             }
             true
         }
@@ -124,6 +166,10 @@ class SearchToolbarCard(
                 setFocusable(true)
                 edtSearch.requestFocusFromTouch()
             }
+        }
+        edtSearch.setOnFocusChangeListener { _, hasFocus ->
+            dataVModel.isInSearchMode.value = hasFocus
+            setFocusable(hasFocus)
         }
         edtSearch.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
@@ -135,8 +181,7 @@ class SearchToolbarCard(
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                searchCb.querySearch(edtSearch, s, start, before, count)
-                dataVModel.isInSearchMode.value = !s.isNullOrEmpty()
+                dataVModel.queryTextSearch.value = ToolbarCardViewModel.QueryStrData(s, start, before, count)
             }
 
         })
@@ -148,7 +193,7 @@ class SearchToolbarCard(
         if (condition) {
             edtSearch.requestFocusFromTouch()
             getSystemService(activity, InputMethodManager::class.java)?.apply {
-                showSoftInput(edtSearch, InputMethodManager.SHOW_FORCED)
+                showSoftInput(edtSearch, InputMethodManager.RESULT_SHOWN)
             }
         } else {
             getSystemService(activity, InputMethodManager::class.java)?.apply {
@@ -159,14 +204,17 @@ class SearchToolbarCard(
 
     fun forceSearchCancel() {
         dataVModel.isInSearchMode.value = false
-        edtSearch.text?.clear()
-        searchCb.onSearchCancelled()
+        if (hasFirstUserSearch) {
+            edtSearch.text?.clear()
+            searchCb.onSearchCancelled()
+        } else
+            hasFirstUserSearch = true
         setFocusable(false)
         edtSearch.hideClrBtn()
     }
 
-    fun dismissPopup() {
-        popupMenu.dismiss()
+    fun close() {
+        setFocusable(false)
     }
 
     interface OnSearchCallback {
@@ -176,15 +224,5 @@ class SearchToolbarCard(
         fun onTextCleared(searchHistory: String?)
         fun onSearchStarted()
         fun onListModeChange(listMode: Int)
-    }
-}
-
-class ToolbarCardViewModel : ViewModel() {
-    val currentListMode: MutableLiveData<Int> = MutableLiveData()
-    val isInSearchMode: MutableLiveData<Boolean> = MutableLiveData()
-
-    init {
-        currentListMode.value = PublicConfig.RecyclerMode.MODE_LIST
-        isInSearchMode.value = false
     }
 }

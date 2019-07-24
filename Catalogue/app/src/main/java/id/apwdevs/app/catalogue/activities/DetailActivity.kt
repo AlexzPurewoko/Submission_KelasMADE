@@ -2,57 +2,67 @@ package id.apwdevs.app.catalogue.activities
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.res.ColorStateList
-import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Bundle
-import android.os.Parcelable
-import android.util.Log
-import android.view.LayoutInflater
 import android.view.MenuItem
-import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.androidnetworking.AndroidNetworking
-import com.androidnetworking.common.Priority
-import com.androidnetworking.error.ANError
-import com.androidnetworking.interfaces.BitmapRequestListener
-import com.kelin.translucentbar.library.TranslucentBarManager
+import androidx.recyclerview.widget.RecyclerView
+import com.jaeger.library.StatusBarUtil
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.adapter.DetailLayoutRecyclerAdapter
 import id.apwdevs.app.catalogue.model.onDetail.SocmedIDModel
+import id.apwdevs.app.catalogue.plugin.ErrorAlertDialog
 import id.apwdevs.app.catalogue.plugin.ProgressDialog
+import id.apwdevs.app.catalogue.plugin.PublicConfig
 import id.apwdevs.app.catalogue.plugin.api.ApiRepository
-import id.apwdevs.app.catalogue.plugin.api.GetImageFiles
-import id.apwdevs.app.catalogue.plugin.view.ErrorSectionAdapter
+import id.apwdevs.app.catalogue.plugin.getBitmap
 import id.apwdevs.app.catalogue.view.MainDetailView
 import id.apwdevs.app.catalogue.viewModel.DetailMovieViewModel
 import id.apwdevs.app.catalogue.viewModel.DetailTVViewModel
-import kotlinx.android.parcel.Parcelize
+import id.apwdevs.app.catalogue.viewModel.DetailViewModel
 import kotlinx.android.synthetic.main.activity_detail_motion.*
 
-class DetailActivity : AppCompatActivity(), MainDetailView {
+class DetailActivity : AppCompatActivity(), MainDetailView, ErrorAlertDialog.OnErrorDialogBtnClickListener {
 
-    private lateinit var types: ContentTypes
+    private lateinit var types: PublicConfig.ContentDisplayType
     private lateinit var progress: ProgressDialog
-    private lateinit var viewModel: ViewModel
+    private lateinit var viewModel: DetailViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detail_motion)
-        AndroidNetworking.initialize(applicationContext)
-        TranslucentBarManager(this).transparent(this)
+        // transparent the status bar
+        if (resources.configuration.orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+            )
+        } else {
+            StatusBarUtil.setTransparent(this)
+        }
+        // when clicking home button, this context will be pop back from stack
         home.setOnClickListener {
             this@DetailActivity.finish()
+        }
+        actdetail_tint?.setOnClickListener {
+            viewModel.hasOverlayMode.value = !(viewModel.hasOverlayMode.value ?: false)
+        }
+        actdetail_tint?.setOnLongClickListener {
+            val tag = it.tag
+            if (tag is String)
+                Toast.makeText(this@DetailActivity, tag, Toast.LENGTH_SHORT).show()
+            true
         }
 
         if (savedInstanceState == null)
@@ -61,185 +71,158 @@ class DetailActivity : AppCompatActivity(), MainDetailView {
             }
         else
             types = savedInstanceState.getParcelable(EXTRA_DETAIL_TYPES)
-        progress = ProgressDialog(this)
-        progress.text = "Wait for a few minutes"
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-            0
-        )
+        progress = ProgressDialog()
 
-        when (types) {
-            ContentTypes.ITEM_MOVIE -> {
-                actdetail_title?.text = getString(R.string.detail_film_title)
-                viewModel = ViewModelProviders.of(this).get(DetailMovieViewModel::class.java)
-                viewModelAsDetailMovie()?.apply {
-                    if (hasFirstInitialize.value == false) {
-                        setAll(
-                            this@DetailActivity,
-                            ApiRepository(),
-                            this@DetailActivity
-                        )
-                        hasFirstInitialize.value = true
-                        return
-                    } else {
-                        compositingView(this)
-                    }
-
+        // gets the title and viewModel
+        actdetail_title?.text =
+            when (types) {
+                PublicConfig.ContentDisplayType.MOVIE -> {
+                    viewModel = ViewModelProviders.of(this).get(DetailMovieViewModel::class.java)
+                    getString(R.string.detail_film_title)
+                }
+                PublicConfig.ContentDisplayType.TV_SHOWS -> {
+                    viewModel = ViewModelProviders.of(this).get(DetailTVViewModel::class.java)
+                    getString(R.string.detail_tv_title)
                 }
             }
-            ContentTypes.ITEM_TV_SHOWS -> {
-                actdetail_title?.text = getString(R.string.detail_tv_title)
-                viewModel = ViewModelProviders.of(this).get(DetailTVViewModel::class.java)
-                viewModelAsDetailTv()?.apply {
-                    if (hasFirstInitialize.value == false) {
-                        setAll(
-                            this@DetailActivity,
-                            ApiRepository(),
-                            this@DetailActivity
-                        )
-                        hasFirstInitialize.value = true
-                    } else {
-                        compositingView(this)
+
+        // initialize and observe the viewmodel
+        viewModel.setup(this, this)
+        viewModel.apply {
+            hasLoading.observe(this@DetailActivity, Observer {
+                runOnUiThread {
+                    when (it) {
+                        false -> {
+                            try {
+                                progress.dismiss()
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+                        true -> {
+                            progress.show(supportFragmentManager, null)
+                        }
+                    }
+                    actdetail_recycler_content.adapter?.notifyDataSetChanged()
+                }
+            })
+            hasOverlayMode.observe(this@DetailActivity, Observer {
+                actdetail_image_header?.imageTintList =
+                    ColorStateList.valueOf(ContextCompat.getColor(baseContext, R.color.image_header))
+                if (it) {
+                    actdetail_image_header?.imageTintMode = PorterDuff.Mode.DARKEN
+                    actdetail_tint?.apply {
+                        setImageResource(R.drawable.ic_tint_overlay_off_24dp)
+                        tag = context.getString(R.string.img_tint_mode_overlay_tag)
                     }
 
+                } else {
+                    actdetail_image_header?.imageTintMode = PorterDuff.Mode.OVERLAY
+                    actdetail_tint?.apply {
+                        setImageResource(R.drawable.ic_tint_overlay_24dp)
+                        tag = context.getString(R.string.img_tint_mode_darken_tag)
+                    }
                 }
+
+            })
+
+            if (hasFirstInitialize.value == false) {
+                hasFirstInitialize.value = true
+                getAll()
+                return
+            } else {
+                if (hasLoading.value != true && (loadSuccess.value == true))
+                    compositingView(this)
             }
         }
 
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
+
+    override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState?.putParcelable(EXTRA_DETAIL_TYPES, types)
-    }
-
-    private fun viewModelAsDetailMovie(): DetailMovieViewModel? {
-        if (viewModel is DetailMovieViewModel)
-            return viewModel as DetailMovieViewModel
-        return null
-    }
-
-    private fun viewModelAsDetailTv(): DetailTVViewModel? {
-        if (viewModel is DetailTVViewModel)
-            return viewModel as DetailTVViewModel
-        return null
+        outState.putParcelable(EXTRA_DETAIL_TYPES, types)
     }
 
     override fun onLoad() {
-        progress.show()
     }
 
     override fun onLoadFailed(err: ApiRepository.RetError) {
         err.cause?.printStackTrace()
-        progress.dismiss()
-        AlertDialog.Builder(this).apply {
-            val view = LayoutInflater.from(this@DetailActivity)
-                .inflate(R.layout.error_layout, window.decorView as ViewGroup, false)
-            setView(view)
-            ErrorSectionAdapter(view).displayError(err)
-            setCancelable(false)
-            setNegativeButton("Go Back") { dialog, _ ->
-                dialog.dismiss()
-                this@DetailActivity.finish()
-            }
-        }.show()
+        viewModel.hasLoading.value = false
+        ErrorAlertDialog().apply {
+            returnedError = err
+            isCancelable = false
+        }.showNow(supportFragmentManager, "ErrorDialog")
 
     }
 
-    override fun onLoadFinished(viewModel: ViewModel) {
-        progress.dismiss()
+    override fun onLoadFinished(viewModel: DetailViewModel) {
         compositingView(viewModel)
     }
 
-    private fun compositingView(viewModel: ViewModel) {
+    private fun compositingView(viewModel: DetailViewModel) {
         val rectSize = Point()
         windowManager.defaultDisplay.getSize(rectSize)
         rectSize.y = resources.getDimension(R.dimen.actdetail_header_height).toInt()
-
-        when (viewModel) {
-            is DetailMovieViewModel -> {
-                val creditsModel = viewModel.credits.value
-                val data1Model = viewModel.details.value
-                val data2Model = viewModel.otherDetails.value
-                val reviews = viewModel.reviews.value
-                val socmedIDModel = viewModel.socmedIds.value
-                // sets the header
-                // sets the image of header
-                setBackdropPath(data1Model?.backdropPath, rectSize)
-                /// sets the poster image
-                setPosterImage(
-                    data1Model?.posterPath, Point(
-                        resources.getDimension(R.dimen.item_poster_width).toInt(),
-                        resources.getDimension(R.dimen.item_poster_height).toInt()
-                    )
-                )
-                /// sets the text title header
-                data1Model?.let {
-                    setTitleHeader(it.title, it.voteAverage, it.voteCount)
-                }
-                socmedIDModel?.let {
-                    setSocmedId(it)
-                }
-
-                actdetail_recycler_content.apply {
-                    layoutManager = LinearLayoutManager(this@DetailActivity)
-                    adapter = DetailLayoutRecyclerAdapter(this@DetailActivity, ContentTypes.ITEM_MOVIE, Bundle().apply {
-                        putParcelable(DetailLayoutRecyclerAdapter.EXTRA_DATA_1, data1Model)
-                        putParcelable(DetailLayoutRecyclerAdapter.EXTRA_DATA_2, data2Model)
-                        putParcelable(DetailLayoutRecyclerAdapter.EXTRA_DATA_REVIEWS, reviews)
-                        putParcelableArrayList(DetailLayoutRecyclerAdapter.EXTRA_DATA_CREWS, creditsModel?.allCrew)
-                        putParcelableArrayList(DetailLayoutRecyclerAdapter.EXTRA_DATA_CASTS, creditsModel?.allCasts)
-                    }).apply {
-                        onItemAction = object : DetailLayoutRecyclerAdapter.OnItemActionListener {
-                            override fun onAction(viewType: DetailLayoutRecyclerAdapter.ViewType, vararg action: Any) {
-                                Toast.makeText(this@DetailActivity, action[0].toString(), Toast.LENGTH_SHORT).show()
-                                openTo(action[0].toString())
-                            }
-
-                        }
+        actdetail_recycler_content.layoutManager = LinearLayoutManager(this)
+        actdetail_recycler_content.adapter =
+            DetailLayoutRecyclerAdapter(this@DetailActivity, types, viewModel).apply {
+                onItemAction = object : DetailLayoutRecyclerAdapter.OnItemActionListener {
+                    override fun onAction(viewType: DetailLayoutRecyclerAdapter.ViewType, vararg action: Any) {
+                        openTo(action[0].toString())
                     }
 
                 }
             }
+
+        val socmedIDModel = viewModel.socmedIds.value
+        var title: CharSequence? = null
+        var backdropPath: String? = null
+        var posterPath: String? = null
+        var voteAverage: Double? = null
+        var voteCount: Int? = null
+        when (viewModel) {
+            is DetailMovieViewModel -> {
+                val data1Model = viewModel.details.value
+                title = data1Model?.title
+                backdropPath = data1Model?.backdropPath
+                posterPath = data1Model?.posterPath
+                voteAverage = data1Model?.voteAverage
+                voteCount = data1Model?.voteCount
+            }
             is DetailTVViewModel -> {
-                val creditsModel = viewModel.credits.value
                 val data1Model = viewModel.shortDetails.value
-                val data2Model = viewModel.otherDetails.value
-                val reviews = viewModel.reviews.value
-                val socmedIDModel = viewModel.socmedIds.value
-
-                // sets the header
-                // sets the image of header
-                setBackdropPath(data1Model?.backdropPath, rectSize)
-                /// sets the poster image
-                setPosterImage(
-                    data1Model?.posterPath, Point(
-                        resources.getDimension(R.dimen.item_poster_width).toInt(),
-                        resources.getDimension(R.dimen.item_poster_height).toInt()
-                    )
-                )
-                /// sets the text title header
-                data1Model?.let {
-                    setTitleHeader(it.name, it.voteAverage, it.voteCount)
-                }
-                socmedIDModel?.let {
-                    setSocmedId(it)
-                }
-
-                actdetail_recycler_content.apply {
-                    layoutManager = LinearLayoutManager(this@DetailActivity)
-                    adapter =
-                        DetailLayoutRecyclerAdapter(this@DetailActivity, ContentTypes.ITEM_TV_SHOWS, Bundle().apply {
-                            putParcelable(DetailLayoutRecyclerAdapter.EXTRA_DATA_1, data1Model)
-                            putParcelable(DetailLayoutRecyclerAdapter.EXTRA_DATA_2, data2Model)
-                            putParcelable(DetailLayoutRecyclerAdapter.EXTRA_DATA_REVIEWS, reviews)
-                            putParcelableArrayList(DetailLayoutRecyclerAdapter.EXTRA_DATA_CREWS, creditsModel?.allCrew)
-                            putParcelableArrayList(DetailLayoutRecyclerAdapter.EXTRA_DATA_CASTS, creditsModel?.allCasts)
-                        })
-
-                }
+                title = data1Model?.name
+                backdropPath = data1Model?.backdropPath
+                posterPath = data1Model?.posterPath
+                voteAverage = data1Model?.voteAverage
+                voteCount = data1Model?.voteCount
             }
         }
+
+        // sets the header
+        // sets the image of header
+        setBackdropPath(backdropPath, rectSize)
+        /// sets the poster image
+        setPosterImage(
+            posterPath, Point(
+                resources.getDimension(R.dimen.item_poster_width).toInt(),
+                resources.getDimension(R.dimen.item_poster_height).toInt()
+            )
+        )
+        /// sets the text title header
+        setTitleHeader(title, requireNotNull(voteAverage), requireNotNull(voteCount))
+        socmedIDModel?.let {
+            setSocmedId(it)
+        }
+        actdetail_recycler_content.layoutManager?.smoothScrollToPosition(
+            actdetail_recycler_content,
+            RecyclerView.State().apply {
+                willRunPredictiveAnimations()
+            },
+            0
+        )
     }
 
     private fun setSocmedId(socmed: SocmedIDModel) {
@@ -268,9 +251,9 @@ class DetailActivity : AppCompatActivity(), MainDetailView {
 
     private fun openTo(link: String) {
         AlertDialog.Builder(this).apply {
-            title = "Open Links"
-            setMessage("Are you sure to open this page?")
-            setPositiveButton("Yes") { dialog, _ ->
+            title = getString(R.string.open_links)
+            setMessage(getString(R.string.opento_message))
+            setPositiveButton(getString(R.string.true_text)) { dialog, _ ->
                 dialog.dismiss()
                 startActivity(
                     Intent(Intent.ACTION_VIEW).apply {
@@ -278,7 +261,7 @@ class DetailActivity : AppCompatActivity(), MainDetailView {
                     }
                 )
             }
-            setNegativeButton("No") { dialog, _ ->
+            setNegativeButton(R.string.false_text) { dialog, _ ->
                 dialog.dismiss()
             }
         }.show()
@@ -294,47 +277,28 @@ class DetailActivity : AppCompatActivity(), MainDetailView {
 
     private fun setPosterImage(posterPath: String?, rectSize: Point) {
         posterPath?.let {
-            AndroidNetworking.get(GetImageFiles.getImg(rectSize.x, it))
-                .setPriority(Priority.LOW)
-                .setImageScaleType(ImageView.ScaleType.FIT_XY)
-                .setBitmapMaxWidth(rectSize.x)
-                .setBitmapMaxHeight(rectSize.y)
-                .build()
-                .getAsBitmap(object : BitmapRequestListener {
-                    override fun onResponse(response: Bitmap?) {
-                        item_poster_image?.setImageBitmap(response)
-                    }
-
-                    override fun onError(anError: ANError?) {
-                        Log.e("GetPosterImage", anError?.message, anError)
-                    }
-
-                })
+            getBitmap(rectSize, it) { bitmap ->
+                item_poster_image?.setImageBitmap(bitmap)
+            }
         }
     }
 
     private fun setBackdropPath(path: String?, rectSize: Point) {
         path?.let {
-            AndroidNetworking.get(GetImageFiles.getImg(rectSize.x, it))
-                .setPriority(Priority.LOW)
-                .setImageScaleType(ImageView.ScaleType.FIT_XY)
-                .setBitmapMaxWidth(rectSize.x)
-                .setBitmapMaxHeight(rectSize.y)
-                .build()
-                .getAsBitmap(object : BitmapRequestListener {
-                    override fun onResponse(response: Bitmap?) {
-                        actdetail_image_header?.setImageBitmap(response)
-                        actdetail_image_header?.imageTintMode = PorterDuff.Mode.OVERLAY
-                        actdetail_image_header?.imageTintList =
-                            ColorStateList.valueOf(ContextCompat.getColor(baseContext, R.color.image_header))
-                    }
-
-                    override fun onError(anError: ANError?) {
-                        Log.e("GetBackdropPath", anError?.message, anError)
-                    }
-
-                })
+            getBitmap(rectSize, it) { bitmap ->
+                actdetail_image_header?.setImageBitmap(bitmap)
+            }
         }
+    }
+
+    override fun onRequestRefresh(errorAlertDialog: ErrorAlertDialog) {
+        errorAlertDialog.dismiss()
+        viewModel.getAll()
+    }
+
+    override fun onRequestBack(errorAlertDialog: ErrorAlertDialog) {
+        errorAlertDialog.dismiss()
+        finish()
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
@@ -350,11 +314,5 @@ class DetailActivity : AppCompatActivity(), MainDetailView {
         const val EXTRA_ID = "ID_CONTENT"
         const val EXTRA_DETAIL_TYPES = "DETAIL_TYPES"
 
-    }
-
-    @Parcelize
-    enum class ContentTypes : Parcelable {
-        ITEM_MOVIE,
-        ITEM_TV_SHOWS
     }
 }

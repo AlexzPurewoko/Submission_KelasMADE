@@ -1,6 +1,10 @@
 package id.apwdevs.app.catalogue.plugin
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
 object PublicConfig {
+
     const val TV_OTA: String = "on_the_air"
     const val TV_AIRING_TODAY: String = "airing_today"
     const val GENRE: String = "genre"
@@ -23,6 +27,13 @@ object PublicConfig {
         const val MODE_GRID = 0x6ffa
         const val MODE_LIST = 0x5faa
         const val MODE_STAGERRED_LIST = 0xaf45
+    }
+
+
+    @Parcelize
+    enum class ContentDisplayType : Parcelable {
+        MOVIE,
+        TV_SHOWS
     }
 
 }

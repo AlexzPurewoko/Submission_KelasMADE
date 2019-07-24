@@ -1,10 +1,9 @@
 package id.apwdevs.app.catalogue.viewModel
 
 import android.os.Parcelable
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.androidnetworking.common.Priority
 import id.apwdevs.app.catalogue.model.GenreModel
+import id.apwdevs.app.catalogue.model.ResettableItem
 import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.model.onUserMain.PageListModel
 import id.apwdevs.app.catalogue.plugin.CoroutineContextProvider
@@ -13,90 +12,47 @@ import id.apwdevs.app.catalogue.plugin.api.ApiRepository
 import id.apwdevs.app.catalogue.plugin.api.GetMovies
 import id.apwdevs.app.catalogue.plugin.jsonCheckAndGet
 import id.apwdevs.app.catalogue.plugin.view.ErrorSectionAdapter
-import id.apwdevs.app.catalogue.view.MainUserListView
 import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
 
-class MainListMovieViewModel : ViewModel() {
-    val dataListObj: MutableLiveData<PageListModel<MovieAboutModel>> = MutableLiveData()
-    val hasFirstInstantiate: MutableLiveData<Boolean> = MutableLiveData()
-    val currentListMode: MutableLiveData<Int> = MutableLiveData()
-    val fragmentIsRefreshing: MutableLiveData<Boolean> = MutableLiveData()
-    private val dataGenres: MutableLiveData<MutableList<GenreModel>> = MutableLiveData()
+class MainListMovieViewModel : MainListViewModel() {
 
-    init {
-        // we have to initialize these variables to be available for first instance
-        hasFirstInstantiate.value = false
-        currentListMode.value = PublicConfig.RecyclerMode.MODE_LIST
-        fragmentIsRefreshing.value = false
-    }
-
-    fun setup(
-        apiRepository: ApiRepository,
-        types: SupportedType,
+    override fun getAt(
+        types: Parcelable,
         pages: Int,
-        tag: String,
-        view: MainUserListView,
-        coroutineContextProvider: CoroutineContextProvider = CoroutineContextProvider()
+        coroutineContextProvider: CoroutineContextProvider
     ) {
-        view.onStart()
-        GlobalScope.launch(coroutineContextProvider.main) {
-            getAllGenre(apiRepository)?.let {
-                view.onLoadFinished()
-                view.onLoadFailed(it)
-                return@launch
-            }
-            getPages(apiRepository, types, pages, tag)?.let {
-                view.onLoadFinished()
-                view.onLoadFailed(it)
-                return@launch
-            }
-            view.onLoadFinished()
-            view.onLoadSuccess(this@MainListMovieViewModel)
-        }
-    }
-
-    private suspend fun getAllGenre(apiRepository: ApiRepository): ApiRepository.RetError? {
-        val retApi =
-            apiRepository.doReqAndRetResponseAsync(GetMovies.getAllGenre(), "GetAllMovieGenre", Priority.MEDIUM).await()
-        retApi?.let {
-            if (it.isSuccess && !it.response.isNullOrEmpty()) {
-                try {
-                    JSONObject(it.response).getJSONArray("genres").apply {
-                        val listGenre = mutableListOf<GenreModel>()
-                        for (index in 0 until length()) {
-                            getJSONObject(index).let { jsonObj ->
-                                listGenre.add(
-                                    GenreModel(
-                                        id = jsonObj.getInt("id"),
-                                        genreName = jsonObj.getString("name")
-                                    )
-                                )
-                            }
-
-                        }
-                        dataGenres.postValue(listGenre)
-                    }
-                    return null
-                } catch (e: JSONException) {
-                    e.printStackTrace()
-                    return ApiRepository.RetError(ErrorSectionAdapter.ERR_CODE_PARSE_FAILED, e)
+        if (types is SupportedType) {
+            view?.get()?.onStart()
+            GlobalScope.launch(coroutineContextProvider.main) {
+                getAllGenre(apiRepository)?.let {
+                    view?.get()?.onLoadFinished()
+                    view?.get()?.onLoadFailed(it)
+                    return@launch
                 }
-            } else {
-                return it.anErrorIfAny
+                getPages(apiRepository, types, pages, tag.value)?.let {
+                    view?.get()?.onLoadFinished()
+                    view?.get()?.onLoadFailed(it)
+                    return@launch
+                }
+                view?.get()?.onLoadFinished()
+                view?.get()?.onLoadSuccess(this@MainListMovieViewModel)
             }
         }
-        return ApiRepository.RetError(ErrorSectionAdapter.ERR_CODE_UNSPECIFIED, null)
     }
+
+
+    override fun getTypes(): PublicConfig.ContentDisplayType = PublicConfig.ContentDisplayType.MOVIE
+
 
     private suspend fun getPages(
         apiRepository: ApiRepository,
         supportedType: SupportedType,
         pages: Int,
-        tag: String
+        tag: String?
     ): ApiRepository.RetError? {
         if (pages < 0 || pages > 1000) {
             return ApiRepository.RetError(
@@ -104,11 +60,8 @@ class MainListMovieViewModel : ViewModel() {
                 IllegalArgumentException("pages must between 0 and maxPages or 1000 : page $pages")
             )
         }
-        /*dataListObj.value?.totalPages?.let {
-            if (pages > it)
-                return ANError(IllegalArgumentException("pages must between 0 and maxPages or 1000 : page $pages"))
-        }*/
         apiRepository.doReqAndRetResponseAsync(
+            context?.get(),
             GetMovies.getList(
                 supportedType,
                 pages
@@ -123,7 +76,7 @@ class MainListMovieViewModel : ViewModel() {
                         val inPage = getInt("page")
                         val totalResults = getInt("total_results")
                         val totalPages = getInt("total_pages")
-                        val contents = arrayListOf<MovieAboutModel>()
+                        val contents = arrayListOf<ResettableItem>()
                         //inflate the contents
                         val jsonContents = getJSONArray("results")
                         for (index in 0 until jsonContents.length()) {

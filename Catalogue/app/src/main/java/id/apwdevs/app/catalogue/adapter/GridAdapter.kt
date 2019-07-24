@@ -2,30 +2,23 @@ package id.apwdevs.app.catalogue.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Point
 import android.graphics.Typeface
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
-import com.androidnetworking.AndroidNetworking
-import com.androidnetworking.common.Priority
-import com.androidnetworking.error.ANError
-import com.androidnetworking.interfaces.BitmapRequestListener
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.model.ResettableItem
 import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
 import id.apwdevs.app.catalogue.plugin.SearchComponent
-import id.apwdevs.app.catalogue.plugin.api.GetImageFiles
+import id.apwdevs.app.catalogue.plugin.getBitmap
 
 class GridAdapter<T : ResettableItem>(private val mContext: Context) :
     RecyclerView.Adapter<GridAdapter<T>.GridViewHolder<T>>(), Filterable {
@@ -72,14 +65,6 @@ class GridAdapter<T : ResettableItem>(private val mContext: Context) :
             model.onReset()
         }
     }
-
-
-    fun getItemData(postionData: Int): T? =
-        when {
-            shortListModels.isNullOrEmpty() || postionData < 0 || postionData >= shortListModels.size -> null
-            else -> shortListModels[postionData]
-        }
-
 
     private inner class OnSearchMethod : SearchComponent<T>() {
         override fun onSearchFinished(aList: MutableList<T>?) {
@@ -172,10 +157,10 @@ class GridAdapter<T : ResettableItem>(private val mContext: Context) :
 
     }
 
-    inner class GridViewHolder<T : ResettableItem> internal constructor(private val view: View) :
+    inner class GridViewHolder<T : ResettableItem> internal constructor(view: View) :
         RecyclerView.ViewHolder(view) {
 
-        private val moviePoster: ImageView = view.findViewById(R.id.item_poster_image)
+        private val poster: ImageView = view.findViewById(R.id.item_poster_image)
         private val title: TextView = view.findViewById(R.id.item_list_text_title)
         private val releaseDate: TextView = view.findViewById(R.id.item_list_release_date)
         private val ratingBar: RatingBar = view.findViewById(R.id.item_list_ratingBar)
@@ -190,10 +175,9 @@ class GridAdapter<T : ResettableItem>(private val mContext: Context) :
                     ratingBar.rating = getRating(dataModel.voteAverage)
                     voteCount.text = "(${dataModel.voteCount})"
                     dataModel.posterPath?.let {
-                        Glide.with(view.context)
-                            .load(GetImageFiles.getImg(requestedWidth, it))
-                            .apply(RequestOptions().override(requestedWidth, requestedHeight))
-                            .into(moviePoster)
+                        getBitmap(Point(requestedWidth, requestedHeight), it) { bitmap ->
+                            poster.setImageBitmap(bitmap)
+                        }
                     }
 
                 }
@@ -203,22 +187,9 @@ class GridAdapter<T : ResettableItem>(private val mContext: Context) :
                     ratingBar.rating = getRating(dataModel.voteAverage)
                     voteCount.text = "(${dataModel.voteCount})"
                     dataModel.posterPath?.let {
-                        AndroidNetworking.get(GetImageFiles.getImg(requestedWidth, it))
-                            .setPriority(Priority.LOW)
-                            .setBitmapMaxHeight(requestedHeight)
-                            .setBitmapMaxWidth(requestedWidth)
-                            .setImageScaleType(ImageView.ScaleType.FIT_XY)
-                            .build()
-                            .getAsBitmap(object : BitmapRequestListener {
-                                override fun onResponse(response: Bitmap?) {
-                                    moviePoster.setImageBitmap(response)
-                                }
-
-                                override fun onError(anError: ANError?) {
-                                    Log.e("ErrorDisplayBitmap", anError?.errorBody, anError)
-                                }
-
-                            })
+                        getBitmap(Point(requestedWidth, requestedHeight), it) { bitmap ->
+                            poster.setImageBitmap(bitmap)
+                        }
                     }
                 }
             }

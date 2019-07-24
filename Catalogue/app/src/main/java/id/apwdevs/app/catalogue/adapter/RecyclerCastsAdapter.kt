@@ -21,7 +21,7 @@ import kotlin.math.min
 class RecyclerCastsAdapter(
     private val context: Context,
     private val mListCasts: List<CastModel>,
-    internal val maxContentLimits: Int
+    private val maxContentLimits: Int
 ) : RecyclerView.Adapter<RecyclerCastsAdapter.RecyclerCastsViewHolder>() {
 
     init {

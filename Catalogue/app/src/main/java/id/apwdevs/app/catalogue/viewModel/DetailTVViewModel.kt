@@ -1,79 +1,72 @@
 package id.apwdevs.app.catalogue.viewModel
 
-import android.app.Activity
 import androidx.lifecycle.MutableLiveData
-
-import androidx.lifecycle.ViewModel
 import com.androidnetworking.common.Priority
 import id.apwdevs.app.catalogue.activities.DetailActivity
-import id.apwdevs.app.catalogue.model.onDetail.*
+import id.apwdevs.app.catalogue.model.onDetail.ModelTvCreatedBy
+import id.apwdevs.app.catalogue.model.onDetail.OtherTVAboutModel
+import id.apwdevs.app.catalogue.model.onDetail.ProductionTVCompaniesModel
+import id.apwdevs.app.catalogue.model.onDetail.ProductionTVSeasons
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
 import id.apwdevs.app.catalogue.plugin.CoroutineContextProvider
+import id.apwdevs.app.catalogue.plugin.PublicConfig
 import id.apwdevs.app.catalogue.plugin.api.ApiRepository
 import id.apwdevs.app.catalogue.plugin.api.GetTVShows
 import id.apwdevs.app.catalogue.plugin.jsonCheckAndGet
 import id.apwdevs.app.catalogue.plugin.view.ErrorSectionAdapter
-import id.apwdevs.app.catalogue.view.MainDetailView
-
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
 
-class DetailTVViewModel : ViewModel() {
+class DetailTVViewModel : DetailViewModel() {
+
     val shortDetails: MutableLiveData<TvAboutModel> = MutableLiveData()
     val otherDetails: MutableLiveData<OtherTVAboutModel> = MutableLiveData()
-    val socmedIds: MutableLiveData<SocmedIDModel> = MutableLiveData()
-    val reviews: MutableLiveData<ReviewModel> = MutableLiveData()
-    val credits: MutableLiveData<CreditsModel> = MutableLiveData()
 
-    val tvIds: MutableLiveData<Int> = MutableLiveData()
-
-    val hasFirstInitialize: MutableLiveData<Boolean> = MutableLiveData()
-
-    init {
-        hasFirstInitialize.value = false
-    }
-
-    fun setAll(
-        activity: Activity,
-        apiRepository: ApiRepository,
-        view: MainDetailView,
-        coroutineContextProvider: CoroutineContextProvider = CoroutineContextProvider()
+    override fun getAll(
+        coroutineContextProvider: CoroutineContextProvider
     ) {
         GlobalScope.launch(coroutineContextProvider.main) {
-            view.onLoad()
-            activity.intent.extras?.apply {
+            view?.get()?.onLoad()
+            hasLoading.value = true
+            loadSuccess.value = false
+            activity?.get()?.intent?.extras?.apply {
                 val otherAboutTv = getParcelable<TvAboutModel>(DetailActivity.EXTRA_CONTENT_DETAILS)
                 shortDetails.postValue(otherAboutTv)
-                tvIds.value = getInt(DetailActivity.EXTRA_ID)
+                id.value = getInt(DetailActivity.EXTRA_ID)
             }
 
-            val idTv = tvIds.value ?: 0
+            val idTv = id.value ?: 0
 
-            getCredits(apiRepository, idTv)?.let {
-                view.onLoadFailed(it)
+            getCredits(apiRepository)?.let {
+                view?.get()?.onLoadFailed(it)
                 return@launch
             }
             otherDetails(apiRepository, idTv)?.let {
-                view.onLoadFailed(it)
+                view?.get()?.onLoadFailed(it)
                 return@launch
             }
-            getReviews(apiRepository, idTv)?.let {
-                view.onLoadFailed(it)
+            getReviews(apiRepository)?.let {
+                view?.get()?.onLoadFailed(it)
                 return@launch
             }
-            getSocmedID(apiRepository, idTv)?.let {
-                view.onLoadFailed(it)
+            getSocmedId(apiRepository)?.let {
+                view?.get()?.onLoadFailed(it)
                 return@launch
             }
-
-            view.onLoadFinished(this@DetailTVViewModel)
+            hasLoading.value = false
+            loadSuccess.value = true
+            view?.get()?.onLoadFinished(this@DetailTVViewModel)
         }
     }
 
-    suspend fun otherDetails(apiRepository: ApiRepository, idTv: Int): ApiRepository.RetError? =
+
+    override fun getTypes(): PublicConfig.ContentDisplayType = PublicConfig.ContentDisplayType.TV_SHOWS
+
+    private suspend fun otherDetails(apiRepository: ApiRepository, idTv: Int): ApiRepository.RetError? =
         apiRepository.doReqAndRetResponseAsync(
+            activity?.get(),
             GetTVShows.getOtherDetails(idTv),
             "getTvOtherDetailsId$idTv",
             Priority.HIGH
@@ -83,7 +76,6 @@ class DetailTVViewModel : ViewModel() {
                     JSONObject(it.response).apply {
                         val resultProductionCompaniesModel = mutableListOf<ProductionTVCompaniesModel>()
                         val resultProductionSeasonModel = mutableListOf<ProductionTVSeasons>()
-                        val resultNetworks = mutableListOf<TvNetworkModel>()
                         val resultCreatedBy = mutableListOf<ModelTvCreatedBy>()
                         val jsonProdComp = getJSONArray("production_companies")
                         val jsonProdSeasons = getJSONArray("seasons")
@@ -112,18 +104,6 @@ class DetailTVViewModel : ViewModel() {
                                         overview = getString("overview"),
                                         posterPath = getString("poster_path"),
                                         seasonNumber = getInt("season_number")
-                                    )
-                                )
-                            }
-                        }
-                        for (index in 0 until jsonNetworks.length()) {
-                            jsonNetworks.getJSONObject(index).apply {
-                                resultNetworks.add(
-                                    TvNetworkModel(
-                                        logoPath = getString("logo_path"),
-                                        id = getInt("id"),
-                                        originCountry = getString("origin_country"),
-                                        name = getString("name")
                                     )
                                 )
                             }
@@ -157,7 +137,6 @@ class DetailTVViewModel : ViewModel() {
                                 originCountry = originCountry,
                                 status = getString("status"),
                                 type = getString("type"),
-                                networks = resultNetworks,
                                 productionCompanies = resultProductionCompaniesModel,
                                 productionTvSeasons = resultProductionSeasonModel
                             )
@@ -170,142 +149,5 @@ class DetailTVViewModel : ViewModel() {
             } else {
                 it.anErrorIfAny
             }
-
         }
-
-
-    suspend fun getCredits(apiRepository: ApiRepository, idTv: Int): ApiRepository.RetError? =
-        apiRepository.doReqAndRetResponseAsync(
-            GetTVShows.getCredits(idTv),
-            "getCreditsMoviesId$idTv",
-            Priority.HIGH
-        ).await()?.let {
-            return if (it.isSuccess && !it.response.isNullOrEmpty()) {
-                try {
-                    JSONObject(it.response).apply {
-                        val resultCasts = arrayListOf<CastModel>()
-                        val resultCrews = arrayListOf<CrewModel>()
-                        val jsonCrews = getJSONArray("crew")
-                        val jsonCast = getJSONArray("cast")
-                        for (index in 0 until jsonCrews.length()) {
-                            jsonCrews.getJSONObject(index).apply {
-                                resultCrews.add(
-                                    CrewModel(
-                                        creditId = getString("credit_id"),
-                                        department = getString("department"),
-                                        gender = jsonCheckAndGet(get("gender"))?.toString()?.toInt(),
-                                        id = getInt("id"),
-                                        job = getString("job"),
-                                        name = getString("name"),
-                                        profilePath = jsonCheckAndGet(get("profile_path"))?.toString()
-                                    )
-                                )
-                            }
-                        }
-
-                        for (index in 0 until jsonCast.length()) {
-                            jsonCast.getJSONObject(index).apply {
-                                resultCasts.add(
-                                    CastModel(
-                                        id = getInt("id"),
-                                        castId = null,
-                                        asCharacter = getString("character"),
-                                        creditId = getString("credit_id"),
-                                        gender = jsonCheckAndGet(get("gender"))?.toString()?.toInt(),
-                                        name = getString("name"),
-                                        order = getInt("order"),
-                                        profilePath = jsonCheckAndGet(get("profile_path"))?.toString()
-                                    )
-                                )
-                            }
-                        }
-
-                        credits.postValue(
-                            CreditsModel(
-                                id = getInt("id"),
-                                allCasts = resultCasts,
-                                allCrew = resultCrews
-                            )
-                        )
-                    }
-                } catch (e: JSONException) {
-                    return ApiRepository.RetError(ErrorSectionAdapter.ERR_CODE_PARSE_FAILED, e)
-                }
-                null
-            } else {
-                it.anErrorIfAny
-            }
-        }
-
-    suspend fun getReviews(apiRepository: ApiRepository, idTv: Int): ApiRepository.RetError? =
-        apiRepository.doReqAndRetResponseAsync(
-            GetTVShows.getReviews(idTv),
-            "getReviewsTVId$idTv",
-            Priority.HIGH
-        ).await()?.let {
-            return if (it.isSuccess && !it.response.isNullOrEmpty()) {
-                try {
-                    JSONObject(it.response).apply {
-
-                        val ret = getJSONArray("results")
-                        val results = arrayListOf<ReviewResultModel>()
-                        for (index in 0 until ret.length()) {
-                            ret.getJSONObject(index).apply {
-                                results.add(
-                                    ReviewResultModel(
-                                        id = getString("id"),
-                                        author = getString("author"),
-                                        content = getString("content"),
-                                        url = getString("url")
-                                    )
-                                )
-                            }
-                        }
-
-                        reviews.postValue(
-                            ReviewModel(
-                                id = getInt("id"),
-                                page = getInt("page"),
-                                totalPages = getInt("total_pages"),
-                                totalResult = getInt("total_results"),
-                                results = results
-                            )
-                        )
-                    }
-                } catch (e: JSONException) {
-                    return ApiRepository.RetError(ErrorSectionAdapter.ERR_CODE_PARSE_FAILED, e)
-                }
-                null
-            } else {
-                it.anErrorIfAny
-            }
-        }
-
-    suspend fun getSocmedID(apiRepository: ApiRepository, idTv: Int): ApiRepository.RetError? =
-        apiRepository.doReqAndRetResponseAsync(
-            GetTVShows.getSocmedID(idTv),
-            "getSocmedTVId$idTv",
-            Priority.HIGH
-        ).await()?.let {
-            return if (it.isSuccess && !it.response.isNullOrEmpty()) {
-                JSONObject(it.response).apply {
-                    socmedIds.postValue(
-                        SocmedIDModel(
-                            id = getInt("id"),
-                            facebookId = jsonCheckAndGet(get("facebook_id"))?.toString(),
-                            instagramId = jsonCheckAndGet(get("instagram_id"))?.toString(),
-                            twitterId = jsonCheckAndGet(get("twitter_id"))?.toString()
-                        )
-                    )
-                }
-                null
-            } else {
-                it.anErrorIfAny
-            }
-        }
-
-
-    override fun onCleared() {
-
-    }
 }

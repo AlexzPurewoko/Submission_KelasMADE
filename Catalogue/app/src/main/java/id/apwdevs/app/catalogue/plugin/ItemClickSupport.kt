@@ -58,10 +58,10 @@ class ItemClickSupport private constructor(private val mRecyclerView: RecyclerVi
             return support as ItemClickSupport
         }
 
-        fun removeFrom(view: RecyclerView): ItemClickSupport? {
-            val support = view.getTag(R.id.item_click_support) as ItemClickSupport
-            support.detach(view)
-            return support
+        fun removeFrom(view: RecyclerView) {
+            val support = view.getTag(R.id.item_click_support)
+            if (support is ItemClickSupport)
+                support.detach(view)
         }
     }
 

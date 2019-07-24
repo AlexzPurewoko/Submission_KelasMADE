@@ -1,69 +1,73 @@
 package id.apwdevs.app.catalogue.fragment
 
+import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.os.Parcelable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager.widget.ViewPager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.plugin.CoroutineContextProvider
-import id.apwdevs.app.catalogue.plugin.OnItemFragmentClickListener
+import id.apwdevs.app.catalogue.plugin.PublicConfig
+import id.apwdevs.app.catalogue.plugin.callbacks.FragmentListCallback
+import id.apwdevs.app.catalogue.plugin.callbacks.OnItemFragmentClickListener
+import id.apwdevs.app.catalogue.plugin.callbacks.OnSelectedFragment
 import id.apwdevs.app.catalogue.plugin.view.SearchToolbarCard
 import id.apwdevs.app.catalogue.viewModel.MainListMovieViewModel
 import id.apwdevs.app.catalogue.viewModel.MainListTvViewModel
-import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback, OnItemFragmentClickListener {
+class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
+    OnItemFragmentClickListener {
+
 
     private lateinit var bottomNavigationView: BottomNavigationView
-    //private lateinit var vpager: ViewPager
-    private lateinit var frame: FrameLayout
+    private lateinit var vpager: ViewPager
 
     private lateinit var mFragments: MutableList<Fragment>
-    private lateinit var type: Type
-    private var selectedPosition = 1
-
-
-    var onItemClickListener: OnItemFragmentClickListener? = null
+    lateinit var type: PublicConfig.ContentDisplayType
 
     private val fragmentTag: String
         get() {
-            when (type) {
-                Type.MOVIES -> {
-                    return "FragmentListContainerMovie"
+            return when (type) {
+                PublicConfig.ContentDisplayType.MOVIE -> {
+                    "FragmentListContainerMovie"
                 }
-                Type.TV_SHOWS -> {
-                    return "FragmentListContainerTvShows"
+                PublicConfig.ContentDisplayType.TV_SHOWS -> {
+                    "FragmentListContainerTvShows"
                 }
             }
         }
     var fragmentListCb: FragmentListCallback? = null
+    private var onItemClickListener: OnItemFragmentClickListener? = null
+    private var currItem: Int = 0
+
+    @Volatile
+    private var dummyLockUntilFinish: Boolean = false
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-
-
         return LayoutInflater.from(requireContext()).inflate(
             when (type) {
-                Type.MOVIES -> R.layout.fg_holder_movies
-                Type.TV_SHOWS -> R.layout.fg_holder_tv
+                PublicConfig.ContentDisplayType.MOVIE -> R.layout.fg_holder_movies
+                PublicConfig.ContentDisplayType.TV_SHOWS -> R.layout.fg_holder_tv
             }, container, false
         )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        frame = view.findViewById(R.id.fg_content_frame)
+        vpager = view.findViewById(R.id.fg_content_pager)
         bottomNavigationView = view.findViewById(R.id.fg_content_bottomnav)
     }
 
@@ -71,25 +75,35 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback, On
         super.onCreate(savedInstanceState)
         type = requireNotNull(arguments).getParcelable(EXTRA_TYPE)
         if (savedInstanceState == null) {
+            val tvModeSupport = mutableListOf(
+                MainListTvViewModel.SupportedType.TV_AIRING_TODAY,
+                MainListTvViewModel.SupportedType.TV_OTA,
+                MainListTvViewModel.SupportedType.DISCOVER,
+                MainListTvViewModel.SupportedType.POPULAR,
+                MainListTvViewModel.SupportedType.TOP_RATED
+            )
+            val movieModeSupport = mutableListOf(
+                MainListMovieViewModel.SupportedType.NOW_PLAYING,
+                MainListMovieViewModel.SupportedType.POPULAR,
+                MainListMovieViewModel.SupportedType.DISCOVER,
+                MainListMovieViewModel.SupportedType.TOP_RATED,
+                MainListMovieViewModel.SupportedType.UPCOMING
+            )
+            mFragments = mutableListOf()
             when (type) {
-                Type.TV_SHOWS -> {
-                    mFragments = mutableListOf(
-                        FragmentTvContent.newInstance(MainListTvViewModel.SupportedType.TV_AIRING_TODAY),
-                        FragmentTvContent.newInstance(MainListTvViewModel.SupportedType.TV_OTA),
-                        FragmentTvContent.newInstance(MainListTvViewModel.SupportedType.DISCOVER),
-                        FragmentTvContent.newInstance(MainListTvViewModel.SupportedType.POPULAR),
-                        FragmentTvContent.newInstance(MainListTvViewModel.SupportedType.TOP_RATED)
-                    )
+                PublicConfig.ContentDisplayType.TV_SHOWS -> {
+                    tvModeSupport.forEach {
+                        mFragments.add(FragmentContents.newInstance(type, it))
+                    }
+
                 }
-                Type.MOVIES -> {
-                    mFragments = mutableListOf(
-                        FragmentMovieContent.newInstance(MainListMovieViewModel.SupportedType.NOW_PLAYING),
-                        FragmentMovieContent.newInstance(MainListMovieViewModel.SupportedType.POPULAR),
-                        FragmentMovieContent.newInstance(MainListMovieViewModel.SupportedType.DISCOVER),
-                        FragmentMovieContent.newInstance(MainListMovieViewModel.SupportedType.TOP_RATED),
-                        FragmentMovieContent.newInstance(MainListMovieViewModel.SupportedType.UPCOMING)
-                    )
+                PublicConfig.ContentDisplayType.MOVIE -> {
+                    movieModeSupport.forEach {
+                        mFragments.add(FragmentContents.newInstance(type, it))
+                    }
                 }
+
+
             }
         } else {
             mFragments = mutableListOf()
@@ -104,21 +118,15 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback, On
                 }
             }
         }
-        for (mFragment in mFragments) {
-            if (mFragment is FragmentTvContent)
-                mFragment.onItemClickListener = this
-            else if (mFragment is FragmentMovieContent)
-                mFragment.onItemClickListener = this
+        mFragments.forEach {
+            if (it is FragmentContents)
+                it.onItemClickListener = this
         }
-    }
-
-
-    override fun onItemClicked(fg: Fragment, recyclerView: RecyclerView, position: Int, v: View) {
-        onItemClickListener?.onItemClicked(fg, recyclerView, position, v)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
+        outState.putInt(EXTRA_CURRENT_ITEM_POSITION, currItem)
         for ((idx, fg) in mFragments.withIndex()) {
             childFragmentManager.putFragment(outState, "Content$fragmentTag$idx", fg)
         }
@@ -128,33 +136,69 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback, On
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         val menuSize = bottomNavigationView.menu.size()
-        val currItem =
-            if (menuSize % 2 == 0) 0
-            else (menuSize / 2)
+        vpager.offscreenPageLimit = menuSize
+        savedInstanceState?.let {
+            currItem = it.getInt(EXTRA_CURRENT_ITEM_POSITION)
+        }
 
+        vpager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+            override fun onPageScrollStateChanged(state: Int) {
+            }
+
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+            }
+
+            override fun onPageSelected(position: Int) {
+                if (dummyLockUntilFinish) {
+                    dummyLockUntilFinish = false
+                    bottomNavigationView.selectedItemId = bottomNavigationView.menu.getItem(position).itemId
+                    currItem = position
+                    fragmentListCb?.onFragmentChange(mFragments[position], type)
+                    startPrepareFragment(position)
+                    dummyLockUntilFinish = true
+                }
+            }
+
+        })
         bottomNavigationView.setOnNavigationItemSelectedListener { itemSelectedMenu ->
             val menus = bottomNavigationView.menu
             for (menuPos in 0 until menus.size()) {
-                if (menus[menuPos].itemId == itemSelectedMenu.itemId) {
-                    setCurrentFragment(menuPos)
+                if (menus[menuPos].itemId == itemSelectedMenu.itemId && dummyLockUntilFinish) {
+                    dummyLockUntilFinish = false
+                    vpager.setCurrentItem(menuPos, true)
+                    currItem = menuPos
                     fragmentListCb?.onFragmentChange(mFragments[menuPos], type)
-                    selectedPosition = menuPos
                     startPrepareFragment(menuPos)
+                    dummyLockUntilFinish = true
                     break
                 }
             }
             true
         }
-        //vpager.adapter = ContentPageAdapter(childFragmentManager, mFragments)
-        //bottomNavigationView.selectedItemId = bottomNavigationView.menu.getItem(currItem).itemId
+        vpager.adapter = ContentPageAdapter(childFragmentManager, mFragments)
     }
 
-    private fun setCurrentFragment(position: Int) {
-        fragmentManager?.beginTransaction()?.apply {
-            replace(R.id.fg_content_frame, mFragments[position])
-            addToBackStack("$fragmentTag$position")
-            commit()
+    override fun onResume() {
+        super.onResume()
+        dummyLockUntilFinish = true
+        vpager.setCurrentItem(currItem, true)
+        bottomNavigationView.selectedItemId = bottomNavigationView.menu.getItem(currItem).itemId
+
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        try {
+            onItemClickListener = context as OnItemFragmentClickListener
+            fragmentListCb = context as FragmentListCallback
+        } catch (e: ClassCastException) {
+            Log.e("onAttach()", "You must implement OnItemFragmentClickListener and FragmentListCallback in your class")
         }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        onItemClickListener = null
     }
 
     private fun startPrepareFragment(position: Int) {
@@ -171,10 +215,14 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback, On
 
 
     override fun querySearch(view: View, query: CharSequence?, start: Int, before: Int, count: Int) {
-        val fg = mFragments[selectedPosition]
-        if (fg is SearchToolbarCard.OnSearchCallback) {
-            fg.querySearch(view, query, start, before, count)
+        mFragments[vpager.currentItem].apply {
+            if (this is SearchToolbarCard.OnSearchCallback)
+                querySearch(view, query, start, before, count)
         }
+    }
+
+    override fun onItemClicked(fg: Fragment, recyclerView: RecyclerView, position: Int, v: View) {
+        onItemClickListener?.onItemClicked(fg, recyclerView, position, v)
     }
 
     override fun onSubmit(query: String) {
@@ -182,9 +230,11 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback, On
     }
 
     override fun onSearchCancelled() {
-        val fg = mFragments[selectedPosition]
-        if (fg is SearchToolbarCard.OnSearchCallback) {
-            fg.onSearchCancelled()
+        if (dummyLockUntilFinish) {
+            mFragments[vpager.currentItem].apply {
+                if (this is SearchToolbarCard.OnSearchCallback)
+                    onSearchCancelled()
+            }
         }
     }
 
@@ -197,34 +247,29 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback, On
     }
 
     override fun onListModeChange(listMode: Int) {
-        mFragments.forEach {
-            if (it is SearchToolbarCard.OnSearchCallback) {
-                it.onListModeChange(listMode)
-            }
+        mFragments[vpager.currentItem].apply {
+            if (this is SearchToolbarCard.OnSearchCallback)
+                onListModeChange(listMode)
         }
     }
 
 
-    @Parcelize
-    enum class Type : Parcelable {
-        TV_SHOWS,
-        MOVIES
-    }
-
     companion object {
         const val EXTRA_TYPE = "EXTRA_TYPE"
         @JvmStatic
-        fun newInstance(type: Type): FragmentListContainer =
+        fun newInstance(type: PublicConfig.ContentDisplayType): FragmentListContainer =
             FragmentListContainer().apply {
                 arguments = Bundle().apply {
                     putParcelable(EXTRA_TYPE, type)
                 }
             }
+
+        private const val EXTRA_CURRENT_ITEM_POSITION = "CURRENT_POS"
     }
 }
 
 internal class ContentPageAdapter(fragmentManager: FragmentManager, private val fragments: MutableList<Fragment>) :
-    FragmentStatePagerAdapter(fragmentManager) {
+    FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
     override fun getItem(position: Int): Fragment = fragments[position]
 
@@ -234,42 +279,13 @@ internal class ContentPageAdapter(fragmentManager: FragmentManager, private val 
 
 internal class HolderPageAdapter(
     fragmentManager: FragmentManager,
-    private val listFragment: List<Fragment>,
-    private val fragmentCb: FragmentListCallback
+    private val listFragment: List<Fragment>
 ) :
-    FragmentStatePagerAdapter(fragmentManager), FragmentListCallback, OnSelectedFragment {
+    FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
     override fun getItem(position: Int): Fragment = listFragment[position]
 
     override fun getCount(): Int = listFragment.size
 
 
-    override fun finishUpdate(container: ViewGroup) {
-        super.finishUpdate(container)
-        listFragment.forEach {
-            if (it is FragmentListContainer) {
-                it.fragmentListCb = this@HolderPageAdapter
-            }
-        }
-    }
-
-
-    override fun start(fragment: Fragment, position: Int) {
-    }
-
-    fun getAt(position: Int): Fragment = getItem(position)
-
-    override fun onFragmentChange(newFragment: Fragment, fragmentType: FragmentListContainer.Type) {
-        fragmentCb.onFragmentChange(newFragment, fragmentType)
-    }
-
-
-}
-
-interface FragmentListCallback {
-    fun onFragmentChange(newFragment: Fragment, fragmentType: FragmentListContainer.Type)
-}
-
-interface OnSelectedFragment {
-    fun start(fragment: Fragment, position: Int)
 }

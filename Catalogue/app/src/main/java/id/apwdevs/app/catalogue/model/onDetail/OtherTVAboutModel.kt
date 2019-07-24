@@ -16,7 +16,6 @@ data class OtherTVAboutModel(
     val originCountry: MutableList<String>,
     val status: String,
     val type: String,
-    val networks: MutableList<TvNetworkModel>,
     val productionCompanies: MutableList<ProductionTVCompaniesModel>,
     val productionTvSeasons: MutableList<ProductionTVSeasons>
 ) : Parcelable, ResettableItem {
@@ -25,14 +24,6 @@ data class OtherTVAboutModel(
     }
 
 }
-
-@Parcelize
-class TvNetworkModel(
-    val name: String,
-    val id: Int,
-    val logoPath: String,
-    val originCountry: String
-) : Parcelable
 
 @Parcelize
 data class ProductionTVSeasons(

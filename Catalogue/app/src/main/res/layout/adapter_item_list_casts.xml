@@ -16,7 +16,7 @@
         <ImageView
                 android:contentDescription="@string/img_poster_contentdesc"
                 android:id="@+id/item_cast_image"
-                tools:srcCompat="@tools:sample/avatars" android:layout_width="wrap_content"
+                app:srcCompat="@drawable/ic_man_shape" android:layout_width="wrap_content"
                 android:layout_height="wrap_content" android:adjustViewBounds="false"/>
 
         <TextView

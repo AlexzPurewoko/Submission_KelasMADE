@@ -16,6 +16,28 @@
     <item android:top="-200dp"
           android:right="-200dp"
           android:bottom="-200dp"
+          android:left="297dp"
+    >
+        <rotate
+                android:fromDegrees="-20">
+            <shape
+                    android:shape="rectangle">
+
+                <gradient
+                        android:angle="45"
+                        android:startColor="#CDC4C4C4"
+                        android:endColor="#70BDBDBD"/>
+                <!--<gradient
+                        android:angle="135"
+                        android:startColor="#F57C00"
+                        android:centerColor="#FFA000"
+                        android:endColor="#FBC02D"/>-->
+            </shape>
+        </rotate>
+    </item>
+    <item android:top="-200dp"
+          android:right="-200dp"
+          android:bottom="-200dp"
           android:left="300dp"
     >
         <rotate
@@ -29,6 +51,23 @@
                         android:startColor="#F57C00"
                         android:centerColor="#FFA000"
                         android:endColor="#FBC02D"/>
+            </shape>
+        </rotate>
+    </item>
+
+    <item android:top="-200dp"
+          android:right="-200dp"
+          android:bottom="-200dp"
+          android:left="297dp"
+    >
+        <rotate
+                android:fromDegrees="20">
+            <shape
+                    android:shape="rectangle">
+                <gradient
+                        android:angle="45"
+                        android:startColor="#CDC4C4C4"
+                        android:endColor="#70BDBDBD"/>
             </shape>
         </rotate>
     </item>
@@ -55,18 +94,4 @@
             </shape>
         </rotate>
     </item>
-    <!--<item android:top="300dp"
-          android:bottom="-300dp"
-          android:right="300dp"
-          android:gravity="end"
-          android:left="-300dp">
-        <rotate
-                android:fromDegrees="-45">
-            <shape
-                    android:shape="rectangle">
-                <solid
-                        android:color="@android:color/white"/>
-            </shape>
-        </rotate>
-    </item>-->
 </layer-list>

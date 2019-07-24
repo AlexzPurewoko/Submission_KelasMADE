@@ -3,7 +3,7 @@
 
     <string name="img_poster_contentdesc">Describe an image poster of a movies or tv</string>
     <string name="button_search_contentdesc">Button Search</string>
-    <string name="search_hint">Look for something...</string>
+    <string name="search_hint">Look for something…</string>
     <string name="btn_menu_more">Menu More</string>
     <string name="nav_popular">Popular</string>
     <string name="nav_discover">Discover</string>
@@ -16,18 +16,23 @@
     <string name="movie_title">Movies</string>
     <string name="tv_title">Tv Shows</string>
     <string name="on_network_failed">Network Failed!</string>
-    <string name="msg_on_net_error">Please ensure your phone to be connected to the internet and swipe down to refresh
+    <string name="msg_on_net_error">Please ensure your phone to be connected to the internet and try to refresh page
         again
     </string>
     <string name="on_no_network">No Network Available!</string>
-    <string name="msg_on_no_network">Connect to a network and swipe down to refresh again</string>
+    <string name="msg_on_no_network">Connect to a network and refresh the page again</string>
     <string name="on_parse_failed">Parse Failed!</string>
     <string name="err_suspected">Suspected Error!</string>
-    <string name="err_msg_unspecified_default">Swipe down to refresh or if this problem is occurred again, you can tell
+
+
+    <string name="err_msg_unspecified_default">Refresh page (click refresh or swipe down) or if this problem is occurred
+        again, you can tell
         the developer
     </string>
     <string name="title_activity_detail">DetailActivity</string>
-    <string name="overview_test">
+
+    <!-- Iam marked this string is not translatable because is not part of Activity Runtime -->
+    <string name="overview_test" translatable="false">
         "As the Avengers and their allies have continued to protect the world from threats too large for any one hero to
         handle, a new danger has emerged from the cosmic shadows: Thanos. A despot of intergalactic infamy, his goal is
         to collect all six Infinity Stones, artifacts of unimaginable power, and use them to inflict his twisted will on
@@ -68,5 +73,29 @@
     <string name="list_mode_contentdesc">List Content Mode</string>
     <string name="detail_film_title">Detail Film</string>
     <string name="detail_tv_title">Detail Tv Shows</string>
+    <string name="err_internet_unactivated">Your mobile data or wifi is not activated</string>
+    <string name="err_parse_suggestions">Refresh and if the problem is show again, report or wait until the app is
+        updated
+    </string>
+    <string name="err_not_found">Not Found!</string>
+    <string name="err_not_found_message">Error when get data, the resources cannot be found or missing</string>
+    <string name="err_not_found_suggest">Try to move into other pages and see\'s that they can be displayed</string>
+    <string name="caused_by">Caused by : %1$s</string>
+    <string name="net_failed_error">Bad Signal or you have sign in data cellular or Wi-Fi that blocked from internet
+    </string>
+    <string name="suggestion">Suggestions</string>
+    <string name="no_data">No data available for this section</string>
+    <string name="language_change_txt">Change Language</string>
+    <string name="close">Close</string>
+    <string name="message_popup">You must click close if you want to do other things</string>
+    <string name="json_parser_error">JSON Parser Error!</string>
+    <string name="go_back">Go Back</string>
+    <string name="refresh">Refresh</string>
+    <string name="dialog_message">Take a few minutes</string>
+    <string name="open_links">Open Links</string>
+    <string name="opento_message">Are you sure to open this page?</string>
+    <string name="en_di_tint">Enable / disable tinting of background image</string>
+    <string name="img_tint_mode_overlay_tag">Show the background image (Tint Mode Overlay)</string>
+    <string name="img_tint_mode_darken_tag">Set to Dark of the background image (Tint Mode Darken)</string>
 
 </resources>

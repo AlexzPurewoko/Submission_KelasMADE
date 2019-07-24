@@ -17,7 +17,7 @@
 
         <ImageView
                 android:contentDescription="@string/people_avatars_contentdesc"
-                tools:srcCompat="@tools:sample/avatars"
+                app:srcCompat="@drawable/ic_man_shape"
                 android:id="@+id/item_createdby_image"
                 android:adjustViewBounds="true"
                 android:layout_width="wrap_content"

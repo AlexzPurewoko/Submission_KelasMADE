@@ -4,4 +4,6 @@
     <color name="colorPrimaryDark">#AD1457</color>
     <color name="colorAccent">#FFAB00</color>
     <color name="image_header">#302E2E</color>
+    <color name="item_wrapped_text_color">#AF0B0B</color>
+    <color name="elevation_bg">#48727272</color>
 </resources>

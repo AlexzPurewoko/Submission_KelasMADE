@@ -1,1 +1,1 @@
-include ':app', ':countryflags'
+include ':app'

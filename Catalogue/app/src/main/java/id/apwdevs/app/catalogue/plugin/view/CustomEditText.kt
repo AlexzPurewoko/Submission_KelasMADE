@@ -49,20 +49,22 @@ class CustomEditText : AppCompatEditText {
                     }
 
                     if (isClrBtnClicked) {
-                        if (event.action == MotionEvent.ACTION_DOWN) {
-                            mClearButtonImage =
-                                ResourcesCompat.getDrawable(resources, R.drawable.ic_close_black_24dp, null)
-                            showClrBtn()
-                            return true
-                        } else if (event.action == MotionEvent.ACTION_UP) {
-                            mClearButtonImage =
-                                ResourcesCompat.getDrawable(resources, R.drawable.ic_close_black_24dp, null)
-                            onBtnClearClicked?.onClear(text?.toString())
-                            text?.clear()
-                            hideClrBtn()
-                            return true
-                        } else {
-                            return false
+                        when (event.action) {
+                            MotionEvent.ACTION_DOWN -> {
+                                mClearButtonImage =
+                                    ResourcesCompat.getDrawable(resources, R.drawable.ic_close_black_24dp, null)
+                                showClrBtn()
+                                return true
+                            }
+                            MotionEvent.ACTION_UP -> {
+                                mClearButtonImage =
+                                    ResourcesCompat.getDrawable(resources, R.drawable.ic_close_black_24dp, null)
+                                onBtnClearClicked?.onClear(text?.toString())
+                                text?.clear()
+                                hideClrBtn()
+                                return true
+                            }
+                            else -> return false
                         }
                     } else {
                         return false
@@ -82,14 +84,15 @@ class CustomEditText : AppCompatEditText {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if (!s.toString().isEmpty())
+                if (s.toString().isNotEmpty())
                     showClrBtn()
+                else hideClrBtn()
             }
 
         })
     }
 
-    private fun showClrBtn() {
+    fun showClrBtn() {
         setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, mClearButtonImage, null)
     }
 

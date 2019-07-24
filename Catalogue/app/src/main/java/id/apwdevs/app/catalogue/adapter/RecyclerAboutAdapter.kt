@@ -9,20 +9,22 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import id.apwdevs.app.catalogue.R
-import id.apwdevs.app.catalogue.activities.DetailActivity
 import id.apwdevs.app.catalogue.model.GenreModel
 import id.apwdevs.app.catalogue.model.ResettableItem
 import id.apwdevs.app.catalogue.model.onDetail.OtherMovieAboutModel
 import id.apwdevs.app.catalogue.model.onDetail.OtherTVAboutModel
 import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
+import id.apwdevs.app.catalogue.plugin.PublicConfig
+import id.apwdevs.app.catalogue.plugin.getCurrency
+import id.apwdevs.app.catalogue.plugin.getReadableTime
 import id.apwdevs.app.catalogue.plugin.view.WrappedView
 
 class RecyclerAboutAdapter(
     private val context: Context,
     private val shortDetail: ResettableItem,
     private val otherDetail: ResettableItem,
-    private val type: DetailActivity.ContentTypes
+    private val type: PublicConfig.ContentDisplayType
 ) : RecyclerView.Adapter<RecyclerAboutAdapter.RecyclerAboutVH>() {
 
     private val listToBeAdded: MutableList<Item> = mutableListOf()
@@ -40,7 +42,7 @@ class RecyclerAboutAdapter(
 
     private fun setData() {
         when (type) {
-            DetailActivity.ContentTypes.ITEM_TV_SHOWS -> {
+            PublicConfig.ContentDisplayType.TV_SHOWS -> {
                 val det1 = shortDetail as TvAboutModel
                 val det2 = otherDetail as OtherTVAboutModel
                 listToBeAdded.apply {
@@ -61,7 +63,7 @@ class RecyclerAboutAdapter(
                     add(Item(context.getString(R.string.homepage), det2.homepage))
                 }
             }
-            DetailActivity.ContentTypes.ITEM_MOVIE -> {
+            PublicConfig.ContentDisplayType.MOVIE -> {
                 val det1 = shortDetail as MovieAboutModel
                 val det2 = otherDetail as OtherMovieAboutModel
                 listToBeAdded.apply {
@@ -69,10 +71,10 @@ class RecyclerAboutAdapter(
                     add(Item(context.getString(R.string.original_language), det1.originalLanguage))
                     add(Item(context.getString(R.string.genre), det1.genres))
                     add(Item(context.getString(R.string.release_date), det1.releaseDate))
-                    add(Item(context.getString(R.string.runtime), det2.runtime))
+                    add(Item(context.getString(R.string.runtime), getReadableTime(det2.runtime)))
                     add(Item(context.getString(R.string.status), det2.status))
-                    add(Item(context.getString(R.string.budget), det2.movieBudget))
-                    add(Item(context.getString(R.string.revenue), det2.revenue))
+                    add(Item(context.getString(R.string.budget), getCurrency("$", det2.movieBudget.toString())))
+                    add(Item(context.getString(R.string.revenue), getCurrency("$", det2.revenue.toString())))
                     add(Item(context.getString(R.string.homepage), det2.homepage))
                     add(Item(context.getString(R.string.tagline), det2.tagLine))
                 }
@@ -112,7 +114,7 @@ class RecyclerAboutAdapter(
             }
         }
 
-        fun getValuesAndAppendIntoLayout(anyVal: Any?) {
+        private fun getValuesAndAppendIntoLayout(anyVal: Any?) {
             if (anyVal == null) {
                 wrapView.addText("-")
                 return
@@ -122,7 +124,7 @@ class RecyclerAboutAdapter(
                     wrapView.addText(anyVal)
                 }
                 is String? -> {
-                    wrapView.addText(anyVal)
+                    wrapView.addText(if (anyVal.isEmpty()) "-" else anyVal)
                 }
                 is Int? -> {
                     wrapView.addText(anyVal.toString())

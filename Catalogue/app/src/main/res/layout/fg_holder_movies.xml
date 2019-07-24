@@ -4,10 +4,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-    <FrameLayout
+    <androidx.viewpager.widget.ViewPager
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" android:id="@+id/fg_content_frame"
-            android:layout_marginBottom="0dp" android:layout_above="@+id/fg_content_bottomnav"/>
+            android:layout_height="match_parent"
+            android:id="@+id/fg_content_pager"
+            android:layout_marginBottom="0dp"
+            android:layout_above="@+id/fg_content_bottomnav"/>
+    <View
+            android:layout_above="@id/fg_content_bottomnav"
+            android:background="@color/elevation_bg"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"/>
     <com.google.android.material.bottomnavigation.BottomNavigationView
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"

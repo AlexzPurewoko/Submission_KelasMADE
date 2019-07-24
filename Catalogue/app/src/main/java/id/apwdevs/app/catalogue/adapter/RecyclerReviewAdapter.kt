@@ -12,8 +12,8 @@ import id.apwdevs.app.catalogue.model.onDetail.ReviewResultModel
 import kotlin.math.min
 
 class RecyclerReviewAdapter(
-    internal val reviewResultModels: List<ReviewResultModel>,
-    internal val maxContentLimits: Int
+    private val reviewResultModels: List<ReviewResultModel>,
+    private val maxContentLimits: Int
 
 ) : RecyclerView.Adapter<RecyclerReviewAdapter.RecyclerReviewVH>() {
     init {
