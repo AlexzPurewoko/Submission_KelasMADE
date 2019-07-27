@@ -97,5 +97,7 @@
     <string name="en_di_tint">Enable / disable tinting of background image</string>
     <string name="img_tint_mode_overlay_tag">Show the background image (Tint Mode Overlay)</string>
     <string name="img_tint_mode_darken_tag">Set to Dark of the background image (Tint Mode Darken)</string>
+    <string name="item_favorite_contentdesc">Add / Remove this item from favorites</string>
+    <string name="favorite_title">Favorites</string>
 
 </resources>

@@ -1,104 +1,95 @@
 package id.apwdevs.app.catalogue.viewModel
 
-import android.content.Context
+import android.app.Application
 import android.os.Parcelable
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import com.androidnetworking.common.Priority
+import androidx.lifecycle.viewModelScope
+import id.apwdevs.app.catalogue.model.ClassResponse
 import id.apwdevs.app.catalogue.model.GenreModel
-import id.apwdevs.app.catalogue.model.ResettableItem
-import id.apwdevs.app.catalogue.model.onUserMain.PageListModel
-import id.apwdevs.app.catalogue.plugin.CoroutineContextProvider
-import id.apwdevs.app.catalogue.plugin.PublicConfig
-import id.apwdevs.app.catalogue.plugin.api.ApiRepository
-import id.apwdevs.app.catalogue.plugin.api.GetMovies
-import id.apwdevs.app.catalogue.plugin.api.GetTVShows
-import id.apwdevs.app.catalogue.plugin.view.ErrorSectionAdapter
+import id.apwdevs.app.catalogue.model.onUserMain.MovieModelResponse
+import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModelResponse
+import id.apwdevs.app.catalogue.plugin.PublicContract
+import id.apwdevs.app.catalogue.plugin.api.GetObjectFromServer
+import id.apwdevs.app.catalogue.repository.FragmentContentRepository
 import id.apwdevs.app.catalogue.view.MainUserListView
-import org.json.JSONException
-import org.json.JSONObject
-import java.lang.ref.WeakReference
+import kotlinx.android.parcel.Parcelize
 
-abstract class MainListViewModel : ViewModel() {
-    protected val dataGenres: MutableLiveData<MutableList<GenreModel>> = MutableLiveData()
-    protected val tag: MutableLiveData<String> = MutableLiveData()
-    val dataListObj: MutableLiveData<PageListModel<ResettableItem>> = MutableLiveData()
-
+@Suppress("UNCHECKED_CAST")
+class MainListViewModel(application: Application) : AndroidViewModel(application) {
+    val tag: MutableLiveData<String> = MutableLiveData()
     val hasFirstInstantiate: MutableLiveData<Boolean> = MutableLiveData()
     val prevListMode: MutableLiveData<Int> = MutableLiveData()
-    val fragmentIsRefreshing: MutableLiveData<Boolean> = MutableLiveData()
+    val hasForceLoadContent: MutableLiveData<Boolean> = MutableLiveData()
 
+    private var repository: FragmentContentRepository<ClassResponse>? = null
 
-    var context: WeakReference<Context>? = null
-    var view: WeakReference<MainUserListView>? = null
-    val apiRepository = ApiRepository()
-
+    var objData: LiveData<ClassResponse>? = null
+    var isLoading: LiveData<Boolean>? = null
+    var progress: LiveData<Double>? = null
+    var allGenre: LiveData<List<GenreModel>>? = null
+    var retError: LiveData<GetObjectFromServer.RetError>? = null
     init {
         // we have to initialize these variables to be available for first instance
         hasFirstInstantiate.value = false
-        fragmentIsRefreshing.value = false
+        //fragmentIsRefreshing.value = false
         prevListMode.value = 0
+        hasForceLoadContent.value = false
     }
 
     fun setup(
-        context: Context,
-        view: MainUserListView,
-        tag: String
+        tag: String,
+        type: PublicContract.ContentDisplayType
     ) {
-        this.context = WeakReference(context)
-        this.view = WeakReference(view)
+        repository = when (type) {
+            PublicContract.ContentDisplayType.MOVIE ->
+                FragmentContentRepository<MovieModelResponse>(
+                    getApplication(),
+                    type,
+                    viewModelScope
+                ) as FragmentContentRepository<ClassResponse>
+            PublicContract.ContentDisplayType.TV_SHOWS ->
+                FragmentContentRepository<TvAboutModelResponse>(
+                    getApplication(),
+                    type,
+                    viewModelScope
+                ) as FragmentContentRepository<ClassResponse>
+            PublicContract.ContentDisplayType.FAVORITES ->
+                FragmentContentRepository(getApplication(), PublicContract.ContentDisplayType.FAVORITES, viewModelScope)
+
+        }
         this.tag.value = tag
+        isLoading = repository?.isLoading
+        progress = repository?.progress
+        allGenre = repository?.allGenre
+        objData = repository?.objData
+        retError = repository?.retError
+
     }
 
-    protected abstract fun getTypes(): PublicConfig.ContentDisplayType
+    fun getAt(
+        types: Parcelable, // get as MovieTypeContract or TvTypeContract
+        pages: Int
+    ) {
+        repository?.load(types)
+    }
 
-    abstract fun getAt(
-        types: Parcelable, // get as MainListMovieViewModel.SupportedTypes or MaintListTvViewModel.SupportedTypes
-        pages: Int,
-        coroutineContextProvider: CoroutineContextProvider = CoroutineContextProvider()
-    )
+    @Parcelize
+    enum class MovieTypeContract : Parcelable {
+        DISCOVER,
+        NOW_PLAYING,
+        POPULAR,
+        TOP_RATED,
+        UPCOMING
+    }
 
-    protected suspend fun getAllGenre(apiRepository: ApiRepository): ApiRepository.RetError? {
-        when (getTypes()) {
-            PublicConfig.ContentDisplayType.MOVIE ->
-                apiRepository.doReqAndRetResponseAsync(
-                    context?.get(),
-                    GetMovies.getAllGenre()
-                    , "GetAllMovieGenre", Priority.MEDIUM
-                ).await()
-            PublicConfig.ContentDisplayType.TV_SHOWS ->
-                apiRepository.doReqAndRetResponseAsync(
-                    context?.get(),
-                    GetTVShows.getAllGenre()
-                    , "GetAllTvShowsGenre", Priority.MEDIUM
-                ).await()
-        }?.let {
-            if (it.isSuccess && !it.response.isNullOrEmpty()) {
-                try {
-                    JSONObject(it.response).getJSONArray("genres").apply {
-                        val listGenre = mutableListOf<GenreModel>()
-                        for (index in 0 until length()) {
-                            getJSONObject(index).let { jsonObj ->
-                                listGenre.add(
-                                    GenreModel(
-                                        id = jsonObj.getInt("id"),
-                                        genreName = jsonObj.getString("name")
-                                    )
-                                )
-                            }
-
-                        }
-                        dataGenres.postValue(listGenre)
-                    }
-                    return null
-                } catch (e: JSONException) {
-                    e.printStackTrace()
-                    return ApiRepository.RetError(ErrorSectionAdapter.ERR_CODE_PARSE_FAILED, e)
-                }
-            } else {
-                return it.anErrorIfAny
-            }
-        }
-        return ApiRepository.RetError(ErrorSectionAdapter.ERR_CODE_UNSPECIFIED, null)
+    @Parcelize
+    enum class TvTypeContract : Parcelable {
+        DISCOVER,
+        TV_AIRING_TODAY,
+        TV_OTA,
+        POPULAR,
+        TOP_RATED
     }
 }

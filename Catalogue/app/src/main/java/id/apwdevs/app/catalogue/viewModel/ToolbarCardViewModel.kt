@@ -2,7 +2,7 @@ package id.apwdevs.app.catalogue.viewModel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import id.apwdevs.app.catalogue.plugin.PublicConfig
+import id.apwdevs.app.catalogue.plugin.PublicContract
 
 class ToolbarCardViewModel : ViewModel() {
     val currentListMode: MutableLiveData<Int> = MutableLiveData()
@@ -10,7 +10,7 @@ class ToolbarCardViewModel : ViewModel() {
     val queryTextSearch: MutableLiveData<QueryStrData> = MutableLiveData()
 
     init {
-        currentListMode.value = PublicConfig.RecyclerMode.MODE_LIST
+        currentListMode.value = PublicContract.RecyclerMode.MODE_LIST
         isInSearchMode.value = false
     }
 

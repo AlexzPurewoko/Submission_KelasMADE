@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.androidnetworking.common.Priority
 import id.apwdevs.app.catalogue.model.onDetail.*
 import id.apwdevs.app.catalogue.plugin.CoroutineContextProvider
-import id.apwdevs.app.catalogue.plugin.PublicConfig
+import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.api.ApiRepository
 import id.apwdevs.app.catalogue.plugin.api.GetMovies
 import id.apwdevs.app.catalogue.plugin.api.GetTVShows
@@ -44,26 +44,32 @@ abstract class DetailViewModel : ViewModel() {
         this.view = WeakReference(view)
     }
 
-    protected abstract fun getTypes(): PublicConfig.ContentDisplayType
+    protected abstract fun getTypes(): PublicContract.ContentDisplayType
 
     abstract fun getAll(coroutineContextProvider: CoroutineContextProvider = CoroutineContextProvider())
 
     suspend fun getCredits(apiRepository: ApiRepository): ApiRepository.RetError? =
         when (getTypes()) {
-            PublicConfig.ContentDisplayType.MOVIE ->
+            PublicContract.ContentDisplayType.MOVIE ->
                 apiRepository.doReqAndRetResponseAsync(
                     activity?.get(),
                     GetMovies.getCredits(requireNotNull(id.value)),
                     "getCreditsMoviesId${id.value}",
                     Priority.HIGH
                 )
-            PublicConfig.ContentDisplayType.TV_SHOWS ->
+            PublicContract.ContentDisplayType.TV_SHOWS ->
                 apiRepository.doReqAndRetResponseAsync(
                     activity?.get(),
                     GetTVShows.getCredits(requireNotNull(id.value)),
                     "getCreditsTvId${id.value}",
                     Priority.HIGH
                 )
+            else -> apiRepository.doReqAndRetResponseAsync(
+                activity?.get(),
+                GetTVShows.getCredits(requireNotNull(id.value)),
+                "getCreditsTvId${id.value}",
+                Priority.HIGH
+            )
         }.await()?.let {
             return if (it.isSuccess && !it.response.isNullOrEmpty()) {
                 try {
@@ -95,8 +101,9 @@ abstract class DetailViewModel : ViewModel() {
                                         id = getInt("id"),
                                         castId =
                                         when (getTypes()) {
-                                            PublicConfig.ContentDisplayType.MOVIE -> getInt("cast_id")
-                                            PublicConfig.ContentDisplayType.TV_SHOWS -> null
+                                            PublicContract.ContentDisplayType.MOVIE -> getInt("cast_id")
+                                            PublicContract.ContentDisplayType.TV_SHOWS -> null
+                                            else -> null
                                         },
                                         asCharacter = getString("character"),
                                         creditId = getString("credit_id"),
@@ -127,20 +134,26 @@ abstract class DetailViewModel : ViewModel() {
 
     suspend fun getReviews(apiRepository: ApiRepository): ApiRepository.RetError? =
         when (getTypes()) {
-            PublicConfig.ContentDisplayType.MOVIE ->
+            PublicContract.ContentDisplayType.MOVIE ->
                 apiRepository.doReqAndRetResponseAsync(
                     activity?.get(),
                     GetMovies.getReviews(requireNotNull(id.value)),
                     "getReviewsMoviesId${id.value}",
                     Priority.HIGH
                 )
-            PublicConfig.ContentDisplayType.TV_SHOWS ->
+            PublicContract.ContentDisplayType.TV_SHOWS ->
                 apiRepository.doReqAndRetResponseAsync(
                     activity?.get(),
                     GetTVShows.getReviews(requireNotNull(id.value)),
                     "getReviewsTvId${id.value}",
                     Priority.HIGH
                 )
+            else -> apiRepository.doReqAndRetResponseAsync(
+                activity?.get(),
+                GetTVShows.getReviews(requireNotNull(id.value)),
+                "getReviewsTvId${id.value}",
+                Priority.HIGH
+            )
         }.await()?.let {
             return if (it.isSuccess && !it.response.isNullOrEmpty()) {
                 try {
@@ -181,20 +194,26 @@ abstract class DetailViewModel : ViewModel() {
 
     suspend fun getSocmedId(apiRepository: ApiRepository): ApiRepository.RetError? =
         when (getTypes()) {
-            PublicConfig.ContentDisplayType.MOVIE ->
+            PublicContract.ContentDisplayType.MOVIE ->
                 apiRepository.doReqAndRetResponseAsync(
                     activity?.get(),
                     GetMovies.getSocmedID(requireNotNull(id.value)),
                     "getSocmedMoviesId${id.value}",
                     Priority.HIGH
                 )
-            PublicConfig.ContentDisplayType.TV_SHOWS ->
+            PublicContract.ContentDisplayType.TV_SHOWS ->
                 apiRepository.doReqAndRetResponseAsync(
                     activity?.get(),
                     GetTVShows.getSocmedID(requireNotNull(id.value)),
                     "getSocmedTvId${id.value}",
                     Priority.HIGH
                 )
+            else -> apiRepository.doReqAndRetResponseAsync(
+                activity?.get(),
+                GetTVShows.getReviews(requireNotNull(id.value)),
+                "getReviewsTvId${id.value}",
+                Priority.HIGH
+            )
         }.await()?.let {
             return if (it.isSuccess && !it.response.isNullOrEmpty()) {
                 JSONObject(it.response).apply {

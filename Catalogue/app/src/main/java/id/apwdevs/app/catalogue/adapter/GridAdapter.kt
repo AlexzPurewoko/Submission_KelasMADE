@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import id.apwdevs.app.catalogue.R
+import id.apwdevs.app.catalogue.entity.FavoriteEntity
 import id.apwdevs.app.catalogue.model.ResettableItem
 import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
@@ -51,7 +52,7 @@ class GridAdapter<T : ResettableItem>(private val mContext: Context) :
         return shortListModels.size
     }
 
-    fun resetAllData(shortListModels: MutableList<T>?) {
+    fun resetAllData(shortListModels: List<T>?) {
         if (shortListModels.isNullOrEmpty()) return
         this.shortListModels.clear()
         for (model in shortListModels) {
@@ -78,79 +79,58 @@ class GridAdapter<T : ResettableItem>(private val mContext: Context) :
         override fun objectToBeSearch(): MutableList<T>? = shortListModels
 
         override fun compareObject(constraint: String, obj: T): Boolean {
+            var str1: String? = null
+            var str2: String? = null
+            var spanned1: SpannableString? = null
+            var spanned2: SpannableString? = null
             when (obj) {
                 is MovieAboutModel -> {
-                    val str1 = obj.title
-                    val str2 = obj.releaseDate
-                    if ((!str1.isNullOrEmpty() && str1.contains(
-                            constraint,
-                            true
-                        )) || (!str2.isNullOrEmpty() && str2.contains(
-                            constraint,
-                            true
-                        ))
-                    ) {
-                        val matchStr1 = getItemMatchedPosition(constraint, str1, true)
-                        val matchStr2 = getItemMatchedPosition(constraint, str2, true)
-                        val spanned1 = SpannableString(str1)
-                        val spanned2 = SpannableString(str2)
-                        matchStr1.forEach {
-                            spanned1.setSpan(
-                                ForegroundColorSpan(Color.RED),
-                                it.startPosition,
-                                it.endPosition,
-                                0
-                            )
-                        }
-                        matchStr2.forEach {
-                            spanned2.setSpan(
-                                StyleSpan(Typeface.BOLD),
-                                it.startPosition,
-                                it.endPosition,
-                                0
-                            )
-                        }
-                        obj.title = spanned1
-                        obj.releaseDate = spanned2
-                        return true
-                    }
+                    str1 = obj.title
+                    str2 = obj.releaseDate
+                    spanned1 = obj.titleSpan
+                    spanned2 = obj.releaseDateSpan
                 }
                 is TvAboutModel -> {
-                    val str1 = obj.name
-                    val str2 = obj.firstAirDate
-                    if ((!str1.isNullOrEmpty() && str1.contains(
-                            constraint,
-                            true
-                        )) || (!str2.isNullOrEmpty() && str2.contains(
-                            constraint,
-                            true
-                        ))
-                    ) {
-                        val matchStr1 = getItemMatchedPosition(constraint, str1, true)
-                        val matchStr2 = getItemMatchedPosition(constraint, str2, true)
-                        val spanned1 = SpannableString(str1)
-                        val spanned2 = SpannableString(str2)
-                        matchStr1.forEach {
-                            spanned1.setSpan(
-                                ForegroundColorSpan(Color.RED),
-                                it.startPosition,
-                                it.endPosition,
-                                0
-                            )
-                        }
-                        matchStr2.forEach {
-                            spanned2.setSpan(
-                                StyleSpan(Typeface.BOLD),
-                                it.startPosition,
-                                it.endPosition,
-                                0
-                            )
-                        }
-                        obj.name = spanned1
-                        obj.firstAirDate = spanned2
-                        return true
-                    }
+                    str1 = obj.name
+                    str2 = obj.firstAirDate
+                    spanned1 = obj.nameSpan
+                    spanned2 = obj.firstAirDateSpan
                 }
+                is FavoriteEntity -> {
+                    str1 = obj.title
+                    str2 = obj.releaseDate
+                    spanned1 = obj.titleSpan
+                    spanned2 = obj.releaseDateSpan
+                }
+            }
+            obj.onReset()
+            if ((!str1.isNullOrEmpty() && str1.contains(
+                    constraint,
+                    true
+                )) || (!str2.isNullOrEmpty() && str2.contains(
+                    constraint,
+                    true
+                ))
+            ) {
+                val matchStr1 = getItemMatchedPosition(constraint, str1, true)
+                val matchStr2 = getItemMatchedPosition(constraint, str2, true)
+                matchStr1.forEach {
+                    spanned1?.setSpan(
+                        ForegroundColorSpan(Color.RED),
+                        it.startPosition,
+                        it.endPosition,
+                        0
+                    )
+                }
+                matchStr2.forEach {
+                    spanned2?.setSpan(
+                        StyleSpan(Typeface.BOLD),
+                        it.startPosition,
+                        it.endPosition,
+                        0
+                    )
+                }
+                return true
             }
             return false
         }
@@ -191,6 +171,18 @@ class GridAdapter<T : ResettableItem>(private val mContext: Context) :
                             poster.setImageBitmap(bitmap)
                         }
                     }
+                }
+                is FavoriteEntity -> {
+                    title.text = dataModel.title
+                    releaseDate.text = dataModel.releaseDate
+                    ratingBar.rating = getRating(dataModel.voteAverage)
+                    voteCount.text = "(${dataModel.voteCount})"
+                    dataModel.posterPath?.let {
+                        getBitmap(Point(requestedWidth, requestedHeight), it) { bitmap ->
+                            poster.setImageBitmap(bitmap)
+                        }
+                    }
+
                 }
             }
 

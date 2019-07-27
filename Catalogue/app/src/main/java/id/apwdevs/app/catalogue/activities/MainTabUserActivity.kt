@@ -1,6 +1,8 @@
 package id.apwdevs.app.catalogue.activities
 
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,9 +20,10 @@ import id.apwdevs.app.catalogue.adapter.ListAdapter
 import id.apwdevs.app.catalogue.fragment.FragmentContents
 import id.apwdevs.app.catalogue.fragment.FragmentListContainer
 import id.apwdevs.app.catalogue.fragment.HolderPageAdapter
+import id.apwdevs.app.catalogue.fragment.OnRequestRefresh
 import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
-import id.apwdevs.app.catalogue.plugin.PublicConfig
+import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.callbacks.FragmentListCallback
 import id.apwdevs.app.catalogue.plugin.callbacks.OnItemFragmentClickListener
 import id.apwdevs.app.catalogue.plugin.view.SearchToolbarCard
@@ -28,7 +31,7 @@ import kotlinx.android.synthetic.main.activity_main_tab_user.*
 import kotlinx.android.synthetic.main.search_toolbar.*
 
 class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallback, FragmentListCallback,
-    OnItemFragmentClickListener, GetFromHostActivity {
+    OnItemFragmentClickListener, GetFromHostActivity, OnRequestRefresh {
 
     private lateinit var searchToolbarCard: SearchToolbarCard
     private lateinit var listFragmentContainer: MutableList<Fragment>
@@ -38,8 +41,9 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
         AndroidNetworking.initialize(applicationContext)
         if (savedInstanceState == null) {
             listFragmentContainer = mutableListOf(
-                FragmentListContainer.newInstance(PublicConfig.ContentDisplayType.MOVIE),
-                FragmentListContainer.newInstance(PublicConfig.ContentDisplayType.TV_SHOWS)
+                FragmentListContainer.newInstance(PublicContract.ContentDisplayType.MOVIE),
+                FragmentListContainer.newInstance(PublicContract.ContentDisplayType.TV_SHOWS),
+                FragmentListContainer.newInstance(PublicContract.ContentDisplayType.FAVORITES)
             )
         } else {
             savedInstanceState.let {
@@ -58,7 +62,7 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
         }
         searchToolbarCard = SearchToolbarCard(this, toolbar_card, this)
         view_pager.adapter = HolderPageAdapter(supportFragmentManager, listFragmentContainer)
-        view_pager.offscreenPageLimit = 2
+        view_pager.offscreenPageLimit = 3
         setupTabs()
         setupVPager()
     }
@@ -103,13 +107,13 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
                                     type
                                 )
                                 when (type) {
-                                    PublicConfig.ContentDisplayType.TV_SHOWS -> {
+                                    PublicContract.ContentDisplayType.TV_SHOWS -> {
                                         (selected as TvAboutModel).let {
                                             putExtra(DetailActivity.EXTRA_ID, it.idTv)
                                             putExtra(DetailActivity.EXTRA_CONTENT_DETAILS, it)
                                         }
                                     }
-                                    PublicConfig.ContentDisplayType.MOVIE -> {
+                                    PublicContract.ContentDisplayType.MOVIE -> {
                                         (selected as MovieAboutModel).let {
                                             putExtra(DetailActivity.EXTRA_ID, it.id)
                                             putExtra(DetailActivity.EXTRA_CONTENT_DETAILS, it)
@@ -134,13 +138,13 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
                                     type
                                 )
                                 when (type) {
-                                    PublicConfig.ContentDisplayType.TV_SHOWS -> {
+                                    PublicContract.ContentDisplayType.TV_SHOWS -> {
                                         (selected as TvAboutModel).let {
                                             putExtra(DetailActivity.EXTRA_ID, it.idTv)
                                             putExtra(DetailActivity.EXTRA_CONTENT_DETAILS, it)
                                         }
                                     }
-                                    PublicConfig.ContentDisplayType.MOVIE -> {
+                                    PublicContract.ContentDisplayType.MOVIE -> {
                                         (selected as MovieAboutModel).let {
                                             putExtra(DetailActivity.EXTRA_ID, it.id)
                                             putExtra(DetailActivity.EXTRA_CONTENT_DETAILS, it)
@@ -180,11 +184,13 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
         // list to be added
         val strTitle = arrayListOf(
             R.string.movie_title,
-            R.string.tv_title
+            R.string.tv_title,
+            R.string.favorite_title
         )
         val strImgs = arrayListOf(
             R.drawable.ic_movie_24dp,
-            R.drawable.ic_tv_24dp
+            R.drawable.ic_tv_24dp,
+            R.drawable.ic_favorite_activated_24dp
         )
         for ((idx, strId) in strTitle.withIndex()) {
             tabs.addTab(
@@ -192,7 +198,10 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
                     customView =
                         LayoutInflater.from(this@MainTabUserActivity).inflate(R.layout.tab_custom, tabs, false).apply {
                             findViewById<TextView>(R.id.tab_title).setText(strId)
-                            findViewById<ImageView>(R.id.tab_icon).setImageResource(strImgs[idx])
+                            findViewById<ImageView>(R.id.tab_icon).apply {
+                                imageTintList = ColorStateList.valueOf(Color.WHITE)
+                                setImageResource(strImgs[idx])
+                            }
                         }
                 }
             )
@@ -255,10 +264,19 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
         searchToolbarCard.forceSearchCancel()
     }
 
-    override fun getListMode(): Int = searchToolbarCard.currentListMode ?: PublicConfig.RecyclerMode.MODE_LIST
+    override fun getListMode(): Int = searchToolbarCard.currentListMode ?: PublicContract.RecyclerMode.MODE_LIST
 
-    override fun onFragmentChange(newFragment: Fragment, fragmentType: PublicConfig.ContentDisplayType) {
+    override fun onFragmentChange(newFragment: Fragment, fragmentType: PublicContract.ContentDisplayType) {
         searchToolbarCard.forceSearchCancel()
+    }
+
+
+    override fun onForceRefresh(fragment: Fragment) {
+        // make a broadcast into all fragments
+        listFragmentContainer.forEach {
+            if (it is OnRequestRefresh)
+                it.onForceRefresh(fragment)
+        }
     }
 }
 

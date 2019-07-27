@@ -17,7 +17,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.github.zawadz88.materialpopupmenu.MaterialPopupMenu
 import com.github.zawadz88.materialpopupmenu.popupMenu
 import id.apwdevs.app.catalogue.R
-import id.apwdevs.app.catalogue.plugin.PublicConfig
+import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.viewModel.ToolbarCardViewModel
 
 class SearchToolbarCard(
@@ -98,13 +98,13 @@ class SearchToolbarCard(
 
     private fun setIconListMode(it: Int?) {
         when (it) {
-            PublicConfig.RecyclerMode.MODE_LIST -> {
+            PublicContract.RecyclerMode.MODE_LIST -> {
                 listMode.setImageResource(R.drawable.ic_view_list_black_24dp)
             }
-            PublicConfig.RecyclerMode.MODE_GRID -> {
+            PublicContract.RecyclerMode.MODE_GRID -> {
                 listMode.setImageResource(R.drawable.ic_view_grid_black_24dp)
             }
-            PublicConfig.RecyclerMode.MODE_STAGERRED_LIST -> {
+            PublicContract.RecyclerMode.MODE_STAGERRED_LIST -> {
                 listMode.setImageResource(R.drawable.ic_stagerred_black_24dp)
             }
         }
@@ -120,18 +120,18 @@ class SearchToolbarCard(
 
     private fun setModes(mode: Int) {
         when (mode) {
-            PublicConfig.RecyclerMode.MODE_LIST -> {
-                searchCb.onListModeChange(PublicConfig.RecyclerMode.MODE_GRID)
-                dataVModel.currentListMode.value = PublicConfig.RecyclerMode.MODE_GRID
+            PublicContract.RecyclerMode.MODE_LIST -> {
+                searchCb.onListModeChange(PublicContract.RecyclerMode.MODE_GRID)
+                dataVModel.currentListMode.value = PublicContract.RecyclerMode.MODE_GRID
             }
-            PublicConfig.RecyclerMode.MODE_GRID -> {
-                searchCb.onListModeChange(PublicConfig.RecyclerMode.MODE_STAGERRED_LIST)
-                dataVModel.currentListMode.value = PublicConfig.RecyclerMode.MODE_STAGERRED_LIST
+            PublicContract.RecyclerMode.MODE_GRID -> {
+                searchCb.onListModeChange(PublicContract.RecyclerMode.MODE_STAGERRED_LIST)
+                dataVModel.currentListMode.value = PublicContract.RecyclerMode.MODE_STAGERRED_LIST
 
             }
-            PublicConfig.RecyclerMode.MODE_STAGERRED_LIST -> {
-                searchCb.onListModeChange(PublicConfig.RecyclerMode.MODE_LIST)
-                dataVModel.currentListMode.value = PublicConfig.RecyclerMode.MODE_LIST
+            PublicContract.RecyclerMode.MODE_STAGERRED_LIST -> {
+                searchCb.onListModeChange(PublicContract.RecyclerMode.MODE_LIST)
+                dataVModel.currentListMode.value = PublicContract.RecyclerMode.MODE_LIST
 
             }
         }

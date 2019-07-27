@@ -9,7 +9,7 @@ import id.apwdevs.app.catalogue.model.onDetail.ProductionTVCompaniesModel
 import id.apwdevs.app.catalogue.model.onDetail.ProductionTVSeasons
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
 import id.apwdevs.app.catalogue.plugin.CoroutineContextProvider
-import id.apwdevs.app.catalogue.plugin.PublicConfig
+import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.api.ApiRepository
 import id.apwdevs.app.catalogue.plugin.api.GetTVShows
 import id.apwdevs.app.catalogue.plugin.jsonCheckAndGet
@@ -62,7 +62,7 @@ class DetailTVViewModel : DetailViewModel() {
     }
 
 
-    override fun getTypes(): PublicConfig.ContentDisplayType = PublicConfig.ContentDisplayType.TV_SHOWS
+    override fun getTypes(): PublicContract.ContentDisplayType = PublicContract.ContentDisplayType.TV_SHOWS
 
     private suspend fun otherDetails(apiRepository: ApiRepository, idTv: Int): ApiRepository.RetError? =
         apiRepository.doReqAndRetResponseAsync(

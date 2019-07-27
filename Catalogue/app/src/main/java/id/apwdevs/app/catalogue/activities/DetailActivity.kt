@@ -24,7 +24,7 @@ import id.apwdevs.app.catalogue.adapter.DetailLayoutRecyclerAdapter
 import id.apwdevs.app.catalogue.model.onDetail.SocmedIDModel
 import id.apwdevs.app.catalogue.plugin.ErrorAlertDialog
 import id.apwdevs.app.catalogue.plugin.ProgressDialog
-import id.apwdevs.app.catalogue.plugin.PublicConfig
+import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.api.ApiRepository
 import id.apwdevs.app.catalogue.plugin.getBitmap
 import id.apwdevs.app.catalogue.view.MainDetailView
@@ -35,7 +35,7 @@ import kotlinx.android.synthetic.main.activity_detail_motion.*
 
 class DetailActivity : AppCompatActivity(), MainDetailView, ErrorAlertDialog.OnErrorDialogBtnClickListener {
 
-    private lateinit var types: PublicConfig.ContentDisplayType
+    private lateinit var types: PublicContract.ContentDisplayType
     private lateinit var progress: ProgressDialog
     private lateinit var viewModel: DetailViewModel
 
@@ -76,13 +76,19 @@ class DetailActivity : AppCompatActivity(), MainDetailView, ErrorAlertDialog.OnE
         // gets the title and viewModel
         actdetail_title?.text =
             when (types) {
-                PublicConfig.ContentDisplayType.MOVIE -> {
+                PublicContract.ContentDisplayType.MOVIE -> {
                     viewModel = ViewModelProviders.of(this).get(DetailMovieViewModel::class.java)
                     getString(R.string.detail_film_title)
                 }
-                PublicConfig.ContentDisplayType.TV_SHOWS -> {
+                PublicContract.ContentDisplayType.TV_SHOWS -> {
                     viewModel = ViewModelProviders.of(this).get(DetailTVViewModel::class.java)
                     getString(R.string.detail_tv_title)
+                }
+
+                // will be changed again
+                PublicContract.ContentDisplayType.FAVORITES -> {
+                    viewModel = ViewModelProviders.of(this).get(DetailTVViewModel::class.java)
+                    "Favorites"
                 }
             }
 

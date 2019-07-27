@@ -17,35 +17,37 @@ import androidx.viewpager.widget.ViewPager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.plugin.CoroutineContextProvider
-import id.apwdevs.app.catalogue.plugin.PublicConfig
+import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.callbacks.FragmentListCallback
 import id.apwdevs.app.catalogue.plugin.callbacks.OnItemFragmentClickListener
 import id.apwdevs.app.catalogue.plugin.callbacks.OnSelectedFragment
 import id.apwdevs.app.catalogue.plugin.view.SearchToolbarCard
-import id.apwdevs.app.catalogue.viewModel.MainListMovieViewModel
-import id.apwdevs.app.catalogue.viewModel.MainListTvViewModel
+import id.apwdevs.app.catalogue.viewModel.MainListViewModel.MovieTypeContract
+import id.apwdevs.app.catalogue.viewModel.MainListViewModel.TvTypeContract
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
-    OnItemFragmentClickListener {
-
+    OnItemFragmentClickListener, OnRequestRefresh {
 
     private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var vpager: ViewPager
 
     private lateinit var mFragments: MutableList<Fragment>
-    lateinit var type: PublicConfig.ContentDisplayType
+    lateinit var type: PublicContract.ContentDisplayType
 
     private val fragmentTag: String
         get() {
             return when (type) {
-                PublicConfig.ContentDisplayType.MOVIE -> {
+                PublicContract.ContentDisplayType.MOVIE -> {
                     "FragmentListContainerMovie"
                 }
-                PublicConfig.ContentDisplayType.TV_SHOWS -> {
+                PublicContract.ContentDisplayType.TV_SHOWS -> {
                     "FragmentListContainerTvShows"
+                }
+                PublicContract.ContentDisplayType.FAVORITES -> {
+                    "FragmentListContainerFavorites"
                 }
             }
         }
@@ -59,8 +61,9 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return LayoutInflater.from(requireContext()).inflate(
             when (type) {
-                PublicConfig.ContentDisplayType.MOVIE -> R.layout.fg_holder_movies
-                PublicConfig.ContentDisplayType.TV_SHOWS -> R.layout.fg_holder_tv
+                PublicContract.ContentDisplayType.MOVIE -> R.layout.fg_holder_movies
+                PublicContract.ContentDisplayType.TV_SHOWS -> R.layout.fg_holder_tv
+                PublicContract.ContentDisplayType.FAVORITES -> R.layout.fg_holder_favorites
             }, container, false
         )
     }
@@ -76,33 +79,41 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
         type = requireNotNull(arguments).getParcelable(EXTRA_TYPE)
         if (savedInstanceState == null) {
             val tvModeSupport = mutableListOf(
-                MainListTvViewModel.SupportedType.TV_AIRING_TODAY,
-                MainListTvViewModel.SupportedType.TV_OTA,
-                MainListTvViewModel.SupportedType.DISCOVER,
-                MainListTvViewModel.SupportedType.POPULAR,
-                MainListTvViewModel.SupportedType.TOP_RATED
+                TvTypeContract.TV_AIRING_TODAY,
+                TvTypeContract.TV_OTA,
+                TvTypeContract.DISCOVER,
+                TvTypeContract.POPULAR,
+                TvTypeContract.TOP_RATED
             )
             val movieModeSupport = mutableListOf(
-                MainListMovieViewModel.SupportedType.NOW_PLAYING,
-                MainListMovieViewModel.SupportedType.POPULAR,
-                MainListMovieViewModel.SupportedType.DISCOVER,
-                MainListMovieViewModel.SupportedType.TOP_RATED,
-                MainListMovieViewModel.SupportedType.UPCOMING
+                MovieTypeContract.NOW_PLAYING,
+                MovieTypeContract.POPULAR,
+                MovieTypeContract.DISCOVER,
+                MovieTypeContract.TOP_RATED,
+                MovieTypeContract.UPCOMING
+            )
+            val favModeSupport = mutableListOf(
+                PublicContract.ContentDisplayType.MOVIE,
+                PublicContract.ContentDisplayType.TV_SHOWS
+
             )
             mFragments = mutableListOf()
             when (type) {
-                PublicConfig.ContentDisplayType.TV_SHOWS -> {
+                PublicContract.ContentDisplayType.TV_SHOWS -> {
                     tvModeSupport.forEach {
                         mFragments.add(FragmentContents.newInstance(type, it))
                     }
 
                 }
-                PublicConfig.ContentDisplayType.MOVIE -> {
+                PublicContract.ContentDisplayType.MOVIE -> {
                     movieModeSupport.forEach {
                         mFragments.add(FragmentContents.newInstance(type, it))
                     }
                 }
-
+                PublicContract.ContentDisplayType.FAVORITES ->
+                    favModeSupport.forEach {
+                        mFragments.add(FragmentContents.newInstance(type, it))
+                    }
 
             }
         } else {
@@ -119,8 +130,9 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
             }
         }
         mFragments.forEach {
-            if (it is FragmentContents)
+            if (it is FragmentContents) {
                 it.onItemClickListener = this
+            }
         }
     }
 
@@ -253,11 +265,18 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
         }
     }
 
+    override fun onForceRefresh(fragment: Fragment) {
+        mFragments.forEach {
+            if (it is OnRequestRefresh)
+                it.onForceRefresh(fragment)
+        }
+    }
+
 
     companion object {
         const val EXTRA_TYPE = "EXTRA_TYPE"
         @JvmStatic
-        fun newInstance(type: PublicConfig.ContentDisplayType): FragmentListContainer =
+        fun newInstance(type: PublicContract.ContentDisplayType): FragmentListContainer =
             FragmentListContainer().apply {
                 arguments = Bundle().apply {
                     putParcelable(EXTRA_TYPE, type)

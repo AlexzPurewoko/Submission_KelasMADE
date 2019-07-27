@@ -3,7 +3,7 @@ package id.apwdevs.app.catalogue.plugin
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
-object PublicConfig {
+object PublicContract {
 
     const val TV_OTA: String = "on_the_air"
     const val TV_AIRING_TODAY: String = "airing_today"
@@ -23,6 +23,12 @@ object PublicConfig {
     const val EXTERNAL_ID_QNAME = "external_ids"
     const val API_KEY_QNAME = "api_key"
 
+    object DatabaseContract {
+        const val DATABASE_FAVORITE_NAME = "catalogue_data"
+        const val TABLE_GENRES = "all_genre"
+        const val TABLE_FAVORITES = "my_favorites"
+    }
+
     object RecyclerMode {
         const val MODE_GRID = 0x6ffa
         const val MODE_LIST = 0x5faa
@@ -31,9 +37,10 @@ object PublicConfig {
 
 
     @Parcelize
-    enum class ContentDisplayType : Parcelable {
-        MOVIE,
-        TV_SHOWS
+    enum class ContentDisplayType(val type: Int) : Parcelable {
+        MOVIE(0x2a),
+        TV_SHOWS(0x1f),
+        FAVORITES(0x1d)
     }
 
 }

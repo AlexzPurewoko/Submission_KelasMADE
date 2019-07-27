@@ -8,7 +8,7 @@ import id.apwdevs.app.catalogue.model.onDetail.ProductionCompaniesModel
 import id.apwdevs.app.catalogue.model.onDetail.ProductionCountryModel
 import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.plugin.CoroutineContextProvider
-import id.apwdevs.app.catalogue.plugin.PublicConfig
+import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.api.ApiRepository
 import id.apwdevs.app.catalogue.plugin.api.GetMovies
 import id.apwdevs.app.catalogue.plugin.jsonCheckAndGet
@@ -59,7 +59,7 @@ class DetailMovieViewModel : DetailViewModel() {
         }
     }
 
-    override fun getTypes(): PublicConfig.ContentDisplayType = PublicConfig.ContentDisplayType.MOVIE
+    override fun getTypes(): PublicContract.ContentDisplayType = PublicContract.ContentDisplayType.MOVIE
 
     private suspend fun otherDetails(apiRepository: ApiRepository, idMovies: Int): ApiRepository.RetError? =
         apiRepository.doReqAndRetResponseAsync(

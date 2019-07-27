@@ -17,7 +17,7 @@ import id.apwdevs.app.catalogue.model.ResettableItem
 import id.apwdevs.app.catalogue.model.onDetail.*
 import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
-import id.apwdevs.app.catalogue.plugin.PublicConfig
+import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.gone
 import id.apwdevs.app.catalogue.plugin.visible
 import id.apwdevs.app.catalogue.viewModel.DetailMovieViewModel
@@ -28,7 +28,7 @@ import kotlin.math.abs
 
 class DetailLayoutRecyclerAdapter(
     private val context: Context,
-    private val contentType: PublicConfig.ContentDisplayType,
+    private val contentType: PublicContract.ContentDisplayType,
     private val viewModel: DetailViewModel
 ) : RecyclerView.Adapter<DetailLayoutRecyclerAdapter.DetailLayoutVH>() {
 
@@ -67,17 +67,19 @@ class DetailLayoutRecyclerAdapter(
             ViewType.CONTENT_LIST_CREW,
             ViewType.CONTENT_REVIEWS
         )
-        if (contentType == PublicConfig.ContentDisplayType.TV_SHOWS)
+        if (contentType == PublicContract.ContentDisplayType.TV_SHOWS)
             contentTypes.add(4, ViewType.CONTENT_CREATED_BY)
         computeRequirements(contentTypes, viewModel).forEach {
             when (it) {
                 MODEL_DATA_1 -> data1Model = when (contentType) {
-                    PublicConfig.ContentDisplayType.TV_SHOWS -> (viewModel as DetailTVViewModel).shortDetails.value
-                    PublicConfig.ContentDisplayType.MOVIE -> (viewModel as DetailMovieViewModel).details.value
+                    PublicContract.ContentDisplayType.TV_SHOWS -> (viewModel as DetailTVViewModel).shortDetails.value
+                    PublicContract.ContentDisplayType.MOVIE -> (viewModel as DetailMovieViewModel).details.value
+                    PublicContract.ContentDisplayType.FAVORITES -> (viewModel as DetailMovieViewModel).otherDetails.value
                 }
                 MODEL_DATA_2 -> data2OtherModel = when (contentType) {
-                    PublicConfig.ContentDisplayType.TV_SHOWS -> (viewModel as DetailTVViewModel).otherDetails.value
-                    PublicConfig.ContentDisplayType.MOVIE -> (viewModel as DetailMovieViewModel).otherDetails.value
+                    PublicContract.ContentDisplayType.TV_SHOWS -> (viewModel as DetailTVViewModel).otherDetails.value
+                    PublicContract.ContentDisplayType.MOVIE -> (viewModel as DetailMovieViewModel).otherDetails.value
+                    PublicContract.ContentDisplayType.FAVORITES -> (viewModel as DetailMovieViewModel).otherDetails.value
                 }
                 MODEL_DATA_CASTS -> listCastModel = viewModel.credits.value?.allCasts
                 MODEL_DATA_CREWS -> listCrewModel = viewModel.credits.value?.allCrew
@@ -86,7 +88,7 @@ class DetailLayoutRecyclerAdapter(
 
 
         }
-        if (contentType == PublicConfig.ContentDisplayType.TV_SHOWS)
+        if (contentType == PublicContract.ContentDisplayType.TV_SHOWS)
             createdBy = (data2OtherModel as OtherTVAboutModel?)?.createdBy
         notifyDataSetChanged()
     }
@@ -341,14 +343,14 @@ class DetailLayoutRecyclerAdapter(
                             ctx,
                             aboutModel,
                             otherAboutModel,
-                            PublicConfig.ContentDisplayType.TV_SHOWS
+                            PublicContract.ContentDisplayType.TV_SHOWS
                         )
                     } else if (aboutModel is MovieAboutModel && otherAboutModel is OtherMovieAboutModel) {
                         recyclerView?.adapter = RecyclerAboutAdapter(
                             ctx,
                             aboutModel,
                             otherAboutModel,
-                            PublicConfig.ContentDisplayType.MOVIE
+                            PublicContract.ContentDisplayType.MOVIE
                         )
                     }
                 }

@@ -17,6 +17,10 @@ import kotlinx.coroutines.delay
 import java.net.HttpURLConnection
 import java.net.UnknownHostException
 
+@Deprecated(
+    message = "You should use GetObjectFromServer instead as replacing of this class",
+    level = DeprecationLevel.WARNING
+)
 class ApiRepository {
     fun doReqAndRetResponseAsync(
         context: Context?,

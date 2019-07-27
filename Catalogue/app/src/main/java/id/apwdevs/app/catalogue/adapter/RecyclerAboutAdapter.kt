@@ -15,7 +15,7 @@ import id.apwdevs.app.catalogue.model.onDetail.OtherMovieAboutModel
 import id.apwdevs.app.catalogue.model.onDetail.OtherTVAboutModel
 import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
-import id.apwdevs.app.catalogue.plugin.PublicConfig
+import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.getCurrency
 import id.apwdevs.app.catalogue.plugin.getReadableTime
 import id.apwdevs.app.catalogue.plugin.view.WrappedView
@@ -24,7 +24,7 @@ class RecyclerAboutAdapter(
     private val context: Context,
     private val shortDetail: ResettableItem,
     private val otherDetail: ResettableItem,
-    private val type: PublicConfig.ContentDisplayType
+    private val type: PublicContract.ContentDisplayType
 ) : RecyclerView.Adapter<RecyclerAboutAdapter.RecyclerAboutVH>() {
 
     private val listToBeAdded: MutableList<Item> = mutableListOf()
@@ -42,7 +42,7 @@ class RecyclerAboutAdapter(
 
     private fun setData() {
         when (type) {
-            PublicConfig.ContentDisplayType.TV_SHOWS -> {
+            PublicContract.ContentDisplayType.TV_SHOWS -> {
                 val det1 = shortDetail as TvAboutModel
                 val det2 = otherDetail as OtherTVAboutModel
                 listToBeAdded.apply {
@@ -63,7 +63,7 @@ class RecyclerAboutAdapter(
                     add(Item(context.getString(R.string.homepage), det2.homepage))
                 }
             }
-            PublicConfig.ContentDisplayType.MOVIE -> {
+            PublicContract.ContentDisplayType.MOVIE -> {
                 val det1 = shortDetail as MovieAboutModel
                 val det2 = otherDetail as OtherMovieAboutModel
                 listToBeAdded.apply {
