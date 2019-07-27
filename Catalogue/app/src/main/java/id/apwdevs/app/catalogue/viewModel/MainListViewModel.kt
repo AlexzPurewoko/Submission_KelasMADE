@@ -12,8 +12,7 @@ import id.apwdevs.app.catalogue.model.onUserMain.MovieModelResponse
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModelResponse
 import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.api.GetObjectFromServer
-import id.apwdevs.app.catalogue.repository.FragmentContentRepository
-import id.apwdevs.app.catalogue.view.MainUserListView
+import id.apwdevs.app.catalogue.repository.onUserMain.FragmentContentRepository
 import kotlinx.android.parcel.Parcelize
 
 @Suppress("UNCHECKED_CAST")
@@ -56,7 +55,11 @@ class MainListViewModel(application: Application) : AndroidViewModel(application
                     viewModelScope
                 ) as FragmentContentRepository<ClassResponse>
             PublicContract.ContentDisplayType.FAVORITES ->
-                FragmentContentRepository(getApplication(), PublicContract.ContentDisplayType.FAVORITES, viewModelScope)
+                FragmentContentRepository(
+                    getApplication(),
+                    PublicContract.ContentDisplayType.FAVORITES,
+                    viewModelScope
+                )
 
         }
         this.tag.value = tag

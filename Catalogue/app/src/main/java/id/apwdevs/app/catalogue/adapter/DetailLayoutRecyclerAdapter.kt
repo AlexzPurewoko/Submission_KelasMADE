@@ -36,7 +36,7 @@ class DetailLayoutRecyclerAdapter(
     private var data2OtherModel: ResettableItem? = null
     private var listCrewModel: List<CrewModel>? = null
     private var listCastModel: List<CastModel>? = null
-    private var reviewModel: ReviewModel? = null
+    private var reviewModel: ReviewResponse? = null
     private var createdBy: List<ModelTvCreatedBy>? = null // for Tv usages only
 
     var onItemAction: OnItemActionListener? = null
@@ -245,7 +245,7 @@ class DetailLayoutRecyclerAdapter(
          *  Please to specify the values as defined in ViewType's enum :
          *      CONTENT_OVERVIEW -> value can be of (String)
          *      CONTENT_ABOUT -> value can be of (model1, otherModel2)
-         *      CONTENT_REVIEWS -> value can be of (ReviewModel, limits)
+         *      CONTENT_REVIEWS -> value can be of (ReviewResponse, limits)
          *      CONTENT_CREATED_BY -> value can be of (List<ModelTvCreatedBy>)
          *      CONTENT_LIST_CREW -> value can be of (List<CrewModel>, limits)
          *      CONTENT_LIST_CAST -> value can be of (List<CastModel>, limits)
@@ -261,7 +261,7 @@ class DetailLayoutRecyclerAdapter(
                         is Int -> item[1] as Int
                         else -> RecyclerReviewAdapter.NO_LIMITS
                     }
-                    if (content is ReviewModel && content.results.isNotEmpty()) {
+                    if (content is ReviewResponse && content.results.isNotEmpty()) {
                         Log.d("RECVIEW", "DATA CONTENT IS $content")
                         hideErrorText()
                         recyclerView?.apply {

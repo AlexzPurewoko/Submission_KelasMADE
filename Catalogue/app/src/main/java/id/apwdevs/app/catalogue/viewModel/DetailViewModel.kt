@@ -18,14 +18,14 @@ import org.json.JSONObject
 import java.lang.ref.WeakReference
 
 abstract class DetailViewModel : ViewModel() {
-    val socmedIds: MutableLiveData<SocmedIDModel> = MutableLiveData()
-    val reviews: MutableLiveData<ReviewModel> = MutableLiveData()
-    val credits: MutableLiveData<CreditsModel> = MutableLiveData()
+    val socmedIds: MutableLiveData<SocmedIDModel> = MutableLiveData()//
+    val reviews: MutableLiveData<ReviewResponse> = MutableLiveData()//
+    val credits: MutableLiveData<CreditsModel> = MutableLiveData()//
     val id: MutableLiveData<Int> = MutableLiveData()
 
     val hasFirstInitialize: MutableLiveData<Boolean> = MutableLiveData()
-    val hasLoading: MutableLiveData<Boolean> = MutableLiveData()
-    val loadSuccess: MutableLiveData<Boolean> = MutableLiveData()
+    val hasLoading: MutableLiveData<Boolean> = MutableLiveData()//
+    val loadSuccess: MutableLiveData<Boolean> = MutableLiveData() //
     val hasOverlayMode: MutableLiveData<Boolean> = MutableLiveData()
 
     var activity: WeakReference<Activity>? = null
@@ -175,7 +175,7 @@ abstract class DetailViewModel : ViewModel() {
                         }
 
                         reviews.value =
-                            ReviewModel(
+                            ReviewResponse(
                                 id = getInt("id"),
                                 page = getInt("page"),
                                 totalPages = getInt("total_pages"),

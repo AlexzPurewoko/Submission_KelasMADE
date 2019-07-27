@@ -1,6 +1,7 @@
 package id.apwdevs.app.catalogue.model.onDetail
 
 import com.google.gson.annotations.SerializedName
+import id.apwdevs.app.catalogue.model.ClassResponse
 
 data class SocmedIDModel(
 
@@ -16,4 +17,4 @@ data class SocmedIDModel(
 
     @SerializedName("id")
     val id: Int
-)
+) : ClassResponse
