@@ -22,9 +22,6 @@ data class MovieAboutModel(
     @SerializedName("poster_path")
     val posterPath: String?,
 
-    @SerializedName("adult")
-    val isAdult: Boolean,
-
     @SerializedName("overview")
     val overview: String?,
 
@@ -43,17 +40,11 @@ data class MovieAboutModel(
     @SerializedName("backdrop_path")
     val backdropPath: String?,
 
-    @SerializedName("popularity")
-    val popularity: Double,
-
     @SerializedName("vote_count")
     val voteCount: Int,
 
     @SerializedName("vote_average")
     val voteAverage: Double,
-
-    @SerializedName("video")
-    val video: Boolean,
 
     // This fields is originally false, but it will true if detected
     // by Repositories if this dataModel is favorite by user

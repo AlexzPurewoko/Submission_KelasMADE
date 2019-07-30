@@ -14,9 +14,6 @@ data class OtherTVAboutModel(
     @SerializedName("homepage")
     val homepage: String,
 
-    @SerializedName("first_air_date")
-    val firstAirDate: String,
-
     @SerializedName("in_production")
     val inProduction: Boolean,
 
@@ -36,13 +33,7 @@ data class OtherTVAboutModel(
     val status: String,
 
     @SerializedName("type")
-    val type: String,
-
-    @Deprecated("Not In Usages, will be removed")
-    val productionCompanies: MutableList<ProductionTVCompaniesModel>,
-
-    @Deprecated("Not In Usages, will be removed")
-    val productionTvSeasons: MutableList<ProductionTVSeasons>
+    val type: String
 ) : Parcelable, ResettableItem {
     override fun onReset() {
 

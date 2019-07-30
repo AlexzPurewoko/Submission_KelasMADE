@@ -27,4 +27,7 @@ interface FavoriteDao {
 
     @Query("SELECT CASE WHEN EXISTS (SELECT * FROM $tableName WHERE id LIKE :id)THEN CAST(1 AS BIT)ELSE CAST(0 AS BIT) END AS BOOL")
     fun isAnyColumnIn(id: Int): Boolean
+
+    @Query("SELECT * FROM $tableName WHERE id LIKE :id")
+    fun getItemAt(id: Int): FavoriteEntity?
 }

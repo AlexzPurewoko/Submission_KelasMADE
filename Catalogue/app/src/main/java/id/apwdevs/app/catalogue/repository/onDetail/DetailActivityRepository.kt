@@ -22,13 +22,12 @@ abstract class DetailActivityRepository protected constructor(
     val credits: MutableLiveData<CreditsModel> = MutableLiveData()//
 
     val hasLoading: MutableLiveData<Boolean> = MutableLiveData()//
-    //val loadSuccess: MutableLiveData<Boolean> = MutableLiveData()//
     val retError: MutableLiveData<GetObjectFromServer.RetError> = MutableLiveData()
     abstract val data1Obj: MutableLiveData<ResettableItem>
     abstract val data2Obj: MutableLiveData<ResettableItem>
     protected abstract val typeContentContract: TypeContentContract
 
-    abstract fun getData(id: Int): Deferred<Boolean> // if no error, return into true, otherwise will be marked as error
+    abstract fun getDataAsync(id: Int): Deferred<Boolean> // if no error, return into true, otherwise will be marked as error
 
 
     fun load(id: Int) {
@@ -38,24 +37,16 @@ abstract class DetailActivityRepository protected constructor(
             retError.postValue(null)
 
             val objServer = GetObjectFromServer.getInstance(context)
-            val getDt = getData(id)
-
-            getCredits(id, typeContentContract, objServer).await()
-            getReviews(id, typeContentContract, objServer).await()
-            getSocmedId(id, typeContentContract, objServer).await()
-
-            while (getDt.isActive) {
-                if (hasLoading.value != true) {
-                    getDt.cancel()
-                    return@launch
-                }
-                delay(500)
+            if (getDataAsync(id).await()) {
+                getCreditsAsync(id, typeContentContract, objServer).await()
+                getReviewsAsync(id, typeContentContract, objServer).await()
+                getSocmedIdAsync(id, typeContentContract, objServer).await()
             }
             hasLoading.postValue(false)
         }
     }
 
-    private fun getCredits(id: Int, type: TypeContentContract, objectFromServer: GetObjectFromServer) =
+    private fun getCreditsAsync(id: Int, type: TypeContentContract, objectFromServer: GetObjectFromServer) =
         GlobalScope.async {
             objectFromServer.getObj(when (type) {
                 TypeContentContract.MOVIE -> GetMovies.getCredits(id)
@@ -80,7 +71,7 @@ abstract class DetailActivityRepository protected constructor(
 
         }
 
-    private fun getReviews(id: Int, type: TypeContentContract, objectFromServer: GetObjectFromServer) =
+    private fun getReviewsAsync(id: Int, type: TypeContentContract, objectFromServer: GetObjectFromServer) =
         GlobalScope.async {
             objectFromServer.getObj(when (type) {
                 TypeContentContract.MOVIE -> GetMovies.getReviews(id)
@@ -106,7 +97,7 @@ abstract class DetailActivityRepository protected constructor(
         }
 
 
-    private fun getSocmedId(id: Int, type: TypeContentContract, objectFromServer: GetObjectFromServer) =
+    private fun getSocmedIdAsync(id: Int, type: TypeContentContract, objectFromServer: GetObjectFromServer) =
         GlobalScope.async {
             objectFromServer.getObj(when (type) {
                 TypeContentContract.MOVIE -> GetMovies.getSocmedID(id)

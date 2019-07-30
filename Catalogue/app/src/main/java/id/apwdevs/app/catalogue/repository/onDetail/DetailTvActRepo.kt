@@ -26,7 +26,7 @@ class DetailTvActRepo(
     override val typeContentContract: TypeContentContract
         get() = TypeContentContract.TV_SHOWS
 
-    override fun getData(id: Int): Deferred<Boolean> = GlobalScope.async {
+    override fun getDataAsync(id: Int): Deferred<Boolean> = GlobalScope.async {
         val getObjectRepo = GetObjectFromServer.getInstance(context)
         mContext.intent.extras?.apply {
             val otherAboutTv = getParcelable<TvAboutModel>(DetailActivity.EXTRA_CONTENT_DETAILS)

@@ -320,5 +320,6 @@ class DetailActivity : AppCompatActivity(), MainDetailView, ErrorAlertDialog.OnE
         const val EXTRA_ID = "ID_CONTENT"
         const val EXTRA_DETAIL_TYPES = "DETAIL_TYPES"
 
+
     }
 }

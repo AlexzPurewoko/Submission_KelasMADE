@@ -16,9 +16,6 @@ data class TvAboutModel(
     @SerializedName("id")
     val idTv: Int,
 
-    @SerializedName("popularity")
-    val popularity: Double,
-
     @SerializedName("poster_path")
     val posterPath: String?,
 
@@ -33,9 +30,6 @@ data class TvAboutModel(
 
     @SerializedName("first_air_date")
     val firstAirDate: String?,
-
-    @SerializedName("origin_country")
-    val originCountry: List<String>?,
 
     @SerializedName("genre_ids")
     val genres: List<Int>,

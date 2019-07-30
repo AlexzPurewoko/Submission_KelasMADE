@@ -40,7 +40,17 @@ object PublicContract {
     enum class ContentDisplayType(val type: Int) : Parcelable {
         MOVIE(0x2a),
         TV_SHOWS(0x1f),
-        FAVORITES(0x1d)
+        FAVORITES(0x1d);
+
+        companion object {
+            fun findId(idType: Int): ContentDisplayType? {
+                values().iterator().forEach {
+                    if (it.type == idType)
+                        return it
+                }
+                return null
+            }
+        }
     }
 
 }

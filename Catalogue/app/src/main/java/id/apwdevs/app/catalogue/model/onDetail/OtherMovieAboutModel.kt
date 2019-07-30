@@ -19,12 +19,6 @@ data class OtherMovieAboutModel(
     @SerializedName("homepage")
     val homepage: String?,
 
-    @Deprecated("Not in use. Will be removed!")
-    val productionCompanies: MutableList<ProductionCompaniesModel>,
-
-    @Deprecated("Not in use. Will be removed!")
-    val productionCountry: MutableList<ProductionCountryModel>?,
-
     @SerializedName("revenue")
     val revenue: Int,
 
