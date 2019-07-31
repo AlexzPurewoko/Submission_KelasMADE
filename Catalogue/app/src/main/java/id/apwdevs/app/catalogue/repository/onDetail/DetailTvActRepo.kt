@@ -1,6 +1,7 @@
 package id.apwdevs.app.catalogue.repository.onDetail
 
-import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.MutableLiveData
 import id.apwdevs.app.catalogue.activities.DetailActivity
 import id.apwdevs.app.catalogue.model.ResettableItem
@@ -15,7 +16,7 @@ import kotlinx.coroutines.async
 
 @Suppress("UNCHECKED_CAST")
 class DetailTvActRepo(
-    private val mContext: Activity,
+    mContext: Context,
     viewModelScope: CoroutineScope
 ) : DetailActivityRepository(mContext, viewModelScope) {
 
@@ -26,12 +27,15 @@ class DetailTvActRepo(
     override val typeContentContract: TypeContentContract
         get() = TypeContentContract.TV_SHOWS
 
-    override fun getDataAsync(id: Int): Deferred<Boolean> = GlobalScope.async {
-        val getObjectRepo = GetObjectFromServer.getInstance(context)
-        mContext.intent.extras?.apply {
+    override fun initAtFirstTime(dataIntent: Intent) {
+        dataIntent.extras?.apply {
             val otherAboutTv = getParcelable<TvAboutModel>(DetailActivity.EXTRA_CONTENT_DETAILS)
             data1Obj.postValue(otherAboutTv)
         }
+    }
+
+    override fun getDataAsync(id: Int): Deferred<Boolean> = GlobalScope.async {
+        val getObjectRepo = GetObjectFromServer.getInstance(context)
 
         getObjectRepo.getObj(
             GetTVShows.getOtherDetails(id),

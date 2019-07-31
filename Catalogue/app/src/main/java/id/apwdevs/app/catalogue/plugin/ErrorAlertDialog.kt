@@ -9,13 +9,13 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import id.apwdevs.app.catalogue.R
-import id.apwdevs.app.catalogue.plugin.api.ApiRepository
+import id.apwdevs.app.catalogue.plugin.api.GetObjectFromServer
 import id.apwdevs.app.catalogue.plugin.view.ErrorSectionAdapter
 
 class ErrorAlertDialog : DialogFragment() {
 
     private var onListener: OnErrorDialogBtnClickListener? = null
-    var returnedError: ApiRepository.RetError? = null
+    var returnedError: GetObjectFromServer.RetError? = null
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
         AlertDialog.Builder(requireContext()).apply {
 

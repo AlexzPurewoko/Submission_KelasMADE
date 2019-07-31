@@ -20,15 +20,14 @@ import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
 import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.gone
 import id.apwdevs.app.catalogue.plugin.visible
-import id.apwdevs.app.catalogue.viewModel.DetailMovieViewModel
-import id.apwdevs.app.catalogue.viewModel.DetailTVViewModel
+import id.apwdevs.app.catalogue.repository.onDetail.DetailActivityRepository
 import id.apwdevs.app.catalogue.viewModel.DetailViewModel
 import kotlinx.android.parcel.Parcelize
 import kotlin.math.abs
 
 class DetailLayoutRecyclerAdapter(
     private val context: Context,
-    private val contentType: PublicContract.ContentDisplayType,
+    contentType: DetailActivityRepository.TypeContentContract,
     private val viewModel: DetailViewModel
 ) : RecyclerView.Adapter<DetailLayoutRecyclerAdapter.DetailLayoutVH>() {
 
@@ -67,20 +66,13 @@ class DetailLayoutRecyclerAdapter(
             ViewType.CONTENT_LIST_CREW,
             ViewType.CONTENT_REVIEWS
         )
-        if (contentType == PublicContract.ContentDisplayType.TV_SHOWS)
+
+        if (contentType == DetailActivityRepository.TypeContentContract.TV_SHOWS)
             contentTypes.add(4, ViewType.CONTENT_CREATED_BY)
         computeRequirements(contentTypes, viewModel).forEach {
             when (it) {
-                MODEL_DATA_1 -> data1Model = when (contentType) {
-                    PublicContract.ContentDisplayType.TV_SHOWS -> (viewModel as DetailTVViewModel).shortDetails.value
-                    PublicContract.ContentDisplayType.MOVIE -> (viewModel as DetailMovieViewModel).details.value
-                    PublicContract.ContentDisplayType.FAVORITES -> (viewModel as DetailMovieViewModel).otherDetails.value
-                }
-                MODEL_DATA_2 -> data2OtherModel = when (contentType) {
-                    PublicContract.ContentDisplayType.TV_SHOWS -> (viewModel as DetailTVViewModel).otherDetails.value
-                    PublicContract.ContentDisplayType.MOVIE -> (viewModel as DetailMovieViewModel).otherDetails.value
-                    PublicContract.ContentDisplayType.FAVORITES -> (viewModel as DetailMovieViewModel).otherDetails.value
-                }
+                MODEL_DATA_1 -> data1Model = viewModel.data1Obj.value
+                MODEL_DATA_2 -> data2OtherModel = viewModel.data2Obj.value
                 MODEL_DATA_CASTS -> listCastModel = viewModel.credits.value?.allCasts
                 MODEL_DATA_CREWS -> listCrewModel = viewModel.credits.value?.allCrew
                 MODEL_DATA_REVIEWS -> reviewModel = viewModel.reviews.value
@@ -88,14 +80,17 @@ class DetailLayoutRecyclerAdapter(
 
 
         }
-        if (contentType == PublicContract.ContentDisplayType.TV_SHOWS)
+        if (contentType == DetailActivityRepository.TypeContentContract.TV_SHOWS)
             createdBy = (data2OtherModel as OtherTVAboutModel?)?.createdBy
         notifyDataSetChanged()
     }
 
     private fun computeRequirements(contentTypes: MutableList<ViewType>, viewModel: DetailViewModel): List<String> {
         val listRequirementsKey = mutableListOf<String>()
-        for ((idx, type) in contentTypes.withIndex()) {
+        var sz = contentTypes.size
+        var pos = 0
+        while (pos < sz) {
+            val type = contentTypes[pos]
             val count = type.mustContains.size
             var notMuchRequirements = false
 
@@ -104,20 +99,8 @@ class DetailLayoutRecyclerAdapter(
             for (i in 0 until count) {
                 if (
                     when (type.mustContains[i]) {
-                        MODEL_DATA_1 -> {
-                            when (viewModel) {
-                                is DetailMovieViewModel -> viewModel.details.value == null
-                                is DetailTVViewModel -> viewModel.shortDetails.value == null
-                                else -> false
-                            }
-                        }
-                        MODEL_DATA_2 -> {
-                            when (viewModel) {
-                                is DetailMovieViewModel -> viewModel.otherDetails.value == null
-                                is DetailTVViewModel -> viewModel.otherDetails.value == null
-                                else -> false
-                            }
-                        }
+                        MODEL_DATA_1 -> viewModel.data1Obj.value == null
+                        MODEL_DATA_2 -> viewModel.data2Obj.value == null
                         MODEL_DATA_CASTS -> viewModel.credits.value?.allCasts == null
                         MODEL_DATA_CREWS -> viewModel.credits.value?.allCrew == null
                         MODEL_DATA_REVIEWS -> viewModel.reviews.value == null
@@ -131,7 +114,9 @@ class DetailLayoutRecyclerAdapter(
             }
             // remove the unnecessary content
             if (notMuchRequirements) {
-                contentTypes.removeAt(idx)
+                contentTypes.removeAt(pos)
+                sz = contentTypes.size
+                pos++
                 continue
             }
             // add the key if not contains in list before
@@ -140,6 +125,7 @@ class DetailLayoutRecyclerAdapter(
                     listRequirementsKey.add(it)
                 }
             }
+            pos++
 
         }
 

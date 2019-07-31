@@ -1,6 +1,7 @@
 package id.apwdevs.app.catalogue.repository.onDetail
 
-import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
@@ -20,7 +21,7 @@ import id.apwdevs.app.catalogue.plugin.api.GetTVShows
 import kotlinx.coroutines.*
 
 class DetailFavoriteActRepo(
-    private val mContext: Activity,
+    mContext: Context,
     viewModelScope: CoroutineScope
 ) : DetailActivityRepository(mContext, viewModelScope) {
     private var typeContent: MutableLiveData<TypeContentContract> = MutableLiveData()
@@ -30,20 +31,24 @@ class DetailFavoriteActRepo(
         get() = MutableLiveData()
     override val typeContentContract: TypeContentContract
         get() = typeContent.value ?: TypeContentContract.MOVIE
+    private var favEntity: FavoriteEntity? = null
 
-
-    override fun getDataAsync(id: Int): Deferred<Boolean> = viewModelScope.async {
-        val getObjectRepo = GetObjectFromServer.getInstance(context)
-        val genreDao = FavoriteDatabase.getInstance(context).genreDao()
-        val favEntity = mContext.intent.extras?.getParcelable<FavoriteEntity>(DetailActivity.EXTRA_CONTENT_DETAILS)
-        favEntity?.apply {
+    override fun initAtFirstTime(dataIntent: Intent) {
+        favEntity = dataIntent.extras?.getParcelable<FavoriteEntity>(DetailActivity.EXTRA_CONTENT_DETAILS)?.also {
             typeContent.value = requireNotNull(
-                when (PublicContract.ContentDisplayType.findId(contentType)) {
+                when (PublicContract.ContentDisplayType.findId(it.contentType)) {
                     PublicContract.ContentDisplayType.MOVIE -> TypeContentContract.MOVIE
                     PublicContract.ContentDisplayType.TV_SHOWS -> TypeContentContract.TV_SHOWS
                     else -> null
                 }
             )
+        }
+    }
+
+    override fun getDataAsync(id: Int): Deferred<Boolean> = viewModelScope.async {
+        val getObjectRepo = GetObjectFromServer.getInstance(context)
+        val genreDao = FavoriteDatabase.getInstance(context).genreDao()
+        favEntity?.apply {
             var isFinished = false
             getObjectRepo.getResponseAsString(
                 when (typeContent.value) {

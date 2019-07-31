@@ -1,6 +1,7 @@
 package id.apwdevs.app.catalogue.repository.onDetail
 
 import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.MutableLiveData
 import id.apwdevs.app.catalogue.model.ResettableItem
 import id.apwdevs.app.catalogue.model.onDetail.CreditsModel
@@ -25,10 +26,11 @@ abstract class DetailActivityRepository protected constructor(
     val retError: MutableLiveData<GetObjectFromServer.RetError> = MutableLiveData()
     abstract val data1Obj: MutableLiveData<ResettableItem>
     abstract val data2Obj: MutableLiveData<ResettableItem>
-    protected abstract val typeContentContract: TypeContentContract
+    abstract val typeContentContract: TypeContentContract
 
     abstract fun getDataAsync(id: Int): Deferred<Boolean> // if no error, return into true, otherwise will be marked as error
 
+    abstract fun initAtFirstTime(dataIntent: Intent)
 
     fun load(id: Int) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -127,7 +129,7 @@ abstract class DetailActivityRepository protected constructor(
         hasLoading.postValue(false)
     }
 
-    protected enum class TypeContentContract {
+    enum class TypeContentContract {
         MOVIE,
         TV_SHOWS
     }

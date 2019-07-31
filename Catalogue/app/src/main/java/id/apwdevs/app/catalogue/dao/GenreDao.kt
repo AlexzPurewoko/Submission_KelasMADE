@@ -19,7 +19,7 @@ interface GenreDao {
     @Query("SELECT name from $table WHERE id LIKE :id")
     fun getGenreNameAt(id: Int): String
 
-    @Query("SELECT name from $table WHERE name LIKE ':name'")
+    @Query("SELECT name from $table WHERE name LIKE :name")
     fun getGenreIdByName(name: String): Int
 
     @Query("SELECT count(1) from $table")

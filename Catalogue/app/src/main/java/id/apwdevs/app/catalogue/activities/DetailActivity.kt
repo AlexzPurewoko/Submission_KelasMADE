@@ -22,20 +22,17 @@ import com.jaeger.library.StatusBarUtil
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.adapter.DetailLayoutRecyclerAdapter
 import id.apwdevs.app.catalogue.model.onDetail.SocmedIDModel
+import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
+import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
 import id.apwdevs.app.catalogue.plugin.ErrorAlertDialog
 import id.apwdevs.app.catalogue.plugin.ProgressDialog
 import id.apwdevs.app.catalogue.plugin.PublicContract
-import id.apwdevs.app.catalogue.plugin.api.ApiRepository
 import id.apwdevs.app.catalogue.plugin.getBitmap
-import id.apwdevs.app.catalogue.view.MainDetailView
-import id.apwdevs.app.catalogue.viewModel.DetailMovieViewModel
-import id.apwdevs.app.catalogue.viewModel.DetailTVViewModel
 import id.apwdevs.app.catalogue.viewModel.DetailViewModel
 import kotlinx.android.synthetic.main.activity_detail_motion.*
 
-class DetailActivity : AppCompatActivity(), MainDetailView, ErrorAlertDialog.OnErrorDialogBtnClickListener {
+class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnClickListener {
 
-    private lateinit var types: PublicContract.ContentDisplayType
     private lateinit var progress: ProgressDialog
     private lateinit var viewModel: DetailViewModel
 
@@ -64,54 +61,26 @@ class DetailActivity : AppCompatActivity(), MainDetailView, ErrorAlertDialog.OnE
                 Toast.makeText(this@DetailActivity, tag, Toast.LENGTH_SHORT).show()
             true
         }
-
-        if (savedInstanceState == null)
-            intent.extras?.apply {
-                types = getParcelable(EXTRA_DETAIL_TYPES)
-            }
-        else
-            types = savedInstanceState.getParcelable(EXTRA_DETAIL_TYPES)
         progress = ProgressDialog()
+        viewModel = ViewModelProviders.of(this).get(DetailViewModel::class.java).apply {
+            if (hasFirstInitialize.value == false)
+                setup(intent)
 
-        // gets the title and viewModel
-        actdetail_title?.text =
-            when (types) {
-                PublicContract.ContentDisplayType.MOVIE -> {
-                    viewModel = ViewModelProviders.of(this).get(DetailMovieViewModel::class.java)
-                    getString(R.string.detail_film_title)
-                }
-                PublicContract.ContentDisplayType.TV_SHOWS -> {
-                    viewModel = ViewModelProviders.of(this).get(DetailTVViewModel::class.java)
-                    getString(R.string.detail_tv_title)
-                }
-
-                // will be changed again
-                PublicContract.ContentDisplayType.FAVORITES -> {
-                    viewModel = ViewModelProviders.of(this).get(DetailTVViewModel::class.java)
-                    "Favorites"
-                }
-            }
-
-        // initialize and observe the viewmodel
-        viewModel.setup(this, this)
-        viewModel.apply {
-            hasLoading.observe(this@DetailActivity, Observer {
-                runOnUiThread {
-                    when (it) {
-                        false -> {
-                            try {
-                                progress.dismiss()
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
-                        }
-                        true -> {
-                            progress.show(supportFragmentManager, null)
-                        }
+            actdetail_title?.text =
+                when (types.value) {
+                    PublicContract.ContentDisplayType.MOVIE -> {
+                        getString(R.string.detail_film_title)
                     }
-                    actdetail_recycler_content.adapter?.notifyDataSetChanged()
+                    PublicContract.ContentDisplayType.TV_SHOWS -> {
+                        getString(R.string.detail_tv_title)
+                    }
+                    // will be changed again
+                    PublicContract.ContentDisplayType.FAVORITES -> {
+                        "Favorites"
+                    }
+                    else -> ""
                 }
-            })
+
             hasOverlayMode.observe(this@DetailActivity, Observer {
                 actdetail_image_header?.imageTintList =
                     ColorStateList.valueOf(ContextCompat.getColor(baseContext, R.color.image_header))
@@ -132,39 +101,45 @@ class DetailActivity : AppCompatActivity(), MainDetailView, ErrorAlertDialog.OnE
 
             })
 
+            hasLoading.observe(this@DetailActivity, Observer {
+                runOnUiThread {
+                    when (it) {
+                        false -> {
+                            try {
+                                progress.dismiss()
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+
+                            if (hasFirstInitialize.value != false)
+                                compositingView(this)
+                        }
+                        true -> {
+                            progress.show(supportFragmentManager, null)
+                        }
+                    }
+                    actdetail_recycler_content.adapter?.notifyDataSetChanged()
+                }
+            })
+
+            retError.observe(this@DetailActivity, Observer {
+                it?.let { error ->
+                    it.cause?.printStackTrace()
+                    ErrorAlertDialog().apply {
+                        returnedError = it
+                        isCancelable = false
+                    }.showNow(supportFragmentManager, "ErrorDialog")
+                }
+
+            })
+
             if (hasFirstInitialize.value == false) {
                 hasFirstInitialize.value = true
-                getAll()
+                loadData()
                 return
-            } else {
-                if (hasLoading.value != true && (loadSuccess.value == true))
-                    compositingView(this)
             }
         }
 
-    }
-
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putParcelable(EXTRA_DETAIL_TYPES, types)
-    }
-
-    override fun onLoad() {
-    }
-
-    override fun onLoadFailed(err: ApiRepository.RetError) {
-        err.cause?.printStackTrace()
-        viewModel.hasLoading.value = false
-        ErrorAlertDialog().apply {
-            returnedError = err
-            isCancelable = false
-        }.showNow(supportFragmentManager, "ErrorDialog")
-
-    }
-
-    override fun onLoadFinished(viewModel: DetailViewModel) {
-        compositingView(viewModel)
     }
 
     private fun compositingView(viewModel: DetailViewModel) {
@@ -173,7 +148,7 @@ class DetailActivity : AppCompatActivity(), MainDetailView, ErrorAlertDialog.OnE
         rectSize.y = resources.getDimension(R.dimen.actdetail_header_height).toInt()
         actdetail_recycler_content.layoutManager = LinearLayoutManager(this)
         actdetail_recycler_content.adapter =
-            DetailLayoutRecyclerAdapter(this@DetailActivity, types, viewModel).apply {
+            DetailLayoutRecyclerAdapter(this@DetailActivity, viewModel.typeContent, viewModel).apply {
                 onItemAction = object : DetailLayoutRecyclerAdapter.OnItemActionListener {
                     override fun onAction(viewType: DetailLayoutRecyclerAdapter.ViewType, vararg action: Any) {
                         openTo(action[0].toString())
@@ -188,25 +163,24 @@ class DetailActivity : AppCompatActivity(), MainDetailView, ErrorAlertDialog.OnE
         var posterPath: String? = null
         var voteAverage: Double? = null
         var voteCount: Int? = null
-        when (viewModel) {
-            is DetailMovieViewModel -> {
-                val data1Model = viewModel.details.value
-                title = data1Model?.title
-                backdropPath = data1Model?.backdropPath
-                posterPath = data1Model?.posterPath
-                voteAverage = data1Model?.voteAverage
-                voteCount = data1Model?.voteCount
-            }
-            is DetailTVViewModel -> {
-                val data1Model = viewModel.shortDetails.value
-                title = data1Model?.name
-                backdropPath = data1Model?.backdropPath
-                posterPath = data1Model?.posterPath
-                voteAverage = data1Model?.voteAverage
-                voteCount = data1Model?.voteCount
+        viewModel.data1Obj.value?.apply {
+            when (this) {
+                is TvAboutModel -> {
+                    title = this.name
+                    backdropPath = this.backdropPath
+                    posterPath = this.posterPath
+                    voteAverage = this.voteAverage
+                    voteCount = this.voteCount
+                }
+                is MovieAboutModel -> {
+                    title = this.title
+                    backdropPath = this.backdropPath
+                    posterPath = this.posterPath
+                    voteAverage = this.voteAverage
+                    voteCount = this.voteCount
+                }
             }
         }
-
         // sets the header
         // sets the image of header
         setBackdropPath(backdropPath, rectSize)
@@ -299,7 +273,7 @@ class DetailActivity : AppCompatActivity(), MainDetailView, ErrorAlertDialog.OnE
 
     override fun onRequestRefresh(errorAlertDialog: ErrorAlertDialog) {
         errorAlertDialog.dismiss()
-        viewModel.getAll()
+        viewModel.loadData()
     }
 
     override fun onRequestBack(errorAlertDialog: ErrorAlertDialog) {
@@ -319,7 +293,5 @@ class DetailActivity : AppCompatActivity(), MainDetailView, ErrorAlertDialog.OnE
         const val EXTRA_CONTENT_DETAILS = "CONTENT_DETAILS"
         const val EXTRA_ID = "ID_CONTENT"
         const val EXTRA_DETAIL_TYPES = "DETAIL_TYPES"
-
-
     }
 }
