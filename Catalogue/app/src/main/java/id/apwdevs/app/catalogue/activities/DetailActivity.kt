@@ -50,7 +50,7 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
         }
         // when clicking home button, this context will be pop back from stack
         home.setOnClickListener {
-            this@DetailActivity.finish()
+            finishTask()
         }
         actdetail_tint?.setOnClickListener {
             viewModel.hasOverlayMode.value = !(viewModel.hasOverlayMode.value ?: false)
@@ -62,7 +62,28 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
             true
         }
         progress = ProgressDialog()
-        viewModel = ViewModelProviders.of(this).get(DetailViewModel::class.java).apply {
+        confViewModel()
+        actdetail_favorite.setOnClickListener {
+            viewModel.isAnyChangesMade.value = true
+            viewModel.onClickFavoriteBtn(it)
+        }
+    }
+
+    private fun finishTask() {
+
+        setResult(
+            when (viewModel.isAnyChangesMade.value) {
+                true -> MainTabUserActivity.LAYOUT_REQUEST_UPDATE
+                else -> MainTabUserActivity.NO_REQUEST // false & null returned value
+            }
+        )
+        this@DetailActivity.finish()
+    }
+
+    private fun confViewModel() {
+        viewModel = ViewModelProviders.of(this).get(DetailViewModel::class.java)
+
+        viewModel.apply {
             if (hasFirstInitialize.value == false)
                 setup(intent)
 
@@ -110,9 +131,6 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
-
-                            if (hasFirstInitialize.value != false)
-                                compositingView(this)
                         }
                         true -> {
                             progress.show(supportFragmentManager, null)
@@ -133,19 +151,70 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
 
             })
 
+            socmedIds.observe(this@DetailActivity, Observer {
+                setSocmedId(it)
+            })
+
+            isFavorite.observe(this@DetailActivity, Observer {
+                actdetail_favorite.setImageResource(
+                    if (it)
+                        R.drawable.ic_favorite_activated_24dp
+                    else
+                        R.drawable.ic_favorite_border_24dp
+                )
+            })
+
+            data1Obj.observe(this@DetailActivity, Observer {
+                var title: CharSequence? = null
+                var backdropPath: String? = null
+                var posterPath: String? = null
+                var voteAverage: Double? = null
+                var voteCount: Int? = null
+                it.apply {
+                    when (this) {
+                        is TvAboutModel -> {
+                            title = this.name
+                            backdropPath = this.backdropPath
+                            posterPath = this.posterPath
+                            voteAverage = this.voteAverage
+                            voteCount = this.voteCount
+                        }
+                        is MovieAboutModel -> {
+                            title = this.title
+                            backdropPath = this.backdropPath
+                            posterPath = this.posterPath
+                            voteAverage = this.voteAverage
+                            voteCount = this.voteCount
+                        }
+                    }
+                }
+                // sets the header
+                // sets the image of header
+                setBackdropPath(backdropPath, getHeaderRectSize(this@DetailActivity))
+                /// sets the poster image
+                setPosterImage(
+                    posterPath, Point(
+                        resources.getDimension(R.dimen.item_poster_width).toInt(),
+                        resources.getDimension(R.dimen.item_poster_height).toInt()
+                    )
+                )
+                /// sets the text title header
+                setTitleHeader(title, requireNotNull(voteAverage), requireNotNull(voteCount))
+            })
+
+            loadFinished.observe(this@DetailActivity, Observer {
+                if (it)
+                    setRecycler(this)
+            })
             if (hasFirstInitialize.value == false) {
                 hasFirstInitialize.value = true
                 loadData()
                 return
             }
         }
-
     }
 
-    private fun compositingView(viewModel: DetailViewModel) {
-        val rectSize = Point()
-        windowManager.defaultDisplay.getSize(rectSize)
-        rectSize.y = resources.getDimension(R.dimen.actdetail_header_height).toInt()
+    private fun setRecycler(viewModel: DetailViewModel) {
         actdetail_recycler_content.layoutManager = LinearLayoutManager(this)
         actdetail_recycler_content.adapter =
             DetailLayoutRecyclerAdapter(this@DetailActivity, viewModel.typeContent, viewModel).apply {
@@ -157,45 +226,6 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
                 }
             }
 
-        val socmedIDModel = viewModel.socmedIds.value
-        var title: CharSequence? = null
-        var backdropPath: String? = null
-        var posterPath: String? = null
-        var voteAverage: Double? = null
-        var voteCount: Int? = null
-        viewModel.data1Obj.value?.apply {
-            when (this) {
-                is TvAboutModel -> {
-                    title = this.name
-                    backdropPath = this.backdropPath
-                    posterPath = this.posterPath
-                    voteAverage = this.voteAverage
-                    voteCount = this.voteCount
-                }
-                is MovieAboutModel -> {
-                    title = this.title
-                    backdropPath = this.backdropPath
-                    posterPath = this.posterPath
-                    voteAverage = this.voteAverage
-                    voteCount = this.voteCount
-                }
-            }
-        }
-        // sets the header
-        // sets the image of header
-        setBackdropPath(backdropPath, rectSize)
-        /// sets the poster image
-        setPosterImage(
-            posterPath, Point(
-                resources.getDimension(R.dimen.item_poster_width).toInt(),
-                resources.getDimension(R.dimen.item_poster_height).toInt()
-            )
-        )
-        /// sets the text title header
-        setTitleHeader(title, requireNotNull(voteAverage), requireNotNull(voteCount))
-        socmedIDModel?.let {
-            setSocmedId(it)
-        }
         actdetail_recycler_content.layoutManager?.smoothScrollToPosition(
             actdetail_recycler_content,
             RecyclerView.State().apply {
@@ -269,6 +299,10 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
                 actdetail_image_header?.setImageBitmap(bitmap)
             }
         }
+    }
+
+    override fun onBackPressed() {
+        finishTask()
     }
 
     override fun onRequestRefresh(errorAlertDialog: ErrorAlertDialog) {

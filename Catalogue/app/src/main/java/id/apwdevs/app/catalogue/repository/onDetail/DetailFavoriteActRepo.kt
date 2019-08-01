@@ -25,10 +25,6 @@ class DetailFavoriteActRepo(
     viewModelScope: CoroutineScope
 ) : DetailActivityRepository(mContext, viewModelScope) {
     private var typeContent: MutableLiveData<TypeContentContract> = MutableLiveData()
-    override val data1Obj: MutableLiveData<ResettableItem>
-        get() = MutableLiveData()
-    override val data2Obj: MutableLiveData<ResettableItem>
-        get() = MutableLiveData()
     override val typeContentContract: TypeContentContract
         get() = typeContent.value ?: TypeContentContract.MOVIE
     private var favEntity: FavoriteEntity? = null
@@ -45,7 +41,7 @@ class DetailFavoriteActRepo(
         }
     }
 
-    override fun getDataAsync(id: Int): Deferred<Boolean> = viewModelScope.async {
+    override fun getDataAsync(id: Int): Deferred<Boolean> = GlobalScope.async {
         val getObjectRepo = GetObjectFromServer.getInstance(context)
         val genreDao = FavoriteDatabase.getInstance(context).genreDao()
         favEntity?.apply {

@@ -71,7 +71,7 @@
             app:layout_constraintTop_toTopOf="@android:id/home"
             app:layout_constraintBottom_toBottomOf="@android:id/home"
             app:layout_constraintStart_toEndOf="@android:id/home" android:layout_marginStart="8dp"
-            app:layout_constraintEnd_toStartOf="@+id/guideline2" android:layout_marginEnd="8dp"/>
+            app:layout_constraintEnd_toStartOf="@+id/actdetail_favorite"/>
 
     <ImageView
             android:background="?attr/selectableItemBackgroundBorderless"
@@ -94,4 +94,14 @@
             app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="@+id/guideline"
     />
 
+    <ImageView
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:id="@+id/actdetail_favorite"
+            app:srcCompat="@drawable/ic_favorite_border_24dp"
+            android:padding="16dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toStartOf="@+id/guideline2"
+            app:layout_constraintTop_toTopOf="@android:id/home"
+            app:layout_constraintBottom_toBottomOf="@android:id/home"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

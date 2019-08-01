@@ -101,9 +101,41 @@
                 app:layout_constraintTop_toTopOf="@android:id/home"
                 android:layout_marginBottom="8dp"
                 android:layout_marginEnd="8dp"
-                app:layout_constraintEnd_toStartOf="@+id/actdetail_spacer"
+                app:layout_constraintEnd_toStartOf="@id/actdetail_tint"
                 app:layout_constraintBottom_toBottomOf="@android:id/home"
                 android:alpha="1.0"/>
+
+        <Constraint
+                android:id="@id/actdetail_tint"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="@android:id/home"
+                app:layout_constraintTop_toTopOf="@android:id/home"
+                app:layout_constraintEnd_toStartOf="@null"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+        <Constraint
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/actdetail_favorite"
+                app:layout_constraintVertical_bias="1.2"
+                app:layout_constraintEnd_toEndOf="@+id/avail_socmed"
+                app:layout_constraintTop_toTopOf="@+id/actdetail_image_header"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toBottomOf="@+id/actdetail_image_header">
+
+        </Constraint>
+
+        <Constraint
+                android:id="@+id/actdetail_favorite_bg"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:scaleX="1.0"
+                android:scaleY="1.0"
+                app:layout_constraintEnd_toEndOf="@+id/actdetail_favorite"
+                app:layout_constraintTop_toTopOf="@+id/actdetail_favorite"
+                app:layout_constraintBottom_toBottomOf="@+id/actdetail_favorite"
+                app:layout_constraintStart_toStartOf="@+id/actdetail_favorite"/>
     </ConstraintSet>
 
     <ConstraintSet android:id="@+id/collapsed">
@@ -198,8 +230,38 @@
                 app:layout_constraintTop_toTopOf="@android:id/home"
                 android:layout_marginBottom="8dp"
                 android:layout_marginEnd="8dp"
-                app:layout_constraintEnd_toStartOf="@+id/actdetail_spacer"
+                app:layout_constraintEnd_toStartOf="@+id/actdetail_tint"
                 app:layout_constraintBottom_toBottomOf="@android:id/home"
                 android:alpha="0.0"/>
+        <Constraint
+                android:id="@id/actdetail_tint"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="@android:id/home"
+                app:layout_constraintTop_toTopOf="@android:id/home"
+                app:layout_constraintEnd_toStartOf="@id/actdetail_favorite"
+                app:layout_constraintEnd_toEndOf="@null"/>
+
+        <Constraint
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@id/actdetail_favorite"
+                app:layout_constraintVertical_bias="0.0"
+                app:layout_constraintEnd_toEndOf="@+id/avail_socmed"
+                app:layout_constraintTop_toTopOf="@+id/actdetail_tint"
+                android:layout_marginBottom="0dp"
+                app:layout_constraintBottom_toBottomOf="@+id/actdetail_image_header">
+        </Constraint>
+
+        <Constraint
+                android:id="@+id/actdetail_favorite_bg"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:scaleX="0.0"
+                android:scaleY="0.0"
+                app:layout_constraintEnd_toEndOf="@+id/actdetail_favorite"
+                app:layout_constraintTop_toTopOf="@+id/actdetail_favorite"
+                app:layout_constraintBottom_toBottomOf="@+id/actdetail_favorite"
+                app:layout_constraintStart_toStartOf="@+id/actdetail_favorite"/>
     </ConstraintSet>
 </MotionScene>

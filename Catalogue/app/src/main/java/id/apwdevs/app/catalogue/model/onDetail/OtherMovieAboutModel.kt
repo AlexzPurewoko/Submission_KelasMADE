@@ -14,13 +14,13 @@ import kotlinx.android.parcel.Parcelize
 data class OtherMovieAboutModel(
 
     @SerializedName("budget")
-    val movieBudget: Int,
+    val movieBudget: Long,
 
     @SerializedName("homepage")
     val homepage: String?,
 
     @SerializedName("revenue")
-    val revenue: Int,
+    val revenue: Long,
 
     @SerializedName("runtime")
     val runtime: Int?,

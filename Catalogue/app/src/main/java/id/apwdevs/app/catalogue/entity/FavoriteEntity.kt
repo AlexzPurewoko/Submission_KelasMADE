@@ -41,6 +41,9 @@ data class FavoriteEntity(
     @ColumnInfo(name = "posterPath")
     val posterPath: String?,
 
+    @ColumnInfo(name = "backdropPath")
+    val backdropPath: String?,
+
     @ColumnInfo(name = "voteCount", typeAffinity = INTEGER, defaultValue = "0")
     val voteCount: Int,
 

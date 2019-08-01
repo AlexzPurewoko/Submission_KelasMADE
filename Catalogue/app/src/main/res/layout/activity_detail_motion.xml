@@ -110,15 +110,38 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
             android:textColor="?android:attr/textColorPrimaryInverse"/>
     <ImageView
-            android:contentDescription="@string/en_di_tint"
+            app:srcCompat="@drawable/ic_tint_overlay_off_24dp"
+            android:id="@+id/actdetail_tint"
             android:padding="16dp"
             android:tint="?android:attr/textColorPrimaryInverse"
+            android:contentDescription="@string/en_di_tint"
             android:layout_width="wrap_content"
-            android:layout_height="0dp" app:srcCompat="@drawable/ic_tint_overlay_off_24dp"
-            android:id="@+id/actdetail_tint"
+            android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="@android:id/home"
-            app:layout_constraintTop_toTopOf="@android:id/home" app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginEnd="8dp" app:layout_constraintVertical_bias="0.0"/>
+            app:layout_constraintTop_toTopOf="@android:id/home"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
+    <ImageView
+            android:background="@drawable/circle_favorite"
+            android:id="@+id/actdetail_favorite_bg"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintEnd_toEndOf="@+id/actdetail_favorite"
+            app:layout_constraintTop_toTopOf="@+id/actdetail_favorite"
+            app:layout_constraintBottom_toBottomOf="@+id/actdetail_favorite"
+            app:layout_constraintStart_toStartOf="@+id/actdetail_favorite"/>
 
+    <ImageView
+            android:backgroundTint="@android:color/transparent"
+            app:srcCompat="@drawable/ic_favorite_border_24dp"
+            android:tint="?android:attr/textColorPrimaryInverse"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/actdetail_favorite"
+            android:padding="16dp"
+            app:layout_constraintVertical_bias="1.2"
+            app:layout_constraintEnd_toEndOf="@+id/avail_socmed"
+            app:layout_constraintTop_toTopOf="@+id/actdetail_image_header"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="@+id/actdetail_image_header"/>
 </androidx.constraintlayout.motion.widget.MotionLayout>

@@ -17,6 +17,7 @@ import com.google.android.material.tabs.TabLayout
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.adapter.GridAdapter
 import id.apwdevs.app.catalogue.adapter.ListAdapter
+import id.apwdevs.app.catalogue.entity.FavoriteEntity
 import id.apwdevs.app.catalogue.fragment.FragmentContents
 import id.apwdevs.app.catalogue.fragment.FragmentListContainer
 import id.apwdevs.app.catalogue.fragment.HolderPageAdapter
@@ -33,6 +34,11 @@ import kotlinx.android.synthetic.main.search_toolbar.*
 class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallback, FragmentListCallback,
     OnItemFragmentClickListener, GetFromHostActivity, OnRequestRefresh {
 
+    companion object {
+        const val LISTEN_FOR_LAYOUT_CHANGES = 0x55f
+        const val LAYOUT_REQUEST_UPDATE = 0x4f
+        const val NO_REQUEST = 0x5a
+    }
     private lateinit var searchToolbarCard: SearchToolbarCard
     private lateinit var listFragmentContainer: MutableList<Fragment>
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,9 +95,19 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
         super.onDestroy()
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == LISTEN_FOR_LAYOUT_CHANGES && resultCode == LAYOUT_REQUEST_UPDATE) {
+            listFragmentContainer.forEach {
+                if (it is OnRequestRefresh)
+                    it.onForceRefresh(Fragment())
+            }
+        }
+    }
+
     override fun onItemClicked(fg: Fragment, recyclerView: RecyclerView, position: Int, v: View) {
 
-        startActivity(
+        startActivityForResult(
             Intent(this, DetailActivity::class.java).apply {
                 val adapter = recyclerView.adapter
                 if (adapter is ListAdapter<*>) {
@@ -115,6 +131,12 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
                                     }
                                     PublicContract.ContentDisplayType.MOVIE -> {
                                         (selected as MovieAboutModel).let {
+                                            putExtra(DetailActivity.EXTRA_ID, it.id)
+                                            putExtra(DetailActivity.EXTRA_CONTENT_DETAILS, it)
+                                        }
+                                    }
+                                    PublicContract.ContentDisplayType.FAVORITES -> {
+                                        (selected as FavoriteEntity).let {
                                             putExtra(DetailActivity.EXTRA_ID, it.id)
                                             putExtra(DetailActivity.EXTRA_CONTENT_DETAILS, it)
                                         }
@@ -150,13 +172,20 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
                                             putExtra(DetailActivity.EXTRA_CONTENT_DETAILS, it)
                                         }
                                     }
+                                    PublicContract.ContentDisplayType.FAVORITES -> {
+                                        (selected as MovieAboutModel).let {
+                                            putExtra(DetailActivity.EXTRA_ID, it.id)
+                                            putExtra(DetailActivity.EXTRA_CONTENT_DETAILS, it)
+                                        }
+                                    }
                                 }
 
                             })
                         }
                     }
                 }
-            }
+            },
+            LISTEN_FOR_LAYOUT_CHANGES
         )
 
 

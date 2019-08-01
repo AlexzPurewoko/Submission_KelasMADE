@@ -99,5 +99,6 @@
     <string name="img_tint_mode_darken_tag">Set to Dark of the background image (Tint Mode Darken)</string>
     <string name="item_favorite_contentdesc">Add / Remove this item from favorites</string>
     <string name="favorite_title">Favorites</string>
+    <string name="fav_contentdesc">Adds this Movie or Tv Details into Favorites</string>
 
 </resources>

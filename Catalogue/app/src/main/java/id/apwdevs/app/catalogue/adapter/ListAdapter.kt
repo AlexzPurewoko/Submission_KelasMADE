@@ -3,6 +3,7 @@ package id.apwdevs.app.catalogue.adapter
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.Point
+import android.graphics.PorterDuff
 import android.graphics.Typeface
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
@@ -14,14 +15,12 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import id.apwdevs.app.catalogue.R
-import id.apwdevs.app.catalogue.database.FavoriteDatabase
 import id.apwdevs.app.catalogue.entity.FavoriteEntity
-import id.apwdevs.app.catalogue.model.GenreModel
 import id.apwdevs.app.catalogue.model.ResettableItem
 import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
-import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.SearchComponent
+import id.apwdevs.app.catalogue.plugin.configureFavorite
 import id.apwdevs.app.catalogue.plugin.getBitmap
 import id.apwdevs.app.catalogue.plugin.view.WrappedView
 import kotlinx.coroutines.Dispatchers
@@ -158,6 +157,7 @@ class ListAdapter<T : ResettableItem>(
         private val voteCount: TextView = view.findViewById(R.id.item_list_votecount)
         private val itemGenres: WrappedView = view.findViewById(R.id.item_list_genres)
         private val itemFavorites: ImageView = view.findViewById(R.id.item_list_btn_favorite)
+        private val backdrop: ImageView = view.findViewById(R.id.item_image_backdrop)
 
         private var tmpModel: T? = null
 
@@ -173,6 +173,12 @@ class ListAdapter<T : ResettableItem>(
                     dataModel.posterPath?.let {
                         getBitmap(Point(requestedWidth, requestedHeight), it) { bitmap ->
                             poster.setImageBitmap(bitmap)
+                        }
+                    }
+                    backdrop.imageTintMode = PorterDuff.Mode.DARKEN
+                    dataModel.backdropPath?.let {
+                        getBitmap(Point(500, 200), it, ImageView.ScaleType.FIT_CENTER) {
+                            backdrop.setImageBitmap(it)
                         }
                     }
                     setFavorites(dataModel.isFavorite)
@@ -226,82 +232,18 @@ class ListAdapter<T : ResettableItem>(
         override fun onClick(v: View?) {
             if (v?.id == itemFavorites.id) {
                 GlobalScope.launch(Dispatchers.IO) {
-                    val db = FavoriteDatabase.getInstance(itemView.context)
-                    val favDao = db.favoriteDao()
-                    tmpModel?.let {
-                        val id: Int = when (it) {
-                            is MovieAboutModel -> it.id
-                            is TvAboutModel -> it.idTv
-                            is FavoriteEntity -> it.id
-                            else -> -1
+                    val fav = configureFavorite(itemView.context, tmpModel)
+                    if (tmpModel is FavoriteEntity) {
+                        mContext.runOnUiThread {
+                            reqRefreshRootDataSets()
                         }
-                        // if this scope is Favorite Fragment, then it will be removed from lists
-                        if (tmpModel is FavoriteEntity) {
-                            favDao.removeAt(id)
-                            // notify into implemented fragment or activity
-                            mContext.runOnUiThread {
-                                reqRefreshRootDataSets()
-                            }
-                            return@launch
-                        }
-
-                        when (itemFavorites.tag) {
-                            ADD_FAVORITE ->
-                                when (it) {
-                                    is MovieAboutModel -> {
-                                        FavoriteEntity(
-                                            it.id,
-                                            "${it.title}",
-                                            PublicContract.ContentDisplayType.MOVIE.type,
-                                            "${it.releaseDate}",
-                                            it.overview,
-                                            converToStr(it.actualGenreModel),
-                                            it.posterPath,
-                                            it.voteCount,
-                                            it.voteAverage
-                                        )
-                                    }
-                                    is TvAboutModel -> {
-                                        FavoriteEntity(
-                                            it.idTv,
-                                            "${it.name}",
-                                            PublicContract.ContentDisplayType.TV_SHOWS.type,
-                                            "${it.firstAirDate}",
-                                            it.overview,
-                                            converToStr(it.actualGenreModel),
-                                            it.posterPath,
-                                            it.voteCount,
-                                            it.voteAverage
-                                        )
-                                    }
-                                    else -> null
-                                }?.let {
-                                    favDao.addToFavorites(listOf(it))
-                                }
-                            REMOVE_FAVORITE -> favDao.removeAt(id)
-                        }
-                        val isFav = favDao.isAnyColumnIn(id)
-                        when (it) {
-                            is MovieAboutModel -> it.isFavorite = isFav
-                            is TvAboutModel -> it.isFavorite = isFav
-                        }
+                    } else {
                         itemFavorites.post {
-                            setFavorites(isFav)
+                            setFavorites(fav)
                         }
                     }
                 }
             }
-        }
-
-        private fun converToStr(gModel: List<GenreModel>?): String {
-            val sbuf = StringBuffer()
-            gModel?.forEach {
-                sbuf.append(it.genreName)
-                sbuf.append(",")
-            }
-            if (sbuf[sbuf.length - 1].equals(','))
-                sbuf.deleteCharAt(sbuf.length - 1)
-            return sbuf.toString()
         }
 
 

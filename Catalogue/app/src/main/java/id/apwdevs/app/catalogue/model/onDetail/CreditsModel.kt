@@ -46,7 +46,7 @@ data class CastModel(
     val id: Int,
 
     @SerializedName("name")
-    var name: CharSequence,
+    var name: String,
 
     @SerializedName("order")
     val order: Int,

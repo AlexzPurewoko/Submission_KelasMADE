@@ -49,7 +49,7 @@ class RecyclerAboutAdapter(
                     add(Item(context.getString(R.string.original_title), det1.originalName))
                     add(Item(context.getString(R.string.original_language), det1.originalLanguage))
 
-                    add(Item(context.getString(R.string.genre), det1.genres))
+                    add(Item(context.getString(R.string.genre), det1.actualGenreModel))
                     add(Item(context.getString(R.string.first_air_date), det1.firstAirDate))
                     add(Item(context.getString(R.string.last_air_date), det2.lastAirDate))
                     add(Item(context.getString(R.string.in_production), det2.inProduction))
@@ -59,7 +59,7 @@ class RecyclerAboutAdapter(
                     add(Item(context.getString(R.string.origin_country), det2.originCountry))
                     add(Item(context.getString(R.string.homepage), det2.homepage))
                     add(Item(context.getString(R.string.number_of_episodes), det2.numberOfEpisodes))
-                    add(Item(context.getString(R.string.number_of_seasons), det2.lastAirDate))
+                    add(Item(context.getString(R.string.number_of_seasons), det2.numberOfSeasons))
                     add(Item(context.getString(R.string.homepage), det2.homepage))
                 }
             }
@@ -69,7 +69,7 @@ class RecyclerAboutAdapter(
                 listToBeAdded.apply {
                     add(Item(context.getString(R.string.original_title), det1.originalTitle))
                     add(Item(context.getString(R.string.original_language), det1.originalLanguage))
-                    add(Item(context.getString(R.string.genre), det1.genres))
+                    add(Item(context.getString(R.string.genre), det1.actualGenreModel))
                     add(Item(context.getString(R.string.release_date), det1.releaseDate))
                     add(Item(context.getString(R.string.runtime), getReadableTime(det2.runtime)))
                     add(Item(context.getString(R.string.status), det2.status))
@@ -78,6 +78,8 @@ class RecyclerAboutAdapter(
                     add(Item(context.getString(R.string.homepage), det2.homepage))
                     add(Item(context.getString(R.string.tagline), det2.tagLine))
                 }
+            }
+            else -> {
             }
         }
     }

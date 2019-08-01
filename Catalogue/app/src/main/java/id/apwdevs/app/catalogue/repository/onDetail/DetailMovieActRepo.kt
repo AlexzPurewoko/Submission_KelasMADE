@@ -2,9 +2,7 @@ package id.apwdevs.app.catalogue.repository.onDetail
 
 import android.content.Context
 import android.content.Intent
-import androidx.lifecycle.MutableLiveData
 import id.apwdevs.app.catalogue.activities.DetailActivity
-import id.apwdevs.app.catalogue.model.ResettableItem
 import id.apwdevs.app.catalogue.model.onDetail.OtherMovieAboutModel
 import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.plugin.api.GetMovies
@@ -20,23 +18,18 @@ class DetailMovieActRepo(
     viewModelScope: CoroutineScope
 ) : DetailActivityRepository(mContext, viewModelScope) {
 
-    override val data1Obj: MutableLiveData<ResettableItem>
-        get() = MutableLiveData<MovieAboutModel>() as MutableLiveData<ResettableItem>
-    override val data2Obj: MutableLiveData<ResettableItem>
-        get() = MutableLiveData<OtherMovieAboutModel>() as MutableLiveData<ResettableItem>
     override val typeContentContract: TypeContentContract
         get() = TypeContentContract.MOVIE
 
     override fun initAtFirstTime(dataIntent: Intent) {
         dataIntent.extras?.apply {
             val otherAboutTv = getParcelable<MovieAboutModel>(DetailActivity.EXTRA_CONTENT_DETAILS)
-            data1Obj.postValue(otherAboutTv)
+            data1Obj.value = otherAboutTv
         }
     }
 
     override fun getDataAsync(id: Int): Deferred<Boolean> = GlobalScope.async {
         val getObjectRepo = GetObjectFromServer.getInstance(context)
-
         getObjectRepo.getObj(
             GetMovies.getOtherDetails(id),
             OtherMovieAboutModel::class.java,
