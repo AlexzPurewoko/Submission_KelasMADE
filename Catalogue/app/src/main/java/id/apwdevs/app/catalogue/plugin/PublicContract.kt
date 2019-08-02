@@ -5,6 +5,7 @@ import kotlinx.android.parcel.Parcelize
 
 object PublicContract {
 
+    const val SHARED_PREF_GLOBAL_NAME = "id.apwdevs.app.catalogue_preferences"
     const val TV_OTA: String = "on_the_air"
     const val TV_AIRING_TODAY: String = "airing_today"
     const val GENRE: String = "genre"

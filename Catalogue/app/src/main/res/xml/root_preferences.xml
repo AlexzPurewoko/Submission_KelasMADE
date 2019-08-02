@@ -1,0 +1,78 @@
+<!--
+  ~ Copyright 2018 The app Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<androidx.preference.PreferenceScreen
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+            app:title="Common">
+
+        <ListPreference
+                app:key="app_languages"
+                app:title="Languages"
+                app:summary="Change the languages behavior of the app"
+                app:defaultValue="system"
+                app:entries="@array/avail_languages"
+                app:entryValues="@array/avail_languages_values"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+            app:title="Theme">
+        <SwitchPreferenceCompat
+                app:key="card_bg_status"
+                app:title="Enable the CardView Background"
+                app:defaultValue="true"
+                app:summary="Enables the cardview background for list in MainActivity"/>
+        <ListPreference
+                app:key="card_bg_mode"
+                app:title="CardView Background"
+                app:defaultValue="bg_darken"
+                app:summary="Specifies the background mode of CardView in list on MainActivity"
+                app:entries="@array/avail_cardbg_colors"
+                app:entryValues="@array/avail_cardbg_colors_values"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+            app:title="Contents">
+
+        <ListPreference
+                app:key="max_credits_results"
+                app:title="Max Allowed Cast Results"
+                app:defaultValue="10"
+                app:summary="Sets the max value of allowed Credits results"
+                app:entries="@array/avail_max_credits"
+                app:entryValues="@array/avail_max_credits_values"/>
+
+        <ListPreference
+                app:key="max_review_results"
+                app:title="Max Allowed Reviews Results"
+                app:defaultValue="5"
+                app:summary="Sets the max value of allowed Reviews results"
+                app:entries="@array/avail_max_credits"
+                app:entryValues="@array/avail_max_credits_values"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+            app:title="Search">
+        <SwitchPreferenceCompat
+                app:key="colored_text_state"
+                app:defaultValue="true"
+                app:title="Enable / Disable Colored text when searching"
+                app:summary="Enable / Disable Colored text when searching Contents"/>
+    </PreferenceCategory>
+</androidx.preference.PreferenceScreen>

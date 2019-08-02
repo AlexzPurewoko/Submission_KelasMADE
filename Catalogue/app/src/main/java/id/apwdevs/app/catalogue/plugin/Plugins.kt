@@ -20,11 +20,6 @@ import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
 import id.apwdevs.app.catalogue.plugin.api.GetImageFiles
 
-
-fun jsonCheckAndGet(get: Any): Any? =
-    if (get.toString() == "null") null
-    else get
-
 fun View.visible() {
     visibility = View.VISIBLE
 }
@@ -91,6 +86,7 @@ fun getReadableTime(inMinute: Int?): String {
     return "${hour}h ${minutes}m"
 }
 
+@Deprecated("This method will be removed, use GetObjectFromServer.getBitmapNoProgress() instead")
 fun getBitmap(
     size: Point,
     posterPath: String,

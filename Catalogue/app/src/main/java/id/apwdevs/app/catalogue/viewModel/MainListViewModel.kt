@@ -1,6 +1,10 @@
 package id.apwdevs.app.catalogue.viewModel
 
 import android.app.Application
+import android.content.Context
+import android.content.res.Resources
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.os.Parcelable
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -17,6 +21,11 @@ import kotlinx.android.parcel.Parcelize
 
 @Suppress("UNCHECKED_CAST")
 class MainListViewModel(application: Application) : AndroidViewModel(application) {
+    var cardBgStatus: Boolean = true
+    var cardBgMode: String = "bg_darken"
+    var colorredTextState: Boolean = true
+    var cardItemBg: ItemCardOptions = ItemCardOptions.DARK_WITH_BG
+
     val tag: MutableLiveData<String> = MutableLiveData()
     val hasFirstInstantiate: MutableLiveData<Boolean> = MutableLiveData()
     val prevListMode: MutableLiveData<Int> = MutableLiveData()
@@ -78,6 +87,21 @@ class MainListViewModel(application: Application) : AndroidViewModel(application
         repository?.load(types)
     }
 
+    fun applyConfiguration(res: Resources) {
+        val ctx: Context = getApplication()
+        ctx.getSharedPreferences(PublicContract.SHARED_PREF_GLOBAL_NAME, Context.MODE_PRIVATE).apply {
+            cardBgStatus = getBoolean("card_bg_status", cardBgStatus)
+            colorredTextState = getBoolean("colored_text_state", colorredTextState)
+            cardBgMode = getString("card_bg_mode", cardBgMode) ?: cardBgMode
+            cardItemBg = when (cardBgMode) {
+                "light" -> ItemCardOptions.LIGHT
+                "dark" -> ItemCardOptions.DARK
+                "bg_darken" -> ItemCardOptions.DARK_WITH_BG
+                "bg_overlay" -> ItemCardOptions.LIGHT_WITH_BG
+                else -> ItemCardOptions.DARK_WITH_BG
+            }
+        }
+    }
     @Parcelize
     enum class MovieTypeContract : Parcelable {
         DISCOVER,
@@ -95,4 +119,22 @@ class MainListViewModel(application: Application) : AndroidViewModel(application
         POPULAR,
         TOP_RATED
     }
+
+    @Parcelize
+    enum class ItemCardOptions(
+        val cardColor: Int,
+        val imageTintColor: Int,
+        val tintMode: PorterDuff.Mode,
+        val itemColor: Int
+    ) : Parcelable {
+        LIGHT(Color.WHITE, Color.WHITE, PorterDuff.Mode.SRC_IN, DEFAULT_COLOR),
+        DARK(Color.parseColor("#302E2E"), Color.parseColor("#302E2E"), PorterDuff.Mode.SRC_IN, Color.WHITE),
+        DARK_WITH_BG(Color.parseColor("#302E2E"), Color.parseColor("#302E2E"), PorterDuff.Mode.DARKEN, Color.WHITE),
+        LIGHT_WITH_BG(Color.parseColor("#302E2E"), Color.parseColor("#302E2E"), PorterDuff.Mode.OVERLAY, Color.WHITE)
+    }
+
+    companion object {
+        const val DEFAULT_COLOR = -6565
+    }
+
 }

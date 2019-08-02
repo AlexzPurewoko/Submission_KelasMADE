@@ -45,14 +45,14 @@ dependencies {
     implementation 'com.github.zawadz88.materialpopupmenu:material-popup-menu:3.4.0'
 
     implementation 'com.amitshekhar.android:android-networking:1.0.2'
-    //implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1'
-    //implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.1.1'
     implementation 'com.jaeger.statusbarutil:library:1.5.1'
+    implementation 'com.neovisionaries:nv-i18n:1.22'
 
 
     // Room components
     implementation "androidx.room:room-runtime:$rootProject.roomVersion"
     implementation "androidx.room:room-ktx:$rootProject.roomVersion"
+    implementation 'androidx.preference:preference:1.1.0-rc01'
     kapt "androidx.room:room-compiler:$rootProject.roomVersion"
 
 

@@ -1,6 +1,7 @@
 package id.apwdevs.app.catalogue.viewModel
 
 import android.app.Application
+import android.content.Context
 import android.content.Intent
 import android.graphics.Point
 import android.view.View
@@ -11,6 +12,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.activities.DetailActivity
+import id.apwdevs.app.catalogue.adapter.RecyclerCastsAdapter
+import id.apwdevs.app.catalogue.adapter.RecyclerReviewAdapter
 import id.apwdevs.app.catalogue.model.ResettableItem
 import id.apwdevs.app.catalogue.model.onDetail.CreditsModel
 import id.apwdevs.app.catalogue.model.onDetail.ReviewResponse
@@ -31,6 +34,10 @@ class DetailViewModel(application: Application) : AndroidViewModel(application) 
     val hasOverlayMode: MutableLiveData<Boolean> = MutableLiveData()
     val isAnyChangesMade: MutableLiveData<Boolean> = MutableLiveData()
     val types: MutableLiveData<PublicContract.ContentDisplayType> = MutableLiveData()
+
+    val maxAllowedCreditsResult: MutableLiveData<Int> = MutableLiveData()
+    val maxAllowedReviewsResult: MutableLiveData<Int> = MutableLiveData()
+
 
     private lateinit var repository: DetailActivityRepository
     lateinit var socmedIds: LiveData<SocmedIDModel>
@@ -81,6 +88,22 @@ class DetailViewModel(application: Application) : AndroidViewModel(application) 
 
     fun loadData() {
         id.value?.let {
+            val ctx: Context = getApplication()
+            ctx.getSharedPreferences(PublicContract.SHARED_PREF_GLOBAL_NAME, Context.MODE_PRIVATE).let { shared ->
+                val creditsVal = shared.getString("max_credits_results", "10")
+                val reviewsVal = shared.getString("max_review_results", "5")
+                maxAllowedCreditsResult.value =
+                    when (creditsVal) {
+                        "max" -> RecyclerCastsAdapter.NO_LIMITS
+                        null -> 10
+                        else -> creditsVal.toInt()
+                    }
+                maxAllowedReviewsResult.value = when (reviewsVal) {
+                    "max" -> RecyclerReviewAdapter.NO_LIMITS
+                    null -> 5
+                    else -> reviewsVal.toInt()
+                }
+            }
             repository.load(it)
         }
     }

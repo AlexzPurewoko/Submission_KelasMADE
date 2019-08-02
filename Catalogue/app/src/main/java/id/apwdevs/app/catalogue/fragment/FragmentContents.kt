@@ -41,7 +41,7 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
     private lateinit var errorLayout: ScrollView
     private lateinit var recyclerContent: RecyclerView
 
-    internal var viewModel: MainListViewModel? = null
+    internal lateinit var viewModel: MainListViewModel
     private lateinit var errorAdapter: ErrorSectionAdapter
     private lateinit var types: PublicContract.ContentDisplayType
     private lateinit var contentReqTypes: Parcelable // order in MainListMovieModel and MainListTvModel or if this is fav pages its ordered into values of type
@@ -55,11 +55,14 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel = ViewModelProviders.of(this).get(MainListViewModel::class.java)
+        viewModel.applyConfiguration(resources)
         recyclerGridAdapter = GridAdapter(requireContext())
-        recyclerListAdapter = ListAdapter(requireActivity() as AppCompatActivity) {
-            viewModel?.getAt(contentReqTypes, 1)
+        recyclerListAdapter = ListAdapter(requireActivity() as AppCompatActivity, viewModel.cardItemBg) {
+            viewModel.getAt(contentReqTypes, 1)
             onContentRequestAllRefresh?.onForceRefresh(this@FragmentContents)
         }
+
         arguments?.apply {
             types = getParcelable(EXTRA_CONTENT_TYPES)
             when (types) {
@@ -95,8 +98,9 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
         // we have to obtain a value of ViewModel
         initViewModel()
         refreshPage.setOnRefreshListener {
-            viewModel?.getAt(contentReqTypes, 1)
+            viewModel.getAt(contentReqTypes, 1)
         }
+
     }
 
     override fun onAttach(context: Context) {
@@ -116,7 +120,7 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
     }
 
     private fun initViewModel() {
-        viewModel = ViewModelProviders.of(this).get(MainListViewModel::class.java).apply {
+        viewModel.apply {
 
             if (hasFirstInstantiate.value == false)
                 setup(strTag, types)
@@ -227,15 +231,15 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
     ///////////////////////////// OVERRIDDEN FROM OnSearchCallback \\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
     override fun querySearch(view: View, query: CharSequence?, start: Int, before: Int, count: Int) {
-        when (viewModel?.prevListMode?.value) {
+        when (viewModel.prevListMode.value) {
             PublicContract.RecyclerMode.MODE_LIST -> {
                 if (query?.isNotBlank() == true) {
-                    resetRecyclerListData(viewModel?.objData?.value)
+                    resetRecyclerListData(viewModel.objData?.value)
                     recyclerListAdapter.filter.filter(query)
                 }
             }
             PublicContract.RecyclerMode.MODE_GRID, PublicContract.RecyclerMode.MODE_STAGERRED_LIST -> {
-                resetRecyclerGridData(viewModel?.objData?.value)
+                resetRecyclerGridData(viewModel.objData?.value)
                 if (query?.isNotBlank() == true)
                     recyclerGridAdapter.filter.filter(query)
             }
@@ -247,7 +251,7 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
     }
 
     override fun onSearchCancelled() {
-        viewModel?.let {
+        viewModel.let {
             when (it.prevListMode.value) {
                 PublicContract.RecyclerMode.MODE_LIST -> {
                     resetRecyclerListData(it.objData?.value)
@@ -269,7 +273,7 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
     }
 
     override fun onListModeChange(listMode: Int) {
-        viewModel?.prevListMode?.postValue(listMode)
+        viewModel.prevListMode.postValue(listMode)
     }
     ///////////////////////////// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     //////////////////////////////////////  OVERRIDDEN FROM OnSelectedFragment \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -278,7 +282,7 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
         Log.e("Start Fragment", "FragmentStart ${fragment.javaClass.simpleName}")
         //initViewModel()
         val listMode = mRequestIntoHostActivity?.getListMode()
-        viewModel?.apply {
+        viewModel.apply {
 
             when {
                 hasFirstInstantiate.value == false -> {
@@ -299,7 +303,7 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
 
     override fun onForceRefresh(fragment: Fragment) {
         Log.d("SetsOnForce", "Sets to force load a fragment because due to database changes")
-        viewModel?.hasForceLoadContent?.value = true
+        viewModel.hasForceLoadContent.value = true
     }
 
     companion object {

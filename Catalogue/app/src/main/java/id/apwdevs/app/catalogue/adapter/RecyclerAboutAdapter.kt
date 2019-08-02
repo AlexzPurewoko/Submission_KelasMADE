@@ -57,10 +57,9 @@ class RecyclerAboutAdapter(
                     add(Item(context.getString(R.string.status), det2.status))
                     add(Item(context.getString(R.string.type), det2.type))
                     add(Item(context.getString(R.string.origin_country), det2.originCountry))
-                    add(Item(context.getString(R.string.homepage), det2.homepage))
+                    add(Item(context.getString(R.string.homepage), det2.homepage, true))
                     add(Item(context.getString(R.string.number_of_episodes), det2.numberOfEpisodes))
                     add(Item(context.getString(R.string.number_of_seasons), det2.numberOfSeasons))
-                    add(Item(context.getString(R.string.homepage), det2.homepage))
                 }
             }
             PublicContract.ContentDisplayType.MOVIE -> {
@@ -75,7 +74,7 @@ class RecyclerAboutAdapter(
                     add(Item(context.getString(R.string.status), det2.status))
                     add(Item(context.getString(R.string.budget), getCurrency("$", det2.movieBudget.toString())))
                     add(Item(context.getString(R.string.revenue), getCurrency("$", det2.revenue.toString())))
-                    add(Item(context.getString(R.string.homepage), det2.homepage))
+                    add(Item(context.getString(R.string.homepage), det2.homepage, true))
                     add(Item(context.getString(R.string.tagline), det2.tagLine))
                 }
             }
@@ -95,7 +94,8 @@ class RecyclerAboutAdapter(
 
     data class Item(
         val title: String,
-        val values: Any?
+        val values: Any?,
+        var asLink: Boolean = false
     )
 
     class RecyclerAboutVH(view: View) : RecyclerView.ViewHolder(view) {
@@ -104,7 +104,7 @@ class RecyclerAboutAdapter(
 
         fun bind(item: Item, position: Int) {
             mTitle.text = item.title
-            getValuesAndAppendIntoLayout(item.values)
+            getValuesAndAppendIntoLayout(item.values, item)
             //if odd, we change into right position
             if (position % 2 == 0) {
                 if (itemView is LinearLayout)
@@ -116,7 +116,7 @@ class RecyclerAboutAdapter(
             }
         }
 
-        private fun getValuesAndAppendIntoLayout(anyVal: Any?) {
+        private fun getValuesAndAppendIntoLayout(anyVal: Any?, item: Item) {
             if (anyVal == null) {
                 wrapView.addText("-")
                 return
@@ -126,7 +126,7 @@ class RecyclerAboutAdapter(
                     wrapView.addText(anyVal)
                 }
                 is String? -> {
-                    wrapView.addText(if (anyVal.isEmpty()) "-" else anyVal)
+                    wrapView.addText(if (anyVal.isEmpty()) "-" else anyVal, item.asLink)
                 }
                 is Int? -> {
                     wrapView.addText(anyVal.toString())

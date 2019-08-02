@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.github.zawadz88.materialpopupmenu.MaterialPopupMenu
 import com.github.zawadz88.materialpopupmenu.popupMenu
 import id.apwdevs.app.catalogue.R
+import id.apwdevs.app.catalogue.activities.SettingsActivity
 import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.viewModel.ToolbarCardViewModel
 
@@ -71,6 +72,14 @@ class SearchToolbarCard(
     private fun initImgMore() {
         popupMenu = popupMenu {
             section {
+                item {
+                    icon = R.drawable.ic_settings_black_24dp
+                    label = activity.getString(R.string.setting)
+                    dismissOnSelect = true
+                    callback = {
+                        startActivity(activity, Intent(activity, SettingsActivity::class.java), null)
+                    }
+                }
                 item {
                     icon = R.drawable.ic_translate_black_24dp
                     label = activity.getString(R.string.language_change_txt)

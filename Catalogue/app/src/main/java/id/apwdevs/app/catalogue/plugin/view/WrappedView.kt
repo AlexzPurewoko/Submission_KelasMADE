@@ -79,13 +79,14 @@ class WrappedView : ViewGroup {
         )
     }
 
-    fun addText(str: CharSequence?) {
+    fun addText(str: CharSequence?, isLink: Boolean = false) {
         if (str.isNullOrEmpty()) return
 
         addView(
             (LayoutInflater.from(context)
                 .inflate(R.layout.item_genre, this, false) as TextView).apply {
                 text = str
+                linksClickable = isLink
             }
         )
     }

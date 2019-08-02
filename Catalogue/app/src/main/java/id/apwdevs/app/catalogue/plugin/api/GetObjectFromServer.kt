@@ -1,13 +1,18 @@
 package id.apwdevs.app.catalogue.plugin.api
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Point
 import android.net.ConnectivityManager
 import android.os.Parcelable
+import android.util.Log
+import android.widget.ImageView
 import com.androidnetworking.AndroidNetworking
 import com.androidnetworking.common.ANRequest
 import com.androidnetworking.common.Priority
 import com.androidnetworking.error.ANError
 import com.androidnetworking.gsonparserfactory.GsonParserFactory
+import com.androidnetworking.interfaces.BitmapRequestListener
 import com.androidnetworking.interfaces.ParsedRequestListener
 import com.androidnetworking.interfaces.StringRequestListener
 import id.apwdevs.app.catalogue.plugin.view.ErrorSectionAdapter
@@ -46,6 +51,33 @@ class GetObjectFromServer private constructor(appContext: Context) {
             if (!availNet)
                 responseOnlyIfCached
         }.build()
+    }
+
+    fun getBitmapNoProgress(
+        size: Point,
+        posterPath: String,
+        enableScaling: Boolean = false,
+        scaleType: ImageView.ScaleType = ImageView.ScaleType.FIT_XY,
+        response: (response: Bitmap?) -> Unit
+    ) {
+        AndroidNetworking.get(GetImageFiles.getImg(size.x, posterPath)).apply {
+            setPriority(Priority.LOW)
+            if (enableScaling) {
+                setBitmapMaxHeight(size.y)
+                setBitmapMaxWidth(size.x)
+                setImageScaleType(scaleType)
+            }
+        }.build()
+            .getAsBitmap(object : BitmapRequestListener {
+                override fun onResponse(response: Bitmap?) {
+                    response(response)
+                }
+
+                override fun onError(anError: ANError?) {
+                    Log.e("ErrorDisplayBitmap", anError?.errorBody, anError)
+                }
+
+            })
     }
 
     suspend fun <T> getObj(

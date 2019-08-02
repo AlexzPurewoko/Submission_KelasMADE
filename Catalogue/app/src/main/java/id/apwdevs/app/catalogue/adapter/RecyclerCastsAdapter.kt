@@ -74,6 +74,7 @@ class RecyclerCastsAdapter(
     }
 
     companion object {
+        const val DEFAULT_LIMITS = 10
         const val NO_LIMITS = -1
     }
 

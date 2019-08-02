@@ -28,7 +28,10 @@ import kotlin.math.abs
 class DetailLayoutRecyclerAdapter(
     private val context: Context,
     contentType: DetailActivityRepository.TypeContentContract,
-    private val viewModel: DetailViewModel
+    private val viewModel: DetailViewModel,
+    private val maxReviewLimits: Int,
+    private val maxCreditsLimit: Int
+
 ) : RecyclerView.Adapter<DetailLayoutRecyclerAdapter.DetailLayoutVH>() {
 
     private var data1Model: ResettableItem? = null
@@ -43,17 +46,6 @@ class DetailLayoutRecyclerAdapter(
     interface OnItemActionListener {
         fun onAction(viewType: ViewType, vararg action: Any)
     }
-
-    private var maxReviewLimits = 5
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
-    private var maxCreditsLimit = 10
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
 
     private val contentTypes: MutableList<ViewType>
 

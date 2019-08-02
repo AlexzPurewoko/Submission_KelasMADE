@@ -13,14 +13,25 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
         <activity
+                android:name=".activities.SettingsActivity"
+                android:label="Settings"
+                android:parentActivityName=".activities.MainTabUserActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="id.apwdevs.app.catalogue.activities.MainTabUserActivity"/>
+        </activity>
+        <activity
                 android:name=".activities.DetailActivity"
                 android:label="@string/title_activity_detail"
                 android:parentActivityName=".activities.MainTabUserActivity"
                 android:theme="@style/AppTheme.NoActionBar.Transparent">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
             </intent-filter>
+
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value="id.apwdevs.app.catalogue.activities.MainTabUserActivity"/>

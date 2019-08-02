@@ -1,7 +1,9 @@
 package id.apwdevs.app.catalogue.activities
 
+import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.content.res.Resources
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -24,12 +26,14 @@ import id.apwdevs.app.catalogue.fragment.HolderPageAdapter
 import id.apwdevs.app.catalogue.fragment.OnRequestRefresh
 import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
+import id.apwdevs.app.catalogue.plugin.ApplyLanguage
 import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.callbacks.FragmentListCallback
 import id.apwdevs.app.catalogue.plugin.callbacks.OnItemFragmentClickListener
 import id.apwdevs.app.catalogue.plugin.view.SearchToolbarCard
 import kotlinx.android.synthetic.main.activity_main_tab_user.*
 import kotlinx.android.synthetic.main.search_toolbar.*
+import java.util.*
 
 class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallback, FragmentListCallback,
     OnItemFragmentClickListener, GetFromHostActivity, OnRequestRefresh {
@@ -71,6 +75,40 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
         view_pager.offscreenPageLimit = 3
         setupTabs()
         setupVPager()
+    }
+
+    fun applyConfiguration(res: Resources) {
+        getSharedPreferences(PublicContract.SHARED_PREF_GLOBAL_NAME, Context.MODE_PRIVATE).apply {
+            when (getString("app_languages", "system")) {
+                "force_en" -> changeLanguage(res, Locale("en"))
+                "force_in" -> changeLanguage(res, Locale("in"))
+            }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    fun changeLanguage(res: Resources, locale: Locale) {
+        res.configuration.setLocale(locale)
+        val conf = res.configuration
+        conf.setLocale(locale)
+        res.updateConfiguration(conf, res.displayMetrics)
+    }
+
+    override fun attachBaseContext(newBase: Context?) {
+        newBase?.let {
+            var newCtx: Context? = null
+            it.getSharedPreferences(PublicContract.SHARED_PREF_GLOBAL_NAME, Context.MODE_PRIVATE).apply {
+                when (getString("app_languages", "system")) {
+                    "force_en" -> newCtx = ApplyLanguage.wrap(it, Locale("en"))
+                    "force_in" -> newCtx = ApplyLanguage.wrap(it, Locale("in"))
+                    else -> {
+                        super.attachBaseContext(newBase)
+                        return
+                    }
+                }
+                super.attachBaseContext(newCtx)
+            }
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

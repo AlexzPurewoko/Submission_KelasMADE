@@ -104,4 +104,24 @@
             app:layout_constraintEnd_toStartOf="@+id/guideline2"
             app:layout_constraintTop_toTopOf="@android:id/home"
             app:layout_constraintBottom_toBottomOf="@android:id/home"/>
+    <ProgressBar
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/progress_header"
+            app:layout_constraintTop_toTopOf="@+id/progress_content"
+            app:layout_constraintBottom_toBottomOf="@+id/progress_content"
+            app:layout_constraintEnd_toStartOf="@+id/guideline2"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="8dp"/>
+    <ProgressBar
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/progress_content"
+            app:layout_constraintTop_toTopOf="@+id/actdetail_recycler_content" android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="@+id/actdetail_recycler_content"
+            app:layout_constraintEnd_toEndOf="@+id/actdetail_recycler_content"
+            app:layout_constraintStart_toStartOf="@+id/actdetail_recycler_content" android:layout_marginStart="8dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

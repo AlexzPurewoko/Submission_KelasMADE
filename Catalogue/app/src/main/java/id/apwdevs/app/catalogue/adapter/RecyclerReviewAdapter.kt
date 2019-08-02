@@ -66,5 +66,6 @@ class RecyclerReviewAdapter(
 
     companion object {
         const val NO_LIMITS = -1
+        const val DEFAULT_LIMITS = 5
     }
 }

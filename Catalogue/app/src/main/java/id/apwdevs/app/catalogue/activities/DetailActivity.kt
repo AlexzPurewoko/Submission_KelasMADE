@@ -9,10 +9,13 @@ import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import android.view.WindowManager
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -21,11 +24,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.jaeger.library.StatusBarUtil
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.adapter.DetailLayoutRecyclerAdapter
+import id.apwdevs.app.catalogue.adapter.RecyclerCastsAdapter
+import id.apwdevs.app.catalogue.adapter.RecyclerReviewAdapter
 import id.apwdevs.app.catalogue.model.onDetail.SocmedIDModel
 import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
 import id.apwdevs.app.catalogue.plugin.ErrorAlertDialog
-import id.apwdevs.app.catalogue.plugin.ProgressDialog
 import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.getBitmap
 import id.apwdevs.app.catalogue.viewModel.DetailViewModel
@@ -33,8 +37,9 @@ import kotlinx.android.synthetic.main.activity_detail_motion.*
 
 class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnClickListener {
 
-    private lateinit var progress: ProgressDialog
     private lateinit var viewModel: DetailViewModel
+    private lateinit var progressHeader: ProgressBar
+    private lateinit var progressContent: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,12 +66,19 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
                 Toast.makeText(this@DetailActivity, tag, Toast.LENGTH_SHORT).show()
             true
         }
-        progress = ProgressDialog()
+        progressContent = findViewById(R.id.progress_content)
+        progressHeader = findViewById(R.id.progress_header)
         confViewModel()
         actdetail_favorite.setOnClickListener {
             viewModel.isAnyChangesMade.value = true
             viewModel.onClickFavoriteBtn(it)
         }
+    }
+
+    private fun updateProgressVisibility(container: MotionLayout, idProgress: Int, visibility: Int) {
+        val cSets = container.getConstraintSet(idProgress)
+        cSets.setVisibility(idProgress, visibility)
+        container.rebuildScene()
     }
 
     private fun finishTask() {
@@ -126,14 +138,13 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
                 runOnUiThread {
                     when (it) {
                         false -> {
-                            try {
-                                progress.dismiss()
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
                         }
                         true -> {
-                            progress.show(supportFragmentManager, null)
+                            progressHeader.visibility = View.VISIBLE
+                            progressContent.visibility = View.VISIBLE
+                            motion_container?.let {
+                                updateProgressVisibility(it, progressHeader.id, View.VISIBLE)
+                            }
                         }
                     }
                     actdetail_recycler_content.adapter?.notifyDataSetChanged()
@@ -153,6 +164,11 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
 
             socmedIds.observe(this@DetailActivity, Observer {
                 setSocmedId(it)
+
+                progressHeader.visibility = View.GONE
+                motion_container?.let {
+                    updateProgressVisibility(it, progressHeader.id, View.GONE)
+                }
             })
 
             isFavorite.observe(this@DetailActivity, Observer {
@@ -203,8 +219,10 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
             })
 
             loadFinished.observe(this@DetailActivity, Observer {
-                if (it)
+                if (it) {
+                    progressContent.visibility = View.GONE
                     setRecycler(this)
+                }
             })
             if (hasFirstInitialize.value == false) {
                 hasFirstInitialize.value = true
@@ -215,9 +233,17 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
     }
 
     private fun setRecycler(viewModel: DetailViewModel) {
+        val maxRevResults = viewModel.maxAllowedReviewsResult.value ?: RecyclerReviewAdapter.DEFAULT_LIMITS
+        val maxCreditsResults = viewModel.maxAllowedCreditsResult.value ?: RecyclerCastsAdapter.DEFAULT_LIMITS
         actdetail_recycler_content.layoutManager = LinearLayoutManager(this)
         actdetail_recycler_content.adapter =
-            DetailLayoutRecyclerAdapter(this@DetailActivity, viewModel.typeContent, viewModel).apply {
+            DetailLayoutRecyclerAdapter(
+                this@DetailActivity,
+                viewModel.typeContent,
+                viewModel,
+                maxRevResults,
+                maxCreditsResults
+            ).apply {
                 onItemAction = object : DetailLayoutRecyclerAdapter.OnItemActionListener {
                     override fun onAction(viewType: DetailLayoutRecyclerAdapter.ViewType, vararg action: Any) {
                         openTo(action[0].toString())
