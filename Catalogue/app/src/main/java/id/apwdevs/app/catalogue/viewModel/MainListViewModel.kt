@@ -2,7 +2,6 @@ package id.apwdevs.app.catalogue.viewModel
 
 import android.app.Application
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Parcelable
@@ -15,18 +14,19 @@ import id.apwdevs.app.catalogue.model.GenreModel
 import id.apwdevs.app.catalogue.model.onUserMain.MovieModelResponse
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModelResponse
 import id.apwdevs.app.catalogue.plugin.PublicContract
+import id.apwdevs.app.catalogue.plugin.api.GetImageFiles
 import id.apwdevs.app.catalogue.plugin.api.GetObjectFromServer
 import id.apwdevs.app.catalogue.repository.onUserMain.FragmentContentRepository
 import kotlinx.android.parcel.Parcelize
 
 @Suppress("UNCHECKED_CAST")
 class MainListViewModel(application: Application) : AndroidViewModel(application) {
-    var cardBgStatus: Boolean = true
-    var cardBgMode: String = "bg_darken"
+    var backdropSize: String = GetImageFiles.LIST_SUPPORTED_WSIZES[3].toString()
+    private var cardBgStatus: Boolean = true
+    private var cardBgMode: String = "bg_darken"
     var colorredTextState: Boolean = true
-    var cardItemBg: ItemCardOptions = ItemCardOptions.DARK_WITH_BG
+    var cardItemBg: ItemCardOptions = ItemCardOptions.LIGHT
 
-    val tag: MutableLiveData<String> = MutableLiveData()
     val hasFirstInstantiate: MutableLiveData<Boolean> = MutableLiveData()
     val prevListMode: MutableLiveData<Int> = MutableLiveData()
     val hasForceLoadContent: MutableLiveData<Boolean> = MutableLiveData()
@@ -35,19 +35,17 @@ class MainListViewModel(application: Application) : AndroidViewModel(application
 
     var objData: LiveData<ClassResponse>? = null
     var isLoading: LiveData<Boolean>? = null
-    var progress: LiveData<Double>? = null
-    var allGenre: LiveData<List<GenreModel>>? = null
+    private var allGenre: LiveData<List<GenreModel>>? = null
     var retError: LiveData<GetObjectFromServer.RetError>? = null
+
     init {
         // we have to initialize these variables to be available for first instance
         hasFirstInstantiate.value = false
-        //fragmentIsRefreshing.value = false
         prevListMode.value = 0
         hasForceLoadContent.value = false
     }
 
     fun setup(
-        tag: String,
         type: PublicContract.ContentDisplayType
     ) {
         repository = when (type) {
@@ -71,9 +69,7 @@ class MainListViewModel(application: Application) : AndroidViewModel(application
                 )
 
         }
-        this.tag.value = tag
         isLoading = repository?.isLoading
-        progress = repository?.progress
         allGenre = repository?.allGenre
         objData = repository?.objData
         retError = repository?.retError
@@ -87,21 +83,24 @@ class MainListViewModel(application: Application) : AndroidViewModel(application
         repository?.load(types)
     }
 
-    fun applyConfiguration(res: Resources) {
+    fun applyConfiguration() {
         val ctx: Context = getApplication()
         ctx.getSharedPreferences(PublicContract.SHARED_PREF_GLOBAL_NAME, Context.MODE_PRIVATE).apply {
             cardBgStatus = getBoolean("card_bg_status", cardBgStatus)
             colorredTextState = getBoolean("colored_text_state", colorredTextState)
+            backdropSize = getString("carddrop_w_key", backdropSize) ?: backdropSize
             cardBgMode = getString("card_bg_mode", cardBgMode) ?: cardBgMode
-            cardItemBg = when (cardBgMode) {
-                "light" -> ItemCardOptions.LIGHT
-                "dark" -> ItemCardOptions.DARK
-                "bg_darken" -> ItemCardOptions.DARK_WITH_BG
-                "bg_overlay" -> ItemCardOptions.LIGHT_WITH_BG
-                else -> ItemCardOptions.DARK_WITH_BG
-            }
+            if (cardBgStatus)
+                cardItemBg = when (cardBgMode) {
+                    "light" -> ItemCardOptions.LIGHT
+                    "dark" -> ItemCardOptions.DARK
+                    "bg_darken" -> ItemCardOptions.DARK_WITH_BG
+                    "bg_overlay" -> ItemCardOptions.LIGHT_WITH_BG
+                    else -> ItemCardOptions.DARK_WITH_BG
+                }
         }
     }
+
     @Parcelize
     enum class MovieTypeContract : Parcelable {
         DISCOVER,

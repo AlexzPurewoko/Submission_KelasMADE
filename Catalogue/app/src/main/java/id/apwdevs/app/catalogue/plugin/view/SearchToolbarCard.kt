@@ -1,7 +1,6 @@
 package id.apwdevs.app.catalogue.plugin.view
 
 import android.content.Intent
-import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
@@ -78,14 +77,6 @@ class SearchToolbarCard(
                     dismissOnSelect = true
                     callback = {
                         startActivity(activity, Intent(activity, SettingsActivity::class.java), null)
-                    }
-                }
-                item {
-                    icon = R.drawable.ic_translate_black_24dp
-                    label = activity.getString(R.string.language_change_txt)
-                    dismissOnSelect = true
-                    callback = {
-                        startActivity(activity, Intent(Settings.ACTION_LOCALE_SETTINGS), null)
                     }
                 }
                 item {

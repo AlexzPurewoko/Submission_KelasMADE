@@ -20,16 +20,17 @@ abstract class DetailActivityRepository protected constructor(
     protected val viewModelScope: CoroutineScope
 ) {
 
-    val socmedIds: MutableLiveData<SocmedIDModel> = MutableLiveData()//
-    val reviews: MutableLiveData<ReviewResponse> = MutableLiveData()//
-    val credits: MutableLiveData<CreditsModel> = MutableLiveData()//
+    val socmedIds: MutableLiveData<SocmedIDModel> = MutableLiveData()
+    val reviews: MutableLiveData<ReviewResponse> = MutableLiveData()
+    val credits: MutableLiveData<CreditsModel> = MutableLiveData()
 
-    val hasLoading: MutableLiveData<Boolean> = MutableLiveData()//
+    val hasLoading: MutableLiveData<Boolean> = MutableLiveData()
     val retError: MutableLiveData<GetObjectFromServer.RetError> = MutableLiveData()
     val data1Obj: MutableLiveData<ResettableItem> = MutableLiveData()
     val data2Obj: MutableLiveData<ResettableItem> = MutableLiveData()
     val loadFinished: MutableLiveData<Boolean> = MutableLiveData()
     val isFavorite: MutableLiveData<Boolean> = MutableLiveData()
+
     abstract val typeContentContract: TypeContentContract
 
     abstract fun getDataAsync(id: Int): Deferred<Boolean> // if no error, return into true, otherwise will be marked as error
@@ -38,8 +39,9 @@ abstract class DetailActivityRepository protected constructor(
 
     init {
         loadFinished.value = false
-        isFavorite.value = false
+        //isFavorite.value = false
     }
+
     fun load(id: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             loadFinished.postValue(false)
@@ -142,9 +144,11 @@ abstract class DetailActivityRepository protected constructor(
         }
 
     private fun setToFailed(retError: GetObjectFromServer.RetError) {
-        //loadSuccess.postValue(false)
-        this.retError.postValue(retError)
-        hasLoading.postValue(false)
+        if (this.retError.value == null) {
+            loadFinished.postValue(true)
+            this.retError.postValue(retError)
+            hasLoading.postValue(false)
+        }
     }
 
     enum class TypeContentContract {

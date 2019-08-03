@@ -1,0 +1,101 @@
+<resources>
+    <string name="common">Common</string>
+
+    <string name="pref_languages_title">Languages</string>
+    <string name="pref_languages_summary">Change the languages behavior of the app</string>
+    <string name="pref_languages_default" translatable="false">system</string>
+    <string name="pref_languages_key" translatable="false">app_languages</string>
+    <string-array name="avail_languages">
+        <item>System</item>
+        <item>Force Indonesian</item>
+        <item>Force English</item>
+    </string-array>
+    <string-array name="avail_languages_values">
+        <item>system</item>
+        <item>force_in</item>
+        <item>force_en</item>
+    </string-array>
+
+
+    <string name="theme_pref_name">Theme</string>
+
+    <string name="card_bg_status_title">Enable the CardView Background</string>
+    <string name="card_bg_status_summary">Enables the cardview background for list in MainActivity</string>
+    <bool name="card_bg_status_default">true</bool>
+    <string name="card_bg_status_key" translatable="false">card_bg_status</string>
+
+
+    <string name="card_bg_mode_title">CardView Background</string>
+    <string name="card_bg_mode_summary">Specifies the background mode of CardView in list on MainActivity</string>
+    <string name="card_bg_mode_default" translatable="false">bg_darken</string>
+    <string name="card_bg_mode_key" translatable="false">card_bg_mode</string>
+
+    <string-array name="avail_cardbg_colors">
+        <item>Light</item>
+        <item>Dark</item>
+        <item>Dark (with background image)</item>
+        <item>Light (with background image)</item>
+    </string-array>
+    <string-array name="avail_cardbg_colors_values">
+        <item>light</item>
+        <item>dark</item>
+        <item>bg_darken</item>
+        <item>bg_overlay</item>
+    </string-array>
+
+
+    <string name="content_pref_name">Contents</string>
+
+    <string name="max_credits_results_title">Max Allowed Cast Results</string>
+    <string name="max_credits_results_summary">Sets the max value of allowed Credits results</string>
+    <integer name="max_credits_results_default">10</integer>
+    <string name="max_credits_results_key" translatable="false">max_credits_results</string>
+
+
+    <string name="max_review_results_title">Max Allowed Reviews Results</string>
+    <string name="max_review_results_summary">Sets the max value of allowed Reviews results</string>
+    <integer name="max_review_results_default">5</integer>
+    <string name="max_review_results_key" translatable="false">max_review_results</string>
+    <string-array name="avail_max_credits">
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+        <item>20</item>
+        <item>40</item>
+        <item>max</item>
+    </string-array>
+    <string-array name="avail_max_credits_values">
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+        <item>20</item>
+        <item>40</item>
+        <item>max</item>
+    </string-array>
+
+
+    <string name="search_pref_name">Search</string>
+
+    <string name="colored_text_state_title">Enable / Disable Colored text when searching</string>
+    <string name="colored_text_state_summary">Enable / Disable Colored text when searching Contents</string>
+    <bool name="colored_text_state_default">true</bool>
+    <string name="colored_text_state_key" translatable="false">colored_text_state</string>
+
+    <string name="carddrop_w_title">Backdop CardView Background Image Width</string>
+    <string name="carddrop_w_summary">Advanced only. Used for tweaking maximum width of image to be show, maximum size
+        can lead app into crashes
+    </string>
+    <string name="carddrop_w_default" translatable="false">345</string>
+    <string name="carddrop_w_key" translatable="false">carddrop_w</string>
+    <string-array name="avail_carddrop_w">
+        <item>92</item>
+        <item>154</item>
+        <item>185</item>
+        <item>342</item>
+        <item>500</item>
+        <item>780</item>
+        <item>original</item>
+    </string-array>
+
+
+</resources>

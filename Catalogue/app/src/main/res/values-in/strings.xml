@@ -79,16 +79,24 @@
     </string>
     <string name="suggestion">Saran</string>
     <string name="no_data">Tidak ada data tersedia untuk bagian ini</string>
-    <string name="language_change_txt">Ubah Bahasa</string>
     <string name="close">Tutup</string>
     <string name="message_popup">Anda harus mengklik tutup jika ingin melakukan hal-hal lain</string>
     <string name="json_parser_error">Kesalahan Penguraian JSON!</string>
     <string name="go_back">Kembali</string>
     <string name="refresh">Segarkan</string>
-    <string name="dialog_message">Tunggu sesaat</string>
     <string name="open_links">Buka Link</string>
     <string name="opento_message">Apakah anda yakin untuk membuka halaman ini?</string>
     <string name="en_di_tint">Aktifkan/Nonaktifkan gambar latar belakang</string>
     <string name="img_tint_mode_overlay_tag">Tampilkan gambar latar belakang (Mode Warna Overlay)</string>
     <string name="img_tint_mode_darken_tag">Setel ke Gelap dari gambar latar belakang (Mode Warna Gelap)</string>
+
+
+    <string name="item_favorite_contentdesc">Tambah / Hapus Acara Tv / Film ini dari atau ke Favorit</string>
+    <string name="favorite_title">Favoritku</string>
+
+    <string name="setting">Pengaturan Aplikasi</string>
+    <string name="stay">Tinggal</string>
+    <string name="loading">Mempersiapkan Data…</string>
+    <string name="add_fav">Ditambahkan ke Favorit</string>
+    <string name="remove_fav">Dihapus dari favorit</string>
 </resources>

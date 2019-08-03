@@ -33,6 +33,9 @@ class ErrorAlertDialog : DialogFragment() {
             setNegativeButton(getString(R.string.go_back)) { _, _ ->
                 onListener?.onRequestBack(this@ErrorAlertDialog)
             }
+            setNeutralButton(getString(R.string.stay)) { _, _ ->
+                dismiss()
+            }
             setPositiveButton(getString(R.string.refresh)) { _, _ ->
                 onListener?.onRequestRefresh(this@ErrorAlertDialog)
             }

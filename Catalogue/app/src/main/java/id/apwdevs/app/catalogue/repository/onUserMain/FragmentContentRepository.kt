@@ -29,13 +29,11 @@ class FragmentContentRepository<T : ClassResponse>(
 
     val objData: MutableLiveData<T> = MutableLiveData()
     val isLoading: MutableLiveData<Boolean> = MutableLiveData()
-    val progress: MutableLiveData<Double> = MutableLiveData()
     var allGenre: LiveData<List<GenreModel>>? = null
     var retError: MutableLiveData<GetObjectFromServer.RetError> = MutableLiveData()
 
     init {
         isLoading.value = false
-        progress.value = 0.0
     }
 
     /**
@@ -92,7 +90,6 @@ class FragmentContentRepository<T : ClassResponse>(
             applyGenreIntoModels(objData.value)
             checkAndApplyFavorite(objData.value, db)
             isLoading.postValue(false)
-            progress.postValue(0.0)
         }
     }
 
@@ -103,12 +100,12 @@ class FragmentContentRepository<T : ClassResponse>(
                 val favDao = db.favoriteDao()
                 when (it) {
                     is MovieModelResponse ->
-                        it.contents?.forEach {
-                            it.isFavorite = favDao.isAnyColumnIn(it.id)
+                        it.contents?.forEach { movieModel ->
+                            movieModel.isFavorite = favDao.isAnyColumnIn(movieModel.id)
                         }
                     is TvAboutModelResponse ->
-                        it.contents?.forEach {
-                            it.isFavorite = favDao.isAnyColumnIn(it.idTv)
+                        it.contents?.forEach { tvModel ->
+                            tvModel.isFavorite = favDao.isAnyColumnIn(tvModel.idTv)
                         }
                     else -> {
                     }
@@ -157,12 +154,12 @@ class FragmentContentRepository<T : ClassResponse>(
     ) = GlobalScope.async {
         val gDao = db.genreDao()
         if (gDao.size() == 0 || forceUpdate) {
-            updateGenreFromInet(gDao, objectFromServer).await()
+            updateGenreFromInetAsync(gDao, objectFromServer).await()
         }
         allGenre = MutableLiveData(gDao.getAll())
     }
 
-    private fun updateGenreFromInet(
+    private fun updateGenreFromInetAsync(
         gDao: GenreDao,
         objectFromServer: GetObjectFromServer,
         priority: Priority = Priority.MEDIUM
@@ -176,7 +173,7 @@ class FragmentContentRepository<T : ClassResponse>(
             object : GetObjectFromServer.GetObjectFromServerCallback<GenreModelResponse> {
                 override fun onSuccess(response: GenreModelResponse) {
                     viewModelScope.launch(Dispatchers.IO) {
-                        addGenreIntoDb1(gDao, response).await()
+                        addGenreIntoDb1Async(gDao, response).await()
                         isFinished = true
                     }
                 }
@@ -201,7 +198,7 @@ class FragmentContentRepository<T : ClassResponse>(
             object : GetObjectFromServer.GetObjectFromServerCallback<GenreModelResponse> {
                 override fun onSuccess(response: GenreModelResponse) {
                     viewModelScope.launch(Dispatchers.IO) {
-                        addGenreIntoDb1(gDao, response).await()
+                        addGenreIntoDb1Async(gDao, response).await()
                         isFinished = true
                     }
                 }
@@ -219,7 +216,7 @@ class FragmentContentRepository<T : ClassResponse>(
     }
 
     @WorkerThread
-    private fun addGenreIntoDb1(gDao: GenreDao, response: GenreModelResponse) = GlobalScope.async {
+    private fun addGenreIntoDb1Async(gDao: GenreDao, response: GenreModelResponse) = GlobalScope.async {
         gDao.addAll(response.allGenre)
     }
 
@@ -229,12 +226,10 @@ class FragmentContentRepository<T : ClassResponse>(
 
     override fun onFailed(retError: GetObjectFromServer.RetError) {
         isLoading.postValue(false)
-        progress.postValue(0.0)
         this.retError.value = retError
     }
 
     override fun onProgress(percent: Double) {
-        progress.postValue(percent)
     }
 
 

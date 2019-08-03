@@ -18,61 +18,80 @@
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-            app:title="Common">
+            app:iconSpaceReserved="false"
+            app:title="@string/common">
 
         <ListPreference
-                app:key="app_languages"
-                app:title="Languages"
-                app:summary="Change the languages behavior of the app"
-                app:defaultValue="system"
+                app:iconSpaceReserved="false"
+                app:key="@string/pref_languages_key"
+                app:title="@string/pref_languages_title"
+                app:summary="@string/pref_languages_summary"
+                app:defaultValue="@string/pref_languages_default"
                 app:entries="@array/avail_languages"
                 app:entryValues="@array/avail_languages_values"/>
-
     </PreferenceCategory>
 
     <PreferenceCategory
-            app:title="Theme">
+            app:iconSpaceReserved="false"
+            app:title="@string/theme_pref_name">
         <SwitchPreferenceCompat
-                app:key="card_bg_status"
-                app:title="Enable the CardView Background"
-                app:defaultValue="true"
-                app:summary="Enables the cardview background for list in MainActivity"/>
+                app:iconSpaceReserved="false"
+                app:key="@string/card_bg_status_key"
+                app:title="@string/card_bg_status_title"
+                app:defaultValue="@bool/card_bg_status_default"
+                app:summary="@string/card_bg_status_summary"/>
         <ListPreference
-                app:key="card_bg_mode"
-                app:title="CardView Background"
-                app:defaultValue="bg_darken"
-                app:summary="Specifies the background mode of CardView in list on MainActivity"
+                app:iconSpaceReserved="false"
+                app:key="@string/card_bg_mode_key"
+                app:title="@string/card_bg_mode_title"
+                app:defaultValue="@string/card_bg_mode_default"
+                app:summary="@string/card_bg_mode_summary"
                 app:entries="@array/avail_cardbg_colors"
                 app:entryValues="@array/avail_cardbg_colors_values"/>
-
+        <ListPreference
+                app:iconSpaceReserved="false"
+                app:key="@string/carddrop_w_key"
+                app:title="@string/carddrop_w_title"
+                app:defaultValue="@string/carddrop_w_default"
+                app:summary="@string/carddrop_w_summary"
+                app:entries="@array/avail_carddrop_w"
+                app:entryValues="@array/avail_carddrop_w"/>
     </PreferenceCategory>
 
     <PreferenceCategory
-            app:title="Contents">
+            app:iconSpaceReserved="false"
+            app:title="@string/content_pref_name">
 
         <ListPreference
-                app:key="max_credits_results"
-                app:title="Max Allowed Cast Results"
-                app:defaultValue="10"
-                app:summary="Sets the max value of allowed Credits results"
+                app:iconSpaceReserved="false"
+                app:key="@string/max_credits_results_key"
+                app:title="@string/max_credits_results_title"
+                app:defaultValue="@integer/max_credits_results_default"
+                app:summary="@string/max_credits_results_summary"
                 app:entries="@array/avail_max_credits"
                 app:entryValues="@array/avail_max_credits_values"/>
 
         <ListPreference
-                app:key="max_review_results"
-                app:title="Max Allowed Reviews Results"
-                app:defaultValue="5"
-                app:summary="Sets the max value of allowed Reviews results"
+                app:iconSpaceReserved="false"
+                app:key="@string/max_review_results_key"
+                app:title="@string/max_review_results_title"
+                app:defaultValue="@integer/max_review_results_default"
+                app:summary="@string/max_review_results_summary"
                 app:entries="@array/avail_max_credits"
                 app:entryValues="@array/avail_max_credits_values"/>
+
+
     </PreferenceCategory>
 
     <PreferenceCategory
-            app:title="Search">
+            app:iconSpaceReserved="false"
+            app:title="@string/search_pref_name">
         <SwitchPreferenceCompat
-                app:key="colored_text_state"
-                app:defaultValue="true"
-                app:title="Enable / Disable Colored text when searching"
-                app:summary="Enable / Disable Colored text when searching Contents"/>
+                app:iconSpaceReserved="false"
+                app:key="@string/colored_text_state_key"
+                app:defaultValue="@bool/colored_text_state_default"
+                app:title="@string/colored_text_state_title"
+                app:summary="@string/colored_text_state_summary"/>
+
     </PreferenceCategory>
 </androidx.preference.PreferenceScreen>

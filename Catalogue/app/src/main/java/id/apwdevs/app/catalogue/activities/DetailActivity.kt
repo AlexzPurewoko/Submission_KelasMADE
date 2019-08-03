@@ -8,19 +8,21 @@ import android.graphics.Point
 import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.MenuItem
-import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.ProgressBar
+import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.jaeger.library.StatusBarUtil
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.adapter.DetailLayoutRecyclerAdapter
@@ -31,15 +33,15 @@ import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
 import id.apwdevs.app.catalogue.plugin.ErrorAlertDialog
 import id.apwdevs.app.catalogue.plugin.PublicContract
-import id.apwdevs.app.catalogue.plugin.getBitmap
+import id.apwdevs.app.catalogue.plugin.api.GetObjectFromServer
 import id.apwdevs.app.catalogue.viewModel.DetailViewModel
 import kotlinx.android.synthetic.main.activity_detail_motion.*
 
 class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnClickListener {
 
     private lateinit var viewModel: DetailViewModel
-    private lateinit var progressHeader: ProgressBar
-    private lateinit var progressContent: ProgressBar
+    private lateinit var loadSnackbar: Snackbar
+    private var isFirstLaunched: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,19 +68,20 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
                 Toast.makeText(this@DetailActivity, tag, Toast.LENGTH_SHORT).show()
             true
         }
-        progressContent = findViewById(R.id.progress_content)
-        progressHeader = findViewById(R.id.progress_header)
+        setSnackbar()
         confViewModel()
         actdetail_favorite.setOnClickListener {
             viewModel.isAnyChangesMade.value = true
             viewModel.onClickFavoriteBtn(it)
+
         }
+
     }
 
-    private fun updateProgressVisibility(container: MotionLayout, idProgress: Int, visibility: Int) {
-        val cSets = container.getConstraintSet(idProgress)
-        cSets.setVisibility(idProgress, visibility)
-        container.rebuildScene()
+    private fun setSnackbar() {
+        loadSnackbar = Snackbar.make(det_container, "", Snackbar.LENGTH_INDEFINITE)
+        val inflate = LayoutInflater.from(this).inflate(R.layout.adapter_loading, det_container as ViewGroup, false)
+        (loadSnackbar.view as FrameLayout).addView(inflate)
     }
 
     private fun finishTask() {
@@ -140,11 +143,7 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
                         false -> {
                         }
                         true -> {
-                            progressHeader.visibility = View.VISIBLE
-                            progressContent.visibility = View.VISIBLE
-                            motion_container?.let {
-                                updateProgressVisibility(it, progressHeader.id, View.VISIBLE)
-                            }
+                            loadSnackbar.show()
                         }
                     }
                     actdetail_recycler_content.adapter?.notifyDataSetChanged()
@@ -164,11 +163,6 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
 
             socmedIds.observe(this@DetailActivity, Observer {
                 setSocmedId(it)
-
-                progressHeader.visibility = View.GONE
-                motion_container?.let {
-                    updateProgressVisibility(it, progressHeader.id, View.GONE)
-                }
             })
 
             isFavorite.observe(this@DetailActivity, Observer {
@@ -178,6 +172,15 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
                     else
                         R.drawable.ic_favorite_border_24dp
                 )
+                if (!isFirstLaunched) {
+                    Snackbar.make(
+                        det_container, when (it) {
+                            true -> this@DetailActivity.getString(R.string.add_fav)
+                            false -> this@DetailActivity.getString(R.string.remove_fav)
+                        }, Snackbar.LENGTH_SHORT
+                    ).show()
+                }
+                isFirstLaunched = false
             })
 
             data1Obj.observe(this@DetailActivity, Observer {
@@ -220,7 +223,7 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
 
             loadFinished.observe(this@DetailActivity, Observer {
                 if (it) {
-                    progressContent.visibility = View.GONE
+                    loadSnackbar.dismiss()
                     setRecycler(this)
                 }
             })
@@ -262,24 +265,26 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
     }
 
     private fun setSocmedId(socmed: SocmedIDModel) {
-        socmed.facebookId?.let { link ->
-            avail_socmed.addImageIcon(R.drawable.ic_facebook_app_logo) {
-                it.setOnClickListener {
-                    openTo("https://www.facebook.com/$link")
+        if (avail_socmed.childCount == 0) {
+            socmed.facebookId?.let { link ->
+                avail_socmed.addImageIcon(R.drawable.ic_facebook_app_logo) {
+                    it.setOnClickListener {
+                        openTo("https://www.facebook.com/$link")
+                    }
                 }
             }
-        }
-        socmed.instagramId?.let { link ->
-            avail_socmed.addImageIcon(R.drawable.ic_instagram) {
-                it.setOnClickListener {
-                    openTo("https://www.instagram.com/$link")
+            socmed.instagramId?.let { link ->
+                avail_socmed.addImageIcon(R.drawable.ic_instagram) {
+                    it.setOnClickListener {
+                        openTo("https://www.instagram.com/$link")
+                    }
                 }
             }
-        }
-        socmed.twitterId?.let { link ->
-            avail_socmed.addImageIcon(R.drawable.ic_twitter) {
-                it.setOnClickListener {
-                    openTo("https://www.twitter.com/$link")
+            socmed.twitterId?.let { link ->
+                avail_socmed.addImageIcon(R.drawable.ic_twitter) {
+                    it.setOnClickListener {
+                        openTo("https://www.twitter.com/$link")
+                    }
                 }
             }
         }
@@ -313,7 +318,7 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
 
     private fun setPosterImage(posterPath: String?, rectSize: Point) {
         posterPath?.let {
-            getBitmap(rectSize, it) { bitmap ->
+            GetObjectFromServer.getInstance(this).getBitmapNoProgress(rectSize, it) { bitmap ->
                 item_poster_image?.setImageBitmap(bitmap)
             }
         }
@@ -321,9 +326,10 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
 
     private fun setBackdropPath(path: String?, rectSize: Point) {
         path?.let {
-            getBitmap(rectSize, it) { bitmap ->
-                actdetail_image_header?.setImageBitmap(bitmap)
-            }
+            GetObjectFromServer.getInstance(this)
+                .getBitmapNoProgress(rectSize, it, true, ImageView.ScaleType.FIT_XY) { bitmap ->
+                    actdetail_image_header?.setImageBitmap(bitmap)
+                }
         }
     }
 

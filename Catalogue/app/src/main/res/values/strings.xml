@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">MoTv Catalogue</string>
-
     <string name="img_poster_contentdesc">Describe an image poster of a movies or tv</string>
     <string name="button_search_contentdesc">Button Search</string>
     <string name="search_hint">Look for something…</string>
@@ -85,13 +84,11 @@
     </string>
     <string name="suggestion">Suggestions</string>
     <string name="no_data">No data available for this section</string>
-    <string name="language_change_txt">Change Language</string>
     <string name="close">Close</string>
     <string name="message_popup">You must click close if you want to do other things</string>
     <string name="json_parser_error">JSON Parser Error!</string>
     <string name="go_back">Go Back</string>
     <string name="refresh">Refresh</string>
-    <string name="dialog_message">Take a few minutes</string>
     <string name="open_links">Open Links</string>
     <string name="opento_message">Are you sure to open this page?</string>
     <string name="en_di_tint">Enable / disable tinting of background image</string>
@@ -99,22 +96,11 @@
     <string name="img_tint_mode_darken_tag">Set to Dark of the background image (Tint Mode Darken)</string>
     <string name="item_favorite_contentdesc">Add / Remove this item from favorites</string>
     <string name="favorite_title">Favorites</string>
-    <string name="fav_contentdesc">Adds this Movie or Tv Details into Favorites</string>
-    <string name="title_activity_settings">Settings</string>
 
-    <!-- Preference Titles -->
-    <string name="messages_header">Messages</string>
-    <string name="sync_header">Sync</string>
-
-    <!-- Messages Preferences -->
-    <string name="signature_title">Your signature</string>
-    <string name="reply_title">Default reply action</string>
-
-    <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails</string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="setting">App Settings</string>
+    <string name="stay">Stay</string>
+    <string name="loading">Loading Data…</string>
+    <string name="add_fav">Added Into Favorite</string>
+    <string name="remove_fav">Removed from favorites</string>
 
 </resources>

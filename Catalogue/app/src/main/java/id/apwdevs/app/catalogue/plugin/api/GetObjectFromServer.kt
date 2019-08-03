@@ -62,6 +62,7 @@ class GetObjectFromServer private constructor(appContext: Context) {
     ) {
         AndroidNetworking.get(GetImageFiles.getImg(size.x, posterPath)).apply {
             setPriority(Priority.LOW)
+            setTag("")
             if (enableScaling) {
                 setBitmapMaxHeight(size.y)
                 setBitmapMaxWidth(size.x)
@@ -157,7 +158,7 @@ class GetObjectFromServer private constructor(appContext: Context) {
             )
             else -> {
                 RetError(
-                    when (findSpecificCause(anError?.cause)) {
+                    when (anError?.cause?.cause) {
                         is UnknownHostException -> ErrorSectionAdapter.ERR_CODE_NET_FAILED
                         else -> ErrorSectionAdapter.ERR_CODE_UNSPECIFIED
                     },

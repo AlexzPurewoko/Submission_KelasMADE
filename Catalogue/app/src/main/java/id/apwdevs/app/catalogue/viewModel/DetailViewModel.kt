@@ -109,7 +109,6 @@ class DetailViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun getHeaderRectSize(activity: AppCompatActivity): Point {
-
         val rectSize = Point()
         activity.windowManager.defaultDisplay.getSize(rectSize)
         rectSize.y = activity.resources.getDimension(R.dimen.actdetail_header_height).toInt()

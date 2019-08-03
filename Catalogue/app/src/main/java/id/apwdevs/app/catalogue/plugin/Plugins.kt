@@ -86,7 +86,8 @@ fun getReadableTime(inMinute: Int?): String {
     return "${hour}h ${minutes}m"
 }
 
-@Deprecated("This method will be removed, use GetObjectFromServer.getBitmapNoProgress() instead")
+
+@Deprecated("This method will be removed, use applyBitmaps() instead")
 fun getBitmap(
     size: Point,
     posterPath: String,
@@ -123,21 +124,10 @@ fun configureFavorite(context: Context, model: ResettableItem?): Boolean =
             else -> -1
         }
         if (id == -1) return@let false
-        val currentIsFavorite: Boolean
-        // if this scope is Favorite Fragment, then it will be removed from lists
-        /*if (it is FavoriteEntity) {
-            favDao.removeAt(id)
-            // notify into implemented fragment or activity
-            mContext.runOnUiThread {
-                reqRefreshRootDataSets()
-            }
-            return@launch
-        }*/
-
-        when (it) {
-            is MovieAboutModel -> currentIsFavorite = it.isFavorite
-            is TvAboutModel -> currentIsFavorite = it.isFavorite
-            is FavoriteEntity -> currentIsFavorite = true
+        val currentIsFavorite: Boolean = when (it) {
+            is MovieAboutModel -> it.isFavorite
+            is TvAboutModel -> it.isFavorite
+            is FavoriteEntity -> true
             else -> return@let false
         }
 
@@ -173,8 +163,8 @@ fun configureFavorite(context: Context, model: ResettableItem?): Boolean =
                         )
                     }
                     else -> null
-                }?.let {
-                    favDao.addToFavorites(listOf(it))
+                }?.let { itsModel ->
+                    favDao.addToFavorites(listOf(itsModel))
                 }
             true -> favDao.removeAt(id)
         }
@@ -192,7 +182,8 @@ private fun converToStr(gModel: List<GenreModel>?): String {
         sbuf.append(it.genreName)
         sbuf.append(",")
     }
-    if (sbuf[sbuf.length - 1].equals(','))
+    if (sbuf[sbuf.length - 1] == ',')
         sbuf.deleteCharAt(sbuf.length - 1)
     return sbuf.toString()
 }
+

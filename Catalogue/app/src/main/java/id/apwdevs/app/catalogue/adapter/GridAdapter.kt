@@ -2,8 +2,10 @@ package id.apwdevs.app.catalogue.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Point
+import android.graphics.PorterDuff
 import android.graphics.Typeface
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
@@ -12,6 +14,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.entity.FavoriteEntity
@@ -19,9 +22,15 @@ import id.apwdevs.app.catalogue.model.ResettableItem
 import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
 import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
 import id.apwdevs.app.catalogue.plugin.SearchComponent
-import id.apwdevs.app.catalogue.plugin.getBitmap
+import id.apwdevs.app.catalogue.plugin.api.GetObjectFromServer
+import id.apwdevs.app.catalogue.viewModel.MainListViewModel
 
-class GridAdapter<T : ResettableItem>(private val mContext: Context) :
+class GridAdapter<T : ResettableItem>(
+    private val mContext: Context,
+    private val mItemOptions: MainListViewModel.ItemCardOptions,
+    private val coloredTextState: Boolean,
+    private val wSize: String
+) :
     RecyclerView.Adapter<GridAdapter<T>.GridViewHolder<T>>(), Filterable {
     internal var shortListModels: MutableList<T> = mutableListOf()
     private val requestedWidth: Int = mContext.resources.getDimension(R.dimen.item_poster_width).toInt()
@@ -112,23 +121,25 @@ class GridAdapter<T : ResettableItem>(private val mContext: Context) :
                     true
                 ))
             ) {
-                val matchStr1 = getItemMatchedPosition(constraint, str1, true)
-                val matchStr2 = getItemMatchedPosition(constraint, str2, true)
-                matchStr1.forEach {
-                    spanned1?.setSpan(
-                        ForegroundColorSpan(Color.RED),
-                        it.startPosition,
-                        it.endPosition,
-                        0
-                    )
-                }
-                matchStr2.forEach {
-                    spanned2?.setSpan(
-                        StyleSpan(Typeface.BOLD),
-                        it.startPosition,
-                        it.endPosition,
-                        0
-                    )
+                if (coloredTextState) {
+                    val matchStr1 = getItemMatchedPosition(constraint, str1, true)
+                    val matchStr2 = getItemMatchedPosition(constraint, str2, true)
+                    matchStr1.forEach {
+                        spanned1?.setSpan(
+                            ForegroundColorSpan(Color.RED),
+                            it.startPosition,
+                            it.endPosition,
+                            0
+                        )
+                    }
+                    matchStr2.forEach {
+                        spanned2?.setSpan(
+                            StyleSpan(Typeface.BOLD),
+                            it.startPosition,
+                            it.endPosition,
+                            0
+                        )
+                    }
                 }
                 return true
             }
@@ -141,51 +152,79 @@ class GridAdapter<T : ResettableItem>(private val mContext: Context) :
         RecyclerView.ViewHolder(view) {
 
         private val poster: ImageView = view.findViewById(R.id.item_poster_image)
-        private val title: TextView = view.findViewById(R.id.item_list_text_title)
-        private val releaseDate: TextView = view.findViewById(R.id.item_list_release_date)
+        private val titleView: TextView = view.findViewById(R.id.item_list_text_title)
+        private val releaseDateTxt: TextView = view.findViewById(R.id.item_list_release_date)
         private val ratingBar: RatingBar = view.findViewById(R.id.item_list_ratingBar)
-        private val voteCount: TextView = view.findViewById(R.id.item_list_votecount)
+        private val voteCountTxt: TextView = view.findViewById(R.id.item_list_votecount)
+        private val backdrop: ImageView = view.findViewById(R.id.item_image_backdrop)
+        private val mWorker = GetObjectFromServer.getInstance(itemView.context)
 
         @SuppressLint("SetTextI18n")
         internal fun bind(dataModel: T) {
+            val title: CharSequence?
+            val voteAverage: Double
+            val voteCount: Int
+            val posterPath: String?
+            val backdropPath: String?
+            val releaseDate: String?
             when (dataModel) {
                 is MovieAboutModel -> {
-                    title.text = dataModel.title
-                    releaseDate.text = dataModel.releaseDate
-                    ratingBar.rating = getRating(dataModel.voteAverage)
-                    voteCount.text = "(${dataModel.voteCount})"
-                    dataModel.posterPath?.let {
-                        getBitmap(Point(requestedWidth, requestedHeight), it) { bitmap ->
-                            poster.setImageBitmap(bitmap)
-                        }
-                    }
-
+                    title = dataModel.titleSpan ?: dataModel.title
+                    voteAverage = dataModel.voteAverage
+                    voteCount = dataModel.voteCount
+                    posterPath = dataModel.posterPath
+                    backdropPath = dataModel.backdropPath
+                    releaseDate = dataModel.releaseDate
                 }
                 is TvAboutModel -> {
-                    title.text = dataModel.name
-                    releaseDate.text = dataModel.firstAirDate
-                    ratingBar.rating = getRating(dataModel.voteAverage)
-                    voteCount.text = "(${dataModel.voteCount})"
-                    dataModel.posterPath?.let {
-                        getBitmap(Point(requestedWidth, requestedHeight), it) { bitmap ->
-                            poster.setImageBitmap(bitmap)
-                        }
-                    }
+                    title = dataModel.nameSpan ?: dataModel.name
+                    voteAverage = dataModel.voteAverage
+                    voteCount = dataModel.voteCount
+                    posterPath = dataModel.posterPath
+                    backdropPath = dataModel.backdropPath
+                    releaseDate = dataModel.firstAirDate
                 }
                 is FavoriteEntity -> {
-                    title.text = dataModel.title
-                    releaseDate.text = dataModel.releaseDate
-                    ratingBar.rating = getRating(dataModel.voteAverage)
-                    voteCount.text = "(${dataModel.voteCount})"
-                    dataModel.posterPath?.let {
-                        getBitmap(Point(requestedWidth, requestedHeight), it) { bitmap ->
-                            poster.setImageBitmap(bitmap)
-                        }
-                    }
-
+                    title = dataModel.titleSpan ?: dataModel.title
+                    voteAverage = dataModel.voteAverage
+                    voteCount = dataModel.voteCount
+                    posterPath = dataModel.posterPath
+                    backdropPath = dataModel.backdropPath
+                    releaseDate = dataModel.releaseDate
                 }
+                else -> return
             }
 
+            val cardColor: Int = mItemOptions.cardColor
+            val imageTintColor: Int = mItemOptions.imageTintColor
+            val tintMode: PorterDuff.Mode = mItemOptions.tintMode
+            val itemColor: Int = mItemOptions.itemColor
+            if (itemColor != MainListViewModel.DEFAULT_COLOR) {
+                titleView.setTextColor(itemColor)
+                voteCountTxt.setTextColor(itemColor)
+                releaseDateTxt.setTextColor(itemColor)
+            }
+            (itemView as CardView).setCardBackgroundColor(cardColor)
+            backdrop.imageTintMode = tintMode
+            backdrop.imageTintList = ColorStateList.valueOf(imageTintColor)
+
+            titleView.text = title
+            ratingBar.rating = getRating(voteAverage)
+            voteCountTxt.text = "($voteCount)"
+            releaseDateTxt.text = releaseDate
+            posterPath?.let {
+                mWorker.getBitmapNoProgress(Point(requestedWidth, requestedHeight), it, true) { bitmap ->
+                    poster.setImageBitmap(bitmap)
+                }
+            }
+            if (mItemOptions != MainListViewModel.ItemCardOptions.DARK && mItemOptions != MainListViewModel.ItemCardOptions.LIGHT)
+                backdropPath?.let {
+                    val p = Point(if (wSize.equals("original", true)) 1000 else wSize.toInt(), 0)
+                    mWorker.getBitmapNoProgress(p, it) { bitmap ->
+                        backdrop.scaleType = ImageView.ScaleType.CENTER_CROP
+                        backdrop.setImageBitmap(bitmap)
+                    }
+                }
         }
 
         private fun getRating(originalRating: Double, stars: Int = 5, maxRating: Int = 10): Float =

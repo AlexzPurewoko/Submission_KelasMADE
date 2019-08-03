@@ -6,8 +6,6 @@ import android.graphics.Color
 import android.graphics.Point
 import android.graphics.PorterDuff
 import android.graphics.Typeface
-import android.os.Handler
-import android.os.Looper
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
@@ -18,6 +16,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.entity.FavoriteEntity
 import id.apwdevs.app.catalogue.model.ResettableItem
@@ -36,6 +35,8 @@ import java.util.*
 class ListAdapter<T : ResettableItem>(
     private val mContext: AppCompatActivity,
     private val mItemOptions: MainListViewModel.ItemCardOptions,
+    private val coloredTextState: Boolean,
+    private val wSize: String,
     private var reqRefreshRootDataSets: () -> Unit = {}
 ) :
     RecyclerView.Adapter<ListAdapter<T>.ListViewHolder<T>>(), Filterable {
@@ -128,23 +129,25 @@ class ListAdapter<T : ResettableItem>(
                     true
                 ))
             ) {
-                val matchStr1 = getItemMatchedPosition(constraint, str1, true)
-                val matchStr2 = getItemMatchedPosition(constraint, str2, true)
-                matchStr1.forEach {
-                    spanned1?.setSpan(
-                        ForegroundColorSpan(Color.RED),
-                        it.startPosition,
-                        it.endPosition,
-                        0
-                    )
-                }
-                matchStr2.forEach {
-                    spanned2?.setSpan(
-                        StyleSpan(Typeface.BOLD),
-                        it.startPosition,
-                        it.endPosition,
-                        0
-                    )
+                if (coloredTextState) {
+                    val matchStr1 = getItemMatchedPosition(constraint, str1, true)
+                    val matchStr2 = getItemMatchedPosition(constraint, str2, true)
+                    matchStr1.forEach {
+                        spanned1?.setSpan(
+                            ForegroundColorSpan(Color.RED),
+                            it.startPosition,
+                            it.endPosition,
+                            0
+                        )
+                    }
+                    matchStr2.forEach {
+                        spanned2?.setSpan(
+                            StyleSpan(Typeface.BOLD),
+                            it.startPosition,
+                            it.endPosition,
+                            0
+                        )
+                    }
                 }
                 return true
             }
@@ -231,7 +234,6 @@ class ListAdapter<T : ResettableItem>(
             }
 
             (itemView as CardView).setCardBackgroundColor(cardColor)
-
             backdrop.imageTintMode = tintMode
             backdrop.imageTintList = ColorStateList.valueOf(imageTintColor)
 
@@ -248,17 +250,11 @@ class ListAdapter<T : ResettableItem>(
             }
             if (mItemOptions != MainListViewModel.ItemCardOptions.DARK && mItemOptions != MainListViewModel.ItemCardOptions.LIGHT)
                 backdropPath?.let {
-                    Handler().post {
-                        val measuredW = itemView.measuredWidth
-                        val measuredH = itemView.measuredHeight
-                        val p = if (measuredW > measuredH) Point(measuredW, measuredH) else Point(measuredH, measuredW)
 
-                        Handler(Looper.getMainLooper()).post {
-                            mWorker.getBitmapNoProgress(p, it) {
-                                backdrop.scaleType = ImageView.ScaleType.CENTER_CROP
-                                backdrop.setImageBitmap(it)
-                            }
-                        }
+                    val p = Point(if (wSize.equals("original", true)) 1000 else wSize.toInt(), 0)
+                    mWorker.getBitmapNoProgress(p, it) { bitmap ->
+                        backdrop.scaleType = ImageView.ScaleType.CENTER_CROP
+                        backdrop.setImageBitmap(bitmap)
                     }
                 }
             itemFavorites.setOnClickListener(this)
@@ -275,6 +271,12 @@ class ListAdapter<T : ResettableItem>(
                     } else {
                         itemFavorites.post {
                             setFavorites(fav)
+                            Snackbar.make(
+                                itemView, when (fav) {
+                                    true -> itemFavorites.context.getString(R.string.add_fav)
+                                    false -> itemFavorites.context.getString(R.string.remove_fav)
+                                }, Snackbar.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 }
@@ -282,7 +284,7 @@ class ListAdapter<T : ResettableItem>(
         }
 
 
-        private fun setFavorites(enabled: Boolean) =
+        private fun setFavorites(enabled: Boolean) {
             itemFavorites.setImageResource(
                 if (enabled) {
                     itemFavorites.tag = REMOVE_FAVORITE
@@ -292,7 +294,7 @@ class ListAdapter<T : ResettableItem>(
                     R.drawable.ic_favorite_border_24dp
                 }
             )
-
+        }
 
         private fun getRating(originalRating: Double, stars: Int = 5, maxRating: Int = 10): Float =
             (originalRating * stars / maxRating).toFloat()

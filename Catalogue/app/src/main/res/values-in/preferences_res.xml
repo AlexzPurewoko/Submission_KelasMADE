@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="common">Umum</string>
+
+    <string name="pref_languages_title">Bahasa</string>
+    <string name="pref_languages_summary">Mengubah setelan bahasa dalam aplikasi</string>
+    <string-array name="avail_languages">
+        <item>Sistem</item>
+        <item>Bahasa Indonesia</item>
+        <item>Bahasa Inggris</item>
+    </string-array>
+
+    <string name="theme_pref_name">Tema</string>
+
+    <string name="card_bg_status_title">Aktifkan Latar belakang pada CardView</string>
+    <string name="card_bg_status_summary">Mengakrifkan latar belakang CardView pada daftar Siaran Tv / Film</string>
+
+
+    <string name="card_bg_mode_title">Tema Latar Belakang CardView</string>
+    <string name="card_bg_mode_summary">Memilih tema latar belakang yang tepat untuk CardView pada daftar Siaran Tv /
+        Film
+    </string>
+
+    <string-array name="avail_cardbg_colors">
+        <item>Putih</item>
+        <item>Gelap</item>
+        <item>Gelap (dengan latar belakang</item>
+        <item>Tonjolkan latar belakang</item>
+    </string-array>
+
+
+    <string name="content_pref_name">Konten</string>
+
+    <string name="max_credits_results_title">Maksimum Tokoh film/Tv</string>
+    <string name="max_credits_results_summary">Memastikan berapa tokoh yang dapat ditampilkan dalam detail Acara
+        Tv/Film
+    </string>
+
+
+    <string name="max_review_results_title">Maksimum Komentar</string>
+    <string name="max_review_results_summary">Memastikan berapa Review / Komentar yang dapat ditampilkan dalam detail
+        Acara Tv/Film
+    </string>
+
+
+    <string name="search_pref_name">Search</string>
+
+    <string name="colored_text_state_title">Aktifkan Teks Berwarna saat mencari</string>
+    <string name="colored_text_state_summary">Aktifkan / Nonaktifkan teks berwarna saat pencarian / pemfilteran sedang
+        berlangsung
+    </string>
+
+    <string name="carddrop_w_title">Lebar Gambar Latar Belakang CardView</string>
+    <string name="carddrop_w_summary">
+        Untuk Ahli. Berguna untuk menyetting lebar gambar maksimum untuk di ditampilkan. Ukuran maksimum dapat
+        menyebabkan aplikasi crash
+    </string>
+
+</resources>

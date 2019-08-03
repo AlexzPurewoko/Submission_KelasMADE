@@ -1,7 +1,7 @@
 package id.apwdevs.app.catalogue.plugin.api
 
 object GetImageFiles {
-    private val LIST_SUPPORTED_WSIZES = mutableListOf(
+    val LIST_SUPPORTED_WSIZES = mutableListOf(
         92,
         154,
         185,

@@ -3,7 +3,6 @@ package id.apwdevs.app.catalogue.activities
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
-import android.content.res.Resources
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -43,6 +42,7 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
         const val LAYOUT_REQUEST_UPDATE = 0x4f
         const val NO_REQUEST = 0x5a
     }
+
     private lateinit var searchToolbarCard: SearchToolbarCard
     private lateinit var listFragmentContainer: MutableList<Fragment>
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,30 +77,13 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
         setupVPager()
     }
 
-    fun applyConfiguration(res: Resources) {
-        getSharedPreferences(PublicContract.SHARED_PREF_GLOBAL_NAME, Context.MODE_PRIVATE).apply {
-            when (getString("app_languages", "system")) {
-                "force_en" -> changeLanguage(res, Locale("en"))
-                "force_in" -> changeLanguage(res, Locale("in"))
-            }
-        }
-    }
-
-    @Suppress("DEPRECATION")
-    fun changeLanguage(res: Resources, locale: Locale) {
-        res.configuration.setLocale(locale)
-        val conf = res.configuration
-        conf.setLocale(locale)
-        res.updateConfiguration(conf, res.displayMetrics)
-    }
-
     override fun attachBaseContext(newBase: Context?) {
         newBase?.let {
-            var newCtx: Context? = null
+            var newCtx: Context?
             it.getSharedPreferences(PublicContract.SHARED_PREF_GLOBAL_NAME, Context.MODE_PRIVATE).apply {
-                when (getString("app_languages", "system")) {
-                    "force_en" -> newCtx = ApplyLanguage.wrap(it, Locale("en"))
-                    "force_in" -> newCtx = ApplyLanguage.wrap(it, Locale("in"))
+                newCtx = when (getString("app_languages", "system")) {
+                    "force_en" -> ApplyLanguage.wrap(it, Locale("en"))
+                    "force_in" -> ApplyLanguage.wrap(it, Locale("in"))
                     else -> {
                         super.attachBaseContext(newBase)
                         return

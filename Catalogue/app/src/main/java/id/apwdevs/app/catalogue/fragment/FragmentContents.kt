@@ -45,20 +45,25 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
     private lateinit var errorAdapter: ErrorSectionAdapter
     private lateinit var types: PublicContract.ContentDisplayType
     private lateinit var contentReqTypes: Parcelable // order in MainListMovieModel and MainListTvModel or if this is fav pages its ordered into values of type
-    private lateinit var strTag: String
     private lateinit var recyclerListAdapter: ListAdapter<ResettableItem>
     private lateinit var recyclerGridAdapter: GridAdapter<ResettableItem>
     private var mRequestIntoHostActivity: GetFromHostActivity? = null
 
     var onItemClickListener: OnItemFragmentClickListener? = null
-    var onContentRequestAllRefresh: OnRequestRefresh? = null
+    private var onContentRequestAllRefresh: OnRequestRefresh? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(MainListViewModel::class.java)
-        viewModel.applyConfiguration(resources)
-        recyclerGridAdapter = GridAdapter(requireContext())
-        recyclerListAdapter = ListAdapter(requireActivity() as AppCompatActivity, viewModel.cardItemBg) {
+        viewModel.applyConfiguration()
+        recyclerGridAdapter =
+            GridAdapter(requireContext(), viewModel.cardItemBg, viewModel.colorredTextState, viewModel.backdropSize)
+        recyclerListAdapter = ListAdapter(
+            requireActivity() as AppCompatActivity,
+            viewModel.cardItemBg,
+            viewModel.colorredTextState,
+            viewModel.backdropSize
+        ) {
             viewModel.getAt(contentReqTypes, 1)
             onContentRequestAllRefresh?.onForceRefresh(this@FragmentContents)
         }
@@ -93,8 +98,6 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
-        strTag = "${FragmentContents::class.java.simpleName}Type${types.name}ContentType$contentReqTypes"
         // we have to obtain a value of ViewModel
         initViewModel()
         refreshPage.setOnRefreshListener {
@@ -123,7 +126,7 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
         viewModel.apply {
 
             if (hasFirstInstantiate.value == false)
-                setup(strTag, types)
+                setup(types)
             objData?.observe(this@FragmentContents, Observer {
                 setupRecycler(it, prevListMode.value ?: 0)
             })
