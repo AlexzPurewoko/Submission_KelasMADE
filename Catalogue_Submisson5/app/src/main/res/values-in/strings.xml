@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Katalog Film &amp; Siaran TV</string>
+    <string name="img_poster_contentdesc">Mendeskripsikan poster gambar film atau tv</string>
+    <string name="button_search_contentdesc">Tombol Pencarian</string>
+    <string name="search_hint">Carilah sesuatu…</string>
+    <string name="btn_menu_more">Menu Lainnya</string>
+    <string name="nav_popular">Populer</string>
+    <string name="nav_discover">Temukan</string>
+    <string name="nav_tv_airing_today">Tayang Hari Ini</string>
+    <string name="nav_tv_ota">Mengudara</string>
+    <string name="nav_now_playing">Sekarang Diputar</string>
+    <string name="nav_top_rated">Teratas</string>
+    <string name="nav_upcoming">Mendatang</string>
+    <string name="error_picture">Gambar Indikator kesalahan</string>
+    <string name="movie_title">Film</string>
+    <string name="tv_title">Acara TV</string>
+    <string name="on_network_failed">Jaringan Gagal!</string>
+    <string name="msg_on_net_error">Pastikan ponsel Anda terhubung ke internet dan coba segarkan halaman kembali
+    </string>
+    <string name="on_no_network">Tidak Ada Jaringan Tersedia!</string>
+    <string name="msg_on_no_network">Hubungkan ke jaringan dan segarkan halaman kembali</string>
+    <string name="on_parse_failed">Kegagalan Parse!</string>
+    <string name="err_suspected">Kesalahan Tak Terduga!</string>
+
+    <string name="original_title">Judul Asli</string>
+    <string name="original_language">Bahasa Asli</string>
+    <string name="genre">Genre</string>
+    <string name="release_date">Tanggal Rilis</string>
+    <string name="runtime">Durasi</string>
+    <string name="status">Status</string>
+    <string name="budget">Anggaran</string>
+    <string name="revenue">Pendapatan</string>
+    <string name="homepage">Beranda (Web)</string>
+    <string name="tagline">Tagline</string>
+    <string name="type">Tipe</string>
+    <string name="first_air_date">Tanggal Penayangan Pertama</string>
+    <string name="last_air_date">Tanggal Penayangan Terakhir</string>
+    <string name="in_production">Dalam Produksi</string>
+    <string name="origin_country">Negara Asal</string>
+    <string name="number_of_episodes">Jumlah Episode</string>
+    <string name="number_of_seasons">Jumlah Musim</string>
+    <string name="true_text">Ya</string>
+    <string name="false_text">Tidak</string>
+
+    <string name="err_msg_unspecified_default">Segarkan halaman (klik segarkan atau geser ke bawah) atau jika masalah
+        ini
+        terjadi lagi, Anda dapat memberi tahu pengembang
+    </string>
+    <string name="title_activity_detail">DetailActivity</string>
+
+    <string name="crews">Tim Kru</string>
+    <string name="casts">Aktor/Aktris</string>
+    <string name="overview">Ikhtisar</string>
+    <string name="created_by">Dibuat Oleh</string>
+    <string name="abouts">Tentang</string>
+    <string name="reviews">Ulasan</string>
+    <string name="header_bg_contentdesc">latar belakang Header Gambar</string>
+    <string name="go_back_page_contentdesc">Kembali ke halaman sebelumnya</string>
+    <string name="people_avatars_contentdesc">Gambar Wajah Orang</string>
+    <string name="launch_contentdec">Membuka ke halaman web tautan tertentu</string>
+    <string name="list_mode_contentdesc">Mode Tampilan Konten</string>
+    <string name="detail_film_title">Detail Film</string>
+    <string name="detail_tv_title">Detail Acara TV</string>
+    <string name="err_internet_unactivated">Data seluler atau wifi Anda tidak diaktifkan</string>
+    <string name="err_parse_suggestions">Segarkan dan jika masalahnya muncul lagi, laporkan atau tunggu hingga aplikasi
+        diperbarui
+    </string>
+    <string name="err_not_found">​​Tidak Ditemukan!</string>
+    <string name="err_not_found_message">Kesalahan saat mendapatkan data, sumber daya tidak dapat ditemukan atau tidak
+        ada
+    </string>
+    <string name="err_not_found_suggest">Cobalah untuk pindah ke halaman lain dan lihat bahwa mereka dapat ditampilkan
+    </string>
+    <string name="caused_by">Disebabkan oleh: %1$s</string>
+    <string name="net_failed_error">Sinyal Buruk atau Anda memiliki data seluler masuk atau Wi-Fi yang terisolasi dari
+        internet
+    </string>
+    <string name="suggestion">Saran</string>
+    <string name="no_data">Tidak ada data tersedia untuk bagian ini</string>
+    <string name="close">Tutup</string>
+    <string name="message_popup">Anda harus mengklik tutup jika ingin melakukan hal-hal lain</string>
+    <string name="json_parser_error">Kesalahan Penguraian JSON!</string>
+    <string name="go_back">Kembali</string>
+    <string name="refresh">Segarkan</string>
+    <string name="open_links">Buka Link</string>
+    <string name="opento_message">Apakah anda yakin untuk membuka halaman ini?</string>
+    <string name="en_di_tint">Aktifkan/Nonaktifkan gambar latar belakang</string>
+    <string name="img_tint_mode_overlay_tag">Tampilkan gambar latar belakang (Mode Warna Overlay)</string>
+    <string name="img_tint_mode_darken_tag">Setel ke Gelap dari gambar latar belakang (Mode Warna Gelap)</string>
+
+
+    <string name="item_favorite_contentdesc">Tambah / Hapus Acara Tv / Film ini dari atau ke Favorit</string>
+    <string name="favorite_title">Favoritku</string>
+
+    <string name="setting">Pengaturan Aplikasi</string>
+    <string name="stay">Tinggal</string>
+    <string name="loading">Mempersiapkan Data…</string>
+    <string name="add_fav">Ditambahkan ke Favorit</string>
+    <string name="remove_fav">Dihapus dari favorit</string>
+</resources>
