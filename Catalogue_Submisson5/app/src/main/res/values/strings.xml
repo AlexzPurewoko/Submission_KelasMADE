@@ -99,7 +99,7 @@
 
     <string name="setting">App Settings</string>
     <string name="stay">Stay</string>
-    <string name="loading">Loading Data…</string>
+    <string name="loading">Loading Data…%1$d%%</string>
     <string name="add_fav">Added Into Favorite</string>
     <string name="remove_fav">Removed from favorites</string>
 

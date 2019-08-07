@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import id.apwdevs.app.catalogue.activities.DetailActivity
 import id.apwdevs.app.catalogue.model.onDetail.OtherMovieAboutModel
-import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
+import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemModel
 import id.apwdevs.app.catalogue.plugin.api.GetMovies
 import id.apwdevs.app.catalogue.plugin.api.GetObjectFromServer
 import kotlinx.coroutines.CoroutineScope
@@ -23,7 +23,7 @@ class DetailMovieActRepo(
 
     override fun initAtFirstTime(dataIntent: Intent) {
         dataIntent.extras?.apply {
-            val otherAboutTv = getParcelable<MovieAboutModel>(DetailActivity.EXTRA_CONTENT_DETAILS)
+            val otherAboutTv = getParcelable<MainDataItemModel>(DetailActivity.EXTRA_CONTENT_DETAILS)
             data1Obj.value = otherAboutTv
         }
     }

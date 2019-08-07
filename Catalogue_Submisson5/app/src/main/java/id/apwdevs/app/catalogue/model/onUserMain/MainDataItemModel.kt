@@ -11,12 +11,11 @@ import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-data class MovieAboutModel(
-
+data class MainDataItemModel(
     @SerializedName("id")
     val id: Int,
 
-    @SerializedName("release_date")
+    @SerializedName(value = "release_date", alternate = ["first_air_date"])
     val releaseDate: String?,
 
     @SerializedName("poster_path")
@@ -28,13 +27,13 @@ data class MovieAboutModel(
     @SerializedName("genre_ids")
     val genres: List<Int>,
 
-    @SerializedName("original_title")
+    @SerializedName(value = "original_title", alternate = ["original_name"])
     val originalTitle: String?,
 
     @SerializedName("original_language")
     val originalLanguage: String?,
 
-    @SerializedName("title")
+    @SerializedName(value = "title", alternate = ["name"])
     val title: String?,
 
     @SerializedName("backdrop_path")
@@ -51,8 +50,7 @@ data class MovieAboutModel(
     var isFavorite: Boolean = false,
 
     var actualGenreModel: MutableList<GenreModel>? = null
-) : ResettableItem, Parcelable {
-
+) : Parcelable, ResettableItem {
     // These fields is ignored from parcel
     @IgnoredOnParcel
     var titleSpan: SpannableString? = null
@@ -73,7 +71,7 @@ data class MovieAboutModel(
     }
 }
 
-data class MovieModelResponse(
+data class MainDataItemResponse(
 
     @SerializedName("page")
     val inPage: Int,
@@ -85,7 +83,7 @@ data class MovieModelResponse(
     val totalPages: Int,
 
     @SerializedName("results")
-    val contents: List<MovieAboutModel>?,
+    val contents: List<MainDataItemModel>?,
 
     var errorCode: Int = 0,
     var errorMessage: String? = null

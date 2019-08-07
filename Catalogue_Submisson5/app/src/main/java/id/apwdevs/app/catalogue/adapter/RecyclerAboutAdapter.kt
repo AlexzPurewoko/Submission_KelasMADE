@@ -12,9 +12,7 @@ import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.model.GenreModel
 import id.apwdevs.app.catalogue.model.ResettableItem
 import id.apwdevs.app.catalogue.model.onDetail.OtherMovieAboutModel
-import id.apwdevs.app.catalogue.model.onDetail.OtherTVAboutModel
-import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
-import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
+import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemModel
 import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.getCurrency
 import id.apwdevs.app.catalogue.plugin.getReadableTime
@@ -42,28 +40,8 @@ class RecyclerAboutAdapter(
 
     private fun setData() {
         when (type) {
-            PublicContract.ContentDisplayType.TV_SHOWS -> {
-                val det1 = shortDetail as TvAboutModel
-                val det2 = otherDetail as OtherTVAboutModel
-                listToBeAdded.apply {
-                    add(Item(context.getString(R.string.original_title), det1.originalName))
-                    add(Item(context.getString(R.string.original_language), det1.originalLanguage))
-
-                    add(Item(context.getString(R.string.genre), det1.actualGenreModel))
-                    add(Item(context.getString(R.string.first_air_date), det1.firstAirDate))
-                    add(Item(context.getString(R.string.last_air_date), det2.lastAirDate))
-                    add(Item(context.getString(R.string.in_production), det2.inProduction))
-
-                    add(Item(context.getString(R.string.status), det2.status))
-                    add(Item(context.getString(R.string.type), det2.type))
-                    add(Item(context.getString(R.string.origin_country), det2.originCountry))
-                    add(Item(context.getString(R.string.homepage), det2.homepage, true))
-                    add(Item(context.getString(R.string.number_of_episodes), det2.numberOfEpisodes))
-                    add(Item(context.getString(R.string.number_of_seasons), det2.numberOfSeasons))
-                }
-            }
-            PublicContract.ContentDisplayType.MOVIE -> {
-                val det1 = shortDetail as MovieAboutModel
+            PublicContract.ContentDisplayType.TV_SHOWS, PublicContract.ContentDisplayType.MOVIE -> {
+                val det1 = shortDetail as MainDataItemModel
                 val det2 = otherDetail as OtherMovieAboutModel
                 listToBeAdded.apply {
                     add(Item(context.getString(R.string.original_title), det1.originalTitle))

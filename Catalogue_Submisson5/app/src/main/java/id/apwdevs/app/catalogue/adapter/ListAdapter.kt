@@ -20,8 +20,7 @@ import com.google.android.material.snackbar.Snackbar
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.entity.FavoriteEntity
 import id.apwdevs.app.catalogue.model.ResettableItem
-import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
-import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
+import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemModel
 import id.apwdevs.app.catalogue.plugin.SearchComponent
 import id.apwdevs.app.catalogue.plugin.api.GetObjectFromServer
 import id.apwdevs.app.catalogue.plugin.configureFavorite
@@ -101,17 +100,11 @@ class ListAdapter<T : ResettableItem>(
             var spanned1: SpannableString? = null
             var spanned2: SpannableString? = null
             when (obj) {
-                is MovieAboutModel -> {
+                is MainDataItemModel -> {
                     str1 = obj.title
                     str2 = obj.releaseDate
                     spanned1 = obj.titleSpan
                     spanned2 = obj.releaseDateSpan
-                }
-                is TvAboutModel -> {
-                    str1 = obj.name
-                    str2 = obj.firstAirDate
-                    spanned1 = obj.nameSpan
-                    spanned2 = obj.firstAirDateSpan
                 }
                 is FavoriteEntity -> {
                     str1 = obj.title
@@ -181,21 +174,8 @@ class ListAdapter<T : ResettableItem>(
             val posterPath: String?
             val backdropPath: String?
             when (dataModel) {
-                is MovieAboutModel -> {
+                is MainDataItemModel -> {
                     title = dataModel.titleSpan ?: dataModel.title
-                    overview = dataModel.overview
-                    voteAverage = dataModel.voteAverage
-                    voteCount = dataModel.voteCount
-                    posterPath = dataModel.posterPath
-                    backdropPath = dataModel.backdropPath
-                    setFavorites(dataModel.isFavorite)
-                    if (itemGenres.childCount == 0)
-                        dataModel.actualGenreModel?.forEach { actGenre ->
-                            itemGenres.addText(actGenre.genreName)
-                        }
-                }
-                is TvAboutModel -> {
-                    title = dataModel.nameSpan ?: dataModel.name
                     overview = dataModel.overview
                     voteAverage = dataModel.voteAverage
                     voteCount = dataModel.voteCount

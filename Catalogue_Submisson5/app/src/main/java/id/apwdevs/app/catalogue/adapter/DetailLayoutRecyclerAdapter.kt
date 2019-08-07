@@ -15,8 +15,7 @@ import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.adapter.RecyclerReviewAdapter.OnLaunchItemClickListener
 import id.apwdevs.app.catalogue.model.ResettableItem
 import id.apwdevs.app.catalogue.model.onDetail.*
-import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
-import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
+import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemModel
 import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.gone
 import id.apwdevs.app.catalogue.plugin.visible
@@ -140,11 +139,8 @@ class DetailLayoutRecyclerAdapter(
             ViewType.CONTENT_OVERVIEW -> {
                 holder.bindItem(
                     data1Model?.let {
-                        when (it) {
-                            is MovieAboutModel -> (data1Model as MovieAboutModel).overview
-                            is TvAboutModel -> (data1Model as TvAboutModel).overview
-                            else -> ""
-                        }
+                        if (it is MainDataItemModel) (data1Model as MainDataItemModel).overview
+                        else ""
                     })
             }
             ViewType.CONTENT_ABOUT -> {
@@ -316,14 +312,7 @@ class DetailLayoutRecyclerAdapter(
                     val ctx = itemView.context
                     hideErrorText()
                     recyclerView?.layoutManager = LinearLayoutManager(ctx, RecyclerView.VERTICAL, false)
-                    if (aboutModel is TvAboutModel && otherAboutModel is OtherTVAboutModel) {
-                        recyclerView?.adapter = RecyclerAboutAdapter(
-                            ctx,
-                            aboutModel,
-                            otherAboutModel,
-                            PublicContract.ContentDisplayType.TV_SHOWS
-                        )
-                    } else if (aboutModel is MovieAboutModel && otherAboutModel is OtherMovieAboutModel) {
+                    if (aboutModel is MainDataItemModel && otherAboutModel is ResettableItem) {
                         recyclerView?.adapter = RecyclerAboutAdapter(
                             ctx,
                             aboutModel,

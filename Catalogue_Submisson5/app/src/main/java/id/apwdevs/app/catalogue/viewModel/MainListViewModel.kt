@@ -11,8 +11,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import id.apwdevs.app.catalogue.model.ClassResponse
 import id.apwdevs.app.catalogue.model.GenreModel
-import id.apwdevs.app.catalogue.model.onUserMain.MovieModelResponse
-import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModelResponse
+import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemResponse
 import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.api.GetImageFiles
 import id.apwdevs.app.catalogue.plugin.api.GetObjectFromServer
@@ -49,14 +48,8 @@ class MainListViewModel(application: Application) : AndroidViewModel(application
         type: PublicContract.ContentDisplayType
     ) {
         repository = when (type) {
-            PublicContract.ContentDisplayType.MOVIE ->
-                FragmentContentRepository<MovieModelResponse>(
-                    getApplication(),
-                    type,
-                    viewModelScope
-                ) as FragmentContentRepository<ClassResponse>
-            PublicContract.ContentDisplayType.TV_SHOWS ->
-                FragmentContentRepository<TvAboutModelResponse>(
+            PublicContract.ContentDisplayType.MOVIE, PublicContract.ContentDisplayType.TV_SHOWS ->
+                FragmentContentRepository<MainDataItemResponse>(
                     getApplication(),
                     type,
                     viewModelScope

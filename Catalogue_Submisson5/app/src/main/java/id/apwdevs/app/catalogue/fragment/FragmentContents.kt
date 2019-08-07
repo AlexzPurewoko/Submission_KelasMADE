@@ -26,8 +26,7 @@ import id.apwdevs.app.catalogue.adapter.ListAdapter
 import id.apwdevs.app.catalogue.entity.FavoriteResponse
 import id.apwdevs.app.catalogue.model.ClassResponse
 import id.apwdevs.app.catalogue.model.ResettableItem
-import id.apwdevs.app.catalogue.model.onUserMain.MovieModelResponse
-import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModelResponse
+import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemResponse
 import id.apwdevs.app.catalogue.plugin.*
 import id.apwdevs.app.catalogue.plugin.callbacks.OnItemFragmentClickListener
 import id.apwdevs.app.catalogue.plugin.callbacks.OnSelectedFragment
@@ -209,8 +208,7 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
         p?.let {
             recyclerListAdapter.resetAllData(
                 when (it) {
-                    is MovieModelResponse -> it.contents
-                    is TvAboutModelResponse -> it.contents
+                    is MainDataItemResponse -> it.contents
                     is FavoriteResponse -> it.listAll
                     else -> null
                 }
@@ -222,8 +220,7 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
         p?.let {
             recyclerGridAdapter.resetAllData(
                 when (it) {
-                    is MovieModelResponse -> it.contents
-                    is TvAboutModelResponse -> it.contents
+                    is MainDataItemResponse -> it.contents
                     is FavoriteResponse -> it.listAll
                     else -> null
                 }

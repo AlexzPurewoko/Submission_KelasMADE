@@ -50,6 +50,7 @@ class DetailViewModel(application: Application) : AndroidViewModel(application) 
     lateinit var typeContent: DetailActivityRepository.TypeContentContract
     lateinit var loadFinished: LiveData<Boolean>
     lateinit var isFavorite: MutableLiveData<Boolean>
+    lateinit var progress: MutableLiveData<Float>
 
     init {
         hasFirstInitialize.value = false
@@ -81,6 +82,7 @@ class DetailViewModel(application: Application) : AndroidViewModel(application) 
                     typeContent = repository.typeContentContract
                     loadFinished = repository.loadFinished
                     isFavorite = repository.isFavorite
+                    progress = repository.progress
                 }
             id.value = getInt(DetailActivity.EXTRA_ID)
         }

@@ -16,8 +16,7 @@ import id.apwdevs.app.catalogue.database.FavoriteDatabase
 import id.apwdevs.app.catalogue.entity.FavoriteEntity
 import id.apwdevs.app.catalogue.model.GenreModel
 import id.apwdevs.app.catalogue.model.ResettableItem
-import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
-import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
+import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemModel
 import id.apwdevs.app.catalogue.plugin.api.GetImageFiles
 
 fun View.visible() {
@@ -118,15 +117,13 @@ fun configureFavorite(context: Context, model: ResettableItem?): Boolean =
         val db = FavoriteDatabase.getInstance(context)
         val favDao = db.favoriteDao()
         val id: Int = when (it) {
-            is MovieAboutModel -> it.id
-            is TvAboutModel -> it.idTv
+            is MainDataItemModel -> it.id
             is FavoriteEntity -> it.id
             else -> -1
         }
         if (id == -1) return@let false
         val currentIsFavorite: Boolean = when (it) {
-            is MovieAboutModel -> it.isFavorite
-            is TvAboutModel -> it.isFavorite
+            is MainDataItemModel -> it.isFavorite
             is FavoriteEntity -> true
             else -> return@let false
         }
@@ -134,26 +131,12 @@ fun configureFavorite(context: Context, model: ResettableItem?): Boolean =
         when (currentIsFavorite) {
             false ->
                 when (it) {
-                    is MovieAboutModel -> {
+                    is MainDataItemModel -> {
                         FavoriteEntity(
                             it.id,
                             "${it.title}",
                             PublicContract.ContentDisplayType.MOVIE.type,
                             "${it.releaseDate}",
-                            it.overview,
-                            converToStr(it.actualGenreModel),
-                            it.posterPath,
-                            it.backdropPath,
-                            it.voteCount,
-                            it.voteAverage
-                        )
-                    }
-                    is TvAboutModel -> {
-                        FavoriteEntity(
-                            it.idTv,
-                            "${it.name}",
-                            PublicContract.ContentDisplayType.TV_SHOWS.type,
-                            "${it.firstAirDate}",
                             it.overview,
                             converToStr(it.actualGenreModel),
                             it.posterPath,
@@ -169,10 +152,7 @@ fun configureFavorite(context: Context, model: ResettableItem?): Boolean =
             true -> favDao.removeAt(id)
         }
         val isFav = favDao.isAnyColumnIn(id)
-        when (it) {
-            is MovieAboutModel -> it.isFavorite = isFav
-            is TvAboutModel -> it.isFavorite = isFav
-        }
+        if (it is MainDataItemModel) it.isFavorite = isFav
         isFav
     } ?: false
 

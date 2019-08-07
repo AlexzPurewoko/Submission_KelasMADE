@@ -12,8 +12,7 @@ import id.apwdevs.app.catalogue.model.GenreModel
 import id.apwdevs.app.catalogue.model.ResettableItem
 import id.apwdevs.app.catalogue.model.onDetail.OtherMovieAboutModel
 import id.apwdevs.app.catalogue.model.onDetail.OtherTVAboutModel
-import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
-import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
+import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemModel
 import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.api.GetMovies
 import id.apwdevs.app.catalogue.plugin.api.GetObjectFromServer
@@ -81,39 +80,22 @@ class DetailFavoriteActRepo(
 
                                 // build a models
                                 data1Obj.postValue(
-                                    when (typeContent.value) {
-                                        TypeContentContract.MOVIE -> MovieAboutModel(
-                                            id = id,
-                                            releaseDate = releaseDate,
-                                            posterPath = posterPath,
-                                            overview = overview,
-                                            genres = listOf(), // empty list
-                                            originalTitle = oriTitle,
-                                            originalLanguage = oriLang,
-                                            title = title,
-                                            backdropPath = backdropPath,
-                                            voteCount = voteCount,
-                                            voteAverage = voteAverage,
-                                            isFavorite = true,
-                                            actualGenreModel = genreModels
-                                        )
-                                        TypeContentContract.TV_SHOWS -> TvAboutModel(
-                                            idTv = id,
-                                            firstAirDate = releaseDate,
-                                            posterPath = posterPath,
-                                            overview = overview,
-                                            genres = listOf(), // empty list because it couldn't be used, move into actualGenreModel instead
-                                            originalName = oriTitle,
-                                            originalLanguage = oriLang,
-                                            name = title,
-                                            backdropPath = backdropPath,
-                                            voteCount = voteCount,
-                                            voteAverage = voteAverage,
-                                            isFavorite = true,
-                                            actualGenreModel = genreModels
-                                        )
-                                        else -> null
-                                    }
+                                    if (typeContent.value == TypeContentContract.MOVIE) MainDataItemModel(
+                                        id = id,
+                                        releaseDate = releaseDate,
+                                        posterPath = posterPath,
+                                        overview = overview,
+                                        genres = listOf(), // empty list
+                                        originalTitle = oriTitle,
+                                        originalLanguage = oriLang,
+                                        title = title,
+                                        backdropPath = backdropPath,
+                                        voteCount = voteCount,
+                                        voteAverage = voteAverage,
+                                        isFavorite = true,
+                                        actualGenreModel = genreModels
+                                    )
+                                    else null
                                 )
 
                                 data2Obj.postValue(otherModel)

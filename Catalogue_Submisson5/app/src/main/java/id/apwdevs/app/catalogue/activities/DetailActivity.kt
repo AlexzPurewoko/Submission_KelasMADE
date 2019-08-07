@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -29,8 +30,7 @@ import id.apwdevs.app.catalogue.adapter.DetailLayoutRecyclerAdapter
 import id.apwdevs.app.catalogue.adapter.RecyclerCastsAdapter
 import id.apwdevs.app.catalogue.adapter.RecyclerReviewAdapter
 import id.apwdevs.app.catalogue.model.onDetail.SocmedIDModel
-import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
-import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
+import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemModel
 import id.apwdevs.app.catalogue.plugin.ErrorAlertDialog
 import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.api.GetObjectFromServer
@@ -41,6 +41,7 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
 
     private lateinit var viewModel: DetailViewModel
     private lateinit var loadSnackbar: Snackbar
+    private lateinit var mTextProgress: TextView
     private var isFirstLaunched: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,6 +82,7 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
     private fun setSnackbar() {
         loadSnackbar = Snackbar.make(det_container, "", Snackbar.LENGTH_INDEFINITE)
         val inflate = LayoutInflater.from(this).inflate(R.layout.adapter_loading, det_container as ViewGroup, false)
+        mTextProgress = inflate.findViewById(R.id.progress_text)
         (loadSnackbar.view as FrameLayout).addView(inflate)
     }
 
@@ -151,7 +153,7 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
             })
 
             retError.observe(this@DetailActivity, Observer {
-                it?.let { error ->
+                it?.let { _ ->
                     it.cause?.printStackTrace()
                     ErrorAlertDialog().apply {
                         returnedError = it
@@ -190,21 +192,12 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
                 var voteAverage: Double? = null
                 var voteCount: Int? = null
                 it.apply {
-                    when (this) {
-                        is TvAboutModel -> {
-                            title = this.name
-                            backdropPath = this.backdropPath
-                            posterPath = this.posterPath
-                            voteAverage = this.voteAverage
-                            voteCount = this.voteCount
-                        }
-                        is MovieAboutModel -> {
-                            title = this.title
-                            backdropPath = this.backdropPath
-                            posterPath = this.posterPath
-                            voteAverage = this.voteAverage
-                            voteCount = this.voteCount
-                        }
+                    if (this is MainDataItemModel) {
+                        title = this.title
+                        backdropPath = this.backdropPath
+                        posterPath = this.posterPath
+                        voteAverage = this.voteAverage
+                        voteCount = this.voteCount
                     }
                 }
                 // sets the header
@@ -219,6 +212,11 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
                 )
                 /// sets the text title header
                 setTitleHeader(title, requireNotNull(voteAverage), requireNotNull(voteCount))
+            })
+
+            progress.observe(this@DetailActivity, Observer {
+                if (loadFinished.value == false && hasLoading.value == true)
+                    mTextProgress.text = getString(R.string.loading, it.toInt())
             })
 
             loadFinished.observe(this@DetailActivity, Observer {

@@ -11,8 +11,7 @@ import id.apwdevs.app.catalogue.entity.FavoriteResponse
 import id.apwdevs.app.catalogue.model.ClassResponse
 import id.apwdevs.app.catalogue.model.GenreModel
 import id.apwdevs.app.catalogue.model.GenreModelResponse
-import id.apwdevs.app.catalogue.model.onUserMain.MovieModelResponse
-import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModelResponse
+import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemResponse
 import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.api.GetMovies
 import id.apwdevs.app.catalogue.plugin.api.GetObjectFromServer
@@ -53,7 +52,7 @@ class FragmentContentRepository<T : ClassResponse>(
                 PublicContract.ContentDisplayType.MOVIE -> {
                     objServer.getObj(
                         GetMovies.getList(commands[0] as MainListViewModel.MovieTypeContract),
-                        MovieModelResponse::class.java as Class<T>,
+                        MainDataItemResponse::class.java as Class<T>,
                         "GetListMovie${commands[0]}",
                         this@FragmentContentRepository
                     )
@@ -61,7 +60,7 @@ class FragmentContentRepository<T : ClassResponse>(
                 PublicContract.ContentDisplayType.TV_SHOWS -> {
                     objServer.getObj(
                         GetTVShows.getList(commands[0] as MainListViewModel.TvTypeContract, 1),
-                        TvAboutModelResponse::class.java as Class<T>,
+                        MainDataItemResponse::class.java as Class<T>,
                         "GetListTv${commands[0]}",
                         this@FragmentContentRepository
                     )
@@ -99,13 +98,9 @@ class FragmentContentRepository<T : ClassResponse>(
             value?.let {
                 val favDao = db.favoriteDao()
                 when (it) {
-                    is MovieModelResponse ->
-                        it.contents?.forEach { movieModel ->
-                            movieModel.isFavorite = favDao.isAnyColumnIn(movieModel.id)
-                        }
-                    is TvAboutModelResponse ->
-                        it.contents?.forEach { tvModel ->
-                            tvModel.isFavorite = favDao.isAnyColumnIn(tvModel.idTv)
+                    is MainDataItemResponse ->
+                        it.contents?.forEach { dModel ->
+                            dModel.isFavorite = favDao.isAnyColumnIn(dModel.id)
                         }
                     else -> {
                     }
@@ -116,20 +111,7 @@ class FragmentContentRepository<T : ClassResponse>(
 
     private fun applyGenreIntoModels(response: T?) {
         response?.let {
-            if (it is MovieModelResponse)
-                it.contents?.forEach { content ->
-                    content.actualGenreModel = mutableListOf()
-                    content.genres.forEach { contentGenre ->
-                        for (modelGenre in requireNotNull(allGenre?.value)) {
-                            if (modelGenre.id == contentGenre) {
-                                content.actualGenreModel?.add(modelGenre)
-                                break
-                            }
-                        }
-
-                    }
-                }
-            if (it is TvAboutModelResponse)
+            if (it is MainDataItemResponse)
                 it.contents?.forEach { content ->
                     content.actualGenreModel = mutableListOf()
                     content.genres.forEach { contentGenre ->

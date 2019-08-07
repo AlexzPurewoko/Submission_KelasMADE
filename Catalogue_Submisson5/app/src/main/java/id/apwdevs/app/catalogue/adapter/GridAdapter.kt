@@ -19,8 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.entity.FavoriteEntity
 import id.apwdevs.app.catalogue.model.ResettableItem
-import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
-import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
+import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemModel
 import id.apwdevs.app.catalogue.plugin.SearchComponent
 import id.apwdevs.app.catalogue.plugin.api.GetObjectFromServer
 import id.apwdevs.app.catalogue.viewModel.MainListViewModel
@@ -93,17 +92,11 @@ class GridAdapter<T : ResettableItem>(
             var spanned1: SpannableString? = null
             var spanned2: SpannableString? = null
             when (obj) {
-                is MovieAboutModel -> {
+                is MainDataItemModel -> {
                     str1 = obj.title
                     str2 = obj.releaseDate
                     spanned1 = obj.titleSpan
                     spanned2 = obj.releaseDateSpan
-                }
-                is TvAboutModel -> {
-                    str1 = obj.name
-                    str2 = obj.firstAirDate
-                    spanned1 = obj.nameSpan
-                    spanned2 = obj.firstAirDateSpan
                 }
                 is FavoriteEntity -> {
                     str1 = obj.title
@@ -168,21 +161,13 @@ class GridAdapter<T : ResettableItem>(
             val backdropPath: String?
             val releaseDate: String?
             when (dataModel) {
-                is MovieAboutModel -> {
+                is MainDataItemModel -> {
                     title = dataModel.titleSpan ?: dataModel.title
                     voteAverage = dataModel.voteAverage
                     voteCount = dataModel.voteCount
                     posterPath = dataModel.posterPath
                     backdropPath = dataModel.backdropPath
                     releaseDate = dataModel.releaseDate
-                }
-                is TvAboutModel -> {
-                    title = dataModel.nameSpan ?: dataModel.name
-                    voteAverage = dataModel.voteAverage
-                    voteCount = dataModel.voteCount
-                    posterPath = dataModel.posterPath
-                    backdropPath = dataModel.backdropPath
-                    releaseDate = dataModel.firstAirDate
                 }
                 is FavoriteEntity -> {
                     title = dataModel.titleSpan ?: dataModel.title

@@ -7,8 +7,7 @@ import id.apwdevs.app.catalogue.model.ResettableItem
 import id.apwdevs.app.catalogue.model.onDetail.CreditsModel
 import id.apwdevs.app.catalogue.model.onDetail.ReviewResponse
 import id.apwdevs.app.catalogue.model.onDetail.SocmedIDModel
-import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
-import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
+import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemModel
 import id.apwdevs.app.catalogue.plugin.api.GetMovies
 import id.apwdevs.app.catalogue.plugin.api.GetObjectFromServer
 import id.apwdevs.app.catalogue.plugin.api.GetTVShows
@@ -30,6 +29,7 @@ abstract class DetailActivityRepository protected constructor(
     val data2Obj: MutableLiveData<ResettableItem> = MutableLiveData()
     val loadFinished: MutableLiveData<Boolean> = MutableLiveData()
     val isFavorite: MutableLiveData<Boolean> = MutableLiveData()
+    val progress: MutableLiveData<Float> = MutableLiveData()
 
     abstract val typeContentContract: TypeContentContract
 
@@ -39,7 +39,6 @@ abstract class DetailActivityRepository protected constructor(
 
     init {
         loadFinished.value = false
-        //isFavorite.value = false
     }
 
     fun load(id: Int) {
@@ -49,23 +48,31 @@ abstract class DetailActivityRepository protected constructor(
             retError.postValue(null)
 
             val objServer = GetObjectFromServer.getInstance(context)
+            updateProgress(10f)
             if (getDataAsync(id).await()) {
+                updateProgress(50f)
                 getCreditsAsync(id, typeContentContract, objServer).await()
+                updateProgress(65f)
                 getReviewsAsync(id, typeContentContract, objServer).await()
+                updateProgress(80f)
                 getSocmedIdAsync(id, typeContentContract, objServer).await()
+                updateProgress(95f)
             }
             isFavorite.postValue(
                 data1Obj.value.let {
-                    when (it) {
-                        is MovieAboutModel -> it.isFavorite
-                        is TvAboutModel -> it.isFavorite
-                        else -> false
-                    }
+                    if (it is MainDataItemModel)
+                        it.isFavorite
+                    else false
                 }
             )
+            updateProgress(100f)
             hasLoading.postValue(false)
             loadFinished.postValue(true)
         }
+    }
+
+    private fun updateProgress(progress: Float) {
+        this.progress.postValue(progress)
     }
 
     private fun getCreditsAsync(id: Int, type: TypeContentContract, objectFromServer: GetObjectFromServer) =

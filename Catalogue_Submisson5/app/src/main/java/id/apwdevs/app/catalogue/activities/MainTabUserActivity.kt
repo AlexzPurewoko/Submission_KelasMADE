@@ -23,8 +23,7 @@ import id.apwdevs.app.catalogue.fragment.FragmentContents
 import id.apwdevs.app.catalogue.fragment.FragmentListContainer
 import id.apwdevs.app.catalogue.fragment.HolderPageAdapter
 import id.apwdevs.app.catalogue.fragment.OnRequestRefresh
-import id.apwdevs.app.catalogue.model.onUserMain.MovieAboutModel
-import id.apwdevs.app.catalogue.model.onUserMain.TvAboutModel
+import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemModel
 import id.apwdevs.app.catalogue.plugin.ApplyLanguage
 import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.callbacks.FragmentListCallback
@@ -144,14 +143,8 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
                                     type
                                 )
                                 when (type) {
-                                    PublicContract.ContentDisplayType.TV_SHOWS -> {
-                                        (selected as TvAboutModel).let {
-                                            putExtra(DetailActivity.EXTRA_ID, it.idTv)
-                                            putExtra(DetailActivity.EXTRA_CONTENT_DETAILS, it)
-                                        }
-                                    }
-                                    PublicContract.ContentDisplayType.MOVIE -> {
-                                        (selected as MovieAboutModel).let {
+                                    PublicContract.ContentDisplayType.TV_SHOWS, PublicContract.ContentDisplayType.MOVIE -> {
+                                        (selected as MainDataItemModel).let {
                                             putExtra(DetailActivity.EXTRA_ID, it.id)
                                             putExtra(DetailActivity.EXTRA_CONTENT_DETAILS, it)
                                         }
@@ -181,20 +174,14 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
                                     type
                                 )
                                 when (type) {
-                                    PublicContract.ContentDisplayType.TV_SHOWS -> {
-                                        (selected as TvAboutModel).let {
-                                            putExtra(DetailActivity.EXTRA_ID, it.idTv)
-                                            putExtra(DetailActivity.EXTRA_CONTENT_DETAILS, it)
-                                        }
-                                    }
-                                    PublicContract.ContentDisplayType.MOVIE -> {
-                                        (selected as MovieAboutModel).let {
+                                    PublicContract.ContentDisplayType.TV_SHOWS, PublicContract.ContentDisplayType.MOVIE -> {
+                                        (selected as MainDataItemModel).let {
                                             putExtra(DetailActivity.EXTRA_ID, it.id)
                                             putExtra(DetailActivity.EXTRA_CONTENT_DETAILS, it)
                                         }
                                     }
                                     PublicContract.ContentDisplayType.FAVORITES -> {
-                                        (selected as MovieAboutModel).let {
+                                        (selected as FavoriteEntity).let {
                                             putExtra(DetailActivity.EXTRA_ID, it.id)
                                             putExtra(DetailActivity.EXTRA_CONTENT_DETAILS, it)
                                         }
