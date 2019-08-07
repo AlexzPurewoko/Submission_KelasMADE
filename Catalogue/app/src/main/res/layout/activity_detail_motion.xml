@@ -130,8 +130,10 @@
             app:layout_constraintEnd_toEndOf="@+id/actdetail_favorite"
             app:layout_constraintTop_toTopOf="@+id/actdetail_favorite"
             app:layout_constraintBottom_toBottomOf="@+id/actdetail_favorite"
-            app:layout_constraintStart_toStartOf="@+id/actdetail_favorite"/>
+            app:layout_constraintStart_toStartOf="@+id/actdetail_favorite"
+            android:contentDescription="@string/item_favorite_contentdesc"/>
 
+    <!-- disable background... because this is background holder for favorite -->
     <ImageView
             android:backgroundTint="@android:color/transparent"
             app:srcCompat="@drawable/ic_favorite_border_24dp"
@@ -144,5 +146,5 @@
             app:layout_constraintEnd_toEndOf="@+id/avail_socmed"
             app:layout_constraintTop_toTopOf="@+id/actdetail_image_header"
             android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toBottomOf="@+id/actdetail_image_header"/>
+            app:layout_constraintBottom_toBottomOf="@+id/actdetail_image_header" tools:ignore="ContentDescription"/>
 </androidx.constraintlayout.motion.widget.MotionLayout>
