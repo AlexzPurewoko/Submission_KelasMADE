@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="item_poster_width">120dp</dimen>
+    <dimen name="item_poster_height">180dp</dimen>
+    <dimen name="item_poster_width_small">100dp</dimen>
+    <dimen name="item_poster_height_small">160dp</dimen>
+    <dimen name="cardview_grid_content_padding">10dp</dimen>
+    <dimen name="viewpager_user_marginstart">8dp</dimen>
+    <dimen name="viewpager_user_marginend">8dp</dimen>
+    <dimen name="actdetail_header_height">250dp</dimen>
+    <dimen name="socmed_icon_wh">15dp</dimen>
+</resources>

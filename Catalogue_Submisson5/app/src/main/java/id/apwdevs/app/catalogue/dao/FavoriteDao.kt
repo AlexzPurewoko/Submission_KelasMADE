@@ -1,5 +1,6 @@
 package id.apwdevs.app.catalogue.dao
 
+import android.database.Cursor
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -30,4 +31,10 @@ interface FavoriteDao {
 
     @Query("SELECT * FROM $tableName WHERE id LIKE :id")
     fun getItemAt(id: Int): FavoriteEntity?
+
+    @Query("SELECT * FROM $tableName")
+    fun getAllByCursor(): Cursor?
+
+    @Query("SELECT * FROM $tableName WHERE id LIKE :id")
+    fun getItemAtByCursor(id: Int): Cursor?
 }
