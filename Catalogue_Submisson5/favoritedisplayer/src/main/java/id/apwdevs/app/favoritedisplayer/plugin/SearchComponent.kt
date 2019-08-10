@@ -1,9 +1,9 @@
-package id.apwdevs.app.catalogue.plugin
+package id.apwdevs.app.favoritedisplayer.plugin
 
 import android.widget.Filter
 import android.widget.Filterable
-import id.apwdevs.app.catalogue.model.ResettableItem
 
+@Suppress("UNCHECKED_CAST")
 abstract class SearchComponent<T : ResettableItem> : Filterable {
 
     /**

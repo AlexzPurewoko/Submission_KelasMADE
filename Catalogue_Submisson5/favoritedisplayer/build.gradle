@@ -1,6 +1,9 @@
 apply plugin: 'com.android.application'
+
 apply plugin: 'kotlin-android'
+
 apply plugin: 'kotlin-android-extensions'
+
 apply plugin: 'kotlin-kapt'
 
 android {
@@ -25,19 +28,19 @@ android {
         }
     }
 
+
     packagingOptions {
         exclude 'META-INF/atomicfu.kotlin_module'
     }
 
 }
-
 androidExtensions {
     experimental = true
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
     implementation 'androidx.appcompat:appcompat:1.1.0-rc01'
     implementation 'androidx.core:core-ktx:1.0.2'
 
@@ -47,11 +50,12 @@ dependencies {
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'com.github.zawadz88.materialpopupmenu:material-popup-menu:3.4.0'
 
-    implementation 'com.amitshekhar.android:android-networking:1.0.2'
+    implementation 'com.github.bumptech.glide:glide:4.9.0'
     implementation 'com.jaeger.statusbarutil:library:1.5.1'
     implementation 'com.neovisionaries:nv-i18n:1.22'
 
-// Lifecycle components
+
+    // Lifecycle components
     implementation "androidx.lifecycle:lifecycle-extensions:$rootProject.archLifecycleVersion"
     kapt "androidx.lifecycle:lifecycle-compiler:$rootProject.archLifecycleVersion"
     androidTestImplementation "androidx.arch.core:core-testing:$rootProject.androidxArchVersion"
@@ -63,6 +67,7 @@ dependencies {
 // Coroutines
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$rootProject.coroutines"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$rootProject.coroutines"
+
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'

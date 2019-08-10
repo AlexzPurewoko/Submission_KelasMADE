@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">FavoriteDisplayer</string>
+    <string name="movie_title">Movies</string>
+    <string name="tv_title">Tv Shows</string>
+    <string name="go_into_activity">Go Into Activity</string>
+    <string name="err_text">No Data is available. Want to add it?</string>
+    <string name="item_favorite_contentdesc">Add / Remove this item from favorites</string>
+    <string name="img_poster_contentdesc">Describe an image poster of a movies or tv</string>
 </resources>

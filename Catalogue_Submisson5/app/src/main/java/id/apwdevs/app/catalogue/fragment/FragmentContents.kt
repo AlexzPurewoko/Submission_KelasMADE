@@ -13,7 +13,7 @@ import android.widget.ScrollView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -53,7 +53,10 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(MainListViewModel::class.java)
+        viewModel =
+            ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory(requireActivity().application)).get(
+                MainListViewModel::class.java
+            )
         viewModel.applyConfiguration()
         recyclerGridAdapter =
             GridAdapter(requireContext(), viewModel.cardItemBg, viewModel.colorredTextState, viewModel.backdropSize)

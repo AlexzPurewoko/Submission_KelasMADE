@@ -24,6 +24,7 @@ object PublicContract {
     const val EXTERNAL_ID_QNAME = "external_ids"
     const val API_KEY_QNAME = "api_key"
 
+
     object DatabaseContract {
         const val DATABASE_FAVORITE_NAME = "catalogue_data"
         const val TABLE_GENRES = "all_genre"

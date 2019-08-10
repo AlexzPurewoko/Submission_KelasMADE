@@ -1,8 +1,8 @@
-package id.apwdevs.app.catalogue.plugin
+package id.apwdevs.app.favoritedisplayer.plugin
 
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import id.apwdevs.app.catalogue.R
+import id.apwdevs.app.favoritedisplayer.R
 
 
 class ItemClickSupport private constructor(private val mRecyclerView: RecyclerView) {

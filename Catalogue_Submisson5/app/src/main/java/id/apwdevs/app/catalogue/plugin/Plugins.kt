@@ -18,7 +18,7 @@ import id.apwdevs.app.catalogue.model.GenreModel
 import id.apwdevs.app.catalogue.model.ResettableItem
 import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemModel
 import id.apwdevs.app.catalogue.plugin.api.GetImageFiles
-
+import id.apwdevs.app.catalogue.provider.FavoriteProvider
 fun View.visible() {
     visibility = View.VISIBLE
 }
@@ -153,6 +153,9 @@ fun configureFavorite(context: Context, model: ResettableItem?): Boolean =
         }
         val isFav = favDao.isAnyColumnIn(id)
         if (it is MainDataItemModel) it.isFavorite = isFav
+        if (isFav) {
+            context.contentResolver.notifyChange(FavoriteProvider.BASE_URI_FAVORITE.build(), null)
+        }
         isFav
     } ?: false
 

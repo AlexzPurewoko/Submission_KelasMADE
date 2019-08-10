@@ -1,82 +1,58 @@
 package id.apwdevs.app.favoritedisplayer.fragment
 
 import android.content.Context
-import android.content.pm.ActivityInfo
+import android.content.Intent
 import android.graphics.Point
 import android.os.Bundle
-import android.os.Parcelable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ScrollView
+import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import id.apwdevs.app.catalogue.R
-import id.apwdevs.app.catalogue.activities.GetFromHostActivity
-import id.apwdevs.app.catalogue.adapter.GridAdapter
-import id.apwdevs.app.catalogue.adapter.ListAdapter
-import id.apwdevs.app.catalogue.entity.FavoriteResponse
-import id.apwdevs.app.catalogue.model.ClassResponse
-import id.apwdevs.app.catalogue.model.ResettableItem
-import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemResponse
-import id.apwdevs.app.catalogue.plugin.*
-import id.apwdevs.app.catalogue.plugin.callbacks.OnItemFragmentClickListener
-import id.apwdevs.app.catalogue.plugin.callbacks.OnSelectedFragment
-import id.apwdevs.app.catalogue.plugin.view.ErrorSectionAdapter
-import id.apwdevs.app.catalogue.plugin.view.SearchToolbarCard
-import id.apwdevs.app.catalogue.viewModel.MainListViewModel
+import id.apwdevs.app.favoritedisplayer.R
+import id.apwdevs.app.favoritedisplayer.adapter.ListAdapter
+import id.apwdevs.app.favoritedisplayer.model.FavoriteEntity
+import id.apwdevs.app.favoritedisplayer.plugin.ItemClickSupport
+import id.apwdevs.app.favoritedisplayer.plugin.OnFragmentCallbacks
+import id.apwdevs.app.favoritedisplayer.repository.MainListRepository
+import id.apwdevs.app.favoritedisplayer.viewmodel.MainListViewModel
 
-class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelectedFragment, OnRequestRefresh {
+
+class FragmentContents : Fragment(), OnRequestRefresh {
 
     private lateinit var refreshPage: SwipeRefreshLayout
-    private lateinit var errorLayout: ScrollView
     private lateinit var recyclerContent: RecyclerView
+    private lateinit var recyclerListAdapter: ListAdapter
 
-    internal lateinit var viewModel: MainListViewModel
-    private lateinit var errorAdapter: ErrorSectionAdapter
-    private lateinit var types: PublicContract.ContentDisplayType
-    private lateinit var contentReqTypes: Parcelable // order in MainListMovieModel and MainListTvModel or if this is fav pages its ordered into values of type
-    private lateinit var recyclerListAdapter: ListAdapter<ResettableItem>
-    private lateinit var recyclerGridAdapter: GridAdapter<ResettableItem>
-    private var mRequestIntoHostActivity: GetFromHostActivity? = null
+    private lateinit var mViewModel: MainListViewModel
+    private lateinit var mLayoutError: LinearLayout
+    private lateinit var mCardButton: CardView
 
-    var onItemClickListener: OnItemFragmentClickListener? = null
+    var onCallbacks: OnFragmentCallbacks? = null
+    @Deprecated("")
     private var onContentRequestAllRefresh: OnRequestRefresh? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(MainListViewModel::class.java)
-        viewModel.applyConfiguration()
-        recyclerGridAdapter =
-            GridAdapter(requireContext(), viewModel.cardItemBg, viewModel.colorredTextState, viewModel.backdropSize)
+        mViewModel = ViewModelProvider(
+            this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application)
+        ).get(MainListViewModel::class.java)
+        mViewModel.type = arguments?.getParcelable(EXTRA_CONTENT_TYPES)
         recyclerListAdapter = ListAdapter(
-            requireActivity() as AppCompatActivity,
-            viewModel.cardItemBg,
-            viewModel.colorredTextState,
-            viewModel.backdropSize
+            requireActivity() as AppCompatActivity
         ) {
-            viewModel.getAt(contentReqTypes, 1)
-            onContentRequestAllRefresh?.onForceRefresh(this@FragmentContents)
-        }
-
-        arguments?.apply {
-            types =
-                getParcelable(id.apwdevs.app.favoritedisplayer.fragment.FragmentContents.Companion.EXTRA_CONTENT_TYPES)
-            when (types) {
-                PublicContract.ContentDisplayType.MOVIE -> contentReqTypes =
-                    getParcelable<MainListViewModel.MovieTypeContract>(id.apwdevs.app.favoritedisplayer.fragment.FragmentContents.Companion.EXTRA_CONTENT_REQUESTED_TYPES)
-                PublicContract.ContentDisplayType.TV_SHOWS -> contentReqTypes =
-                    getParcelable<MainListViewModel.TvTypeContract>(id.apwdevs.app.favoritedisplayer.fragment.FragmentContents.Companion.EXTRA_CONTENT_REQUESTED_TYPES)
-                PublicContract.ContentDisplayType.FAVORITES -> contentReqTypes =
-                    getParcelable<PublicContract.ContentDisplayType>(id.apwdevs.app.favoritedisplayer.fragment.FragmentContents.Companion.EXTRA_CONTENT_REQUESTED_TYPES)
+            if (it) {
+                onCallbacks?.onFavoriteChanged()
             }
         }
     }
@@ -92,25 +68,39 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
         super.onViewCreated(view, savedInstanceState)
         recyclerContent = view.findViewById(R.id.fg_content_recycler)
         refreshPage = view.findViewById(R.id.swipe_content_refresh)
-        errorLayout = view.findViewById(R.id.error_section)
-        errorAdapter = ErrorSectionAdapter(errorLayout)
+        mLayoutError = view.findViewById(R.id.no_display_linear)
+        mCardButton = view.findViewById(R.id.card_button)
+        mCardButton.setOnClickListener {
+            Toast.makeText(requireContext(), "Hellelo", Toast.LENGTH_SHORT).show()
+            val intent = Intent(ACTION_LAUNCH_MAIN)
+            requireActivity().sendBroadcast(intent)
+        }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        // we have to obtain a value of ViewModel
-        initViewModel()
-        refreshPage.setOnRefreshListener {
-            viewModel.getAt(contentReqTypes, 1)
-        }
 
+        mViewModel.mFavList.observe(this, Observer {
+            setupPage(it)
+        })
+
+        mViewModel.hasLoading.observe(this, Observer {
+            refreshPage.isRefreshing = it
+            if (it) {
+                mLayoutError.visibility = View.GONE
+            }
+        })
+        // we have to obtain a value of ViewModel
+        refreshPage.setOnRefreshListener {
+            mViewModel.load()
+        }
+        mViewModel.load()
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         try {
-            mRequestIntoHostActivity = context as GetFromHostActivity
-            onContentRequestAllRefresh = context as OnRequestRefresh
+            onCallbacks = context as OnFragmentCallbacks
         } catch (e: ClassCastException) {
             Log.e("FragmentContents", "You Must Implement GetFromHostActivity to continue")
         }
@@ -118,75 +108,34 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
 
     override fun onDetach() {
         super.onDetach()
-        mRequestIntoHostActivity = null
-        onContentRequestAllRefresh = null
+        onCallbacks = null
     }
 
-    private fun initViewModel() {
-        viewModel.apply {
-
-            if (hasFirstInstantiate.value == false)
-                setup(types)
-            objData?.observe(this@FragmentContents, Observer {
-                setupRecycler(it, prevListMode.value ?: 0)
-            })
-            prevListMode.observe(this@FragmentContents, Observer {
-                setupRecycler(objData?.value, it)
-            })
-            isLoading?.observe(this@FragmentContents, Observer {
-                val prevCond = refreshPage.isRefreshing
-                refreshPage.isRefreshing = it
-
-                if (!it && prevCond) {
-                    recyclerListAdapter.notifyDataSetChanged()
-                    recyclerGridAdapter.notifyDataSetChanged()
-                }
-            })
-            retError?.observe(this@FragmentContents, Observer {
-                if (it == null) {
-                    recyclerContent.visible()
-                    errorAdapter.unDisplayError()
-                } else {
-                    recyclerContent.invisible()
-                    errorAdapter.displayError(it)
-                }
-            })
-
-        }
+    fun reload() {
+        mViewModel.load()
     }
 
-    private fun setupRecycler(page: ClassResponse?, listMode: Int) {
-
-        page.let {
+    fun setupPage(page: List<FavoriteEntity>?) {
+        page?.let {
+            if (it.isEmpty()) {
+                mLayoutError.visibility = View.VISIBLE
+                recyclerContent.visibility = View.GONE
+                return
+            }
             // set the layoutManager and the adapter
             recyclerContent.apply {
+
+                mLayoutError.visibility = View.GONE
+                recyclerContent.visibility = View.VISIBLE
                 // find the windowSize
+                visibility = View.VISIBLE
+                recyclerListAdapter.resetAllData(it)
                 val wSize = Point()
                 requireActivity().windowManager.defaultDisplay.getSize(wSize)
                 ItemClickSupport.removeFrom(this)
-                when (listMode) {
-                    PublicContract.RecyclerMode.MODE_LIST -> {
-                        layoutManager = LinearLayoutManager(context)
-                        adapter = recyclerListAdapter
-                        resetRecyclerListData(it)
-                        recyclerListAdapter.notifyDataSetChanged()
-                    }
-                    PublicContract.RecyclerMode.MODE_GRID -> {
-                        layoutManager = GridLayoutManager(context, calculateMaxColumn(context, wSize))
-                        adapter = recyclerGridAdapter
-                        resetRecyclerGridData(it)
-                        recyclerGridAdapter.notifyDataSetChanged()
-                    }
-                    PublicContract.RecyclerMode.MODE_STAGERRED_LIST -> {
-                        layoutManager = StaggeredGridLayoutManager(
-                            calculateMaxColumn(context, wSize),
-                            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                        )
-                        adapter = recyclerGridAdapter
-                        resetRecyclerGridData(it)
-                        recyclerGridAdapter.notifyDataSetChanged()
-                    }
-                }
+                layoutManager = LinearLayoutManager(context)
+                adapter = recyclerListAdapter
+                recyclerListAdapter.notifyDataSetChanged()
                 requestFocusFromTouch()
 
                 ItemClickSupport.addTo(this)?.onItemClickListener = object : ItemClickSupport.OnItemClickListener {
@@ -197,135 +146,33 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
                 }
 
             }
+            return
         }
+        mLayoutError.visibility = View.VISIBLE
     }
 
     private fun onRecyclerItemClicked(recyclerView: RecyclerView, position: Int, v: View) {
-        onItemClickListener?.onItemClicked(this, recyclerView, position, v)
-    }
-
-
-    private fun resetRecyclerListData(p: ClassResponse?) {
-        p.let {
-            recyclerListAdapter.resetAllData(
-                when (it) {
-                    is MainDataItemResponse -> it.contents
-                    is FavoriteResponse -> it.listAll
-                    else -> null
-                }
-            )
-        }
-    }
-
-    private fun resetRecyclerGridData(p: ClassResponse?) {
-        p.let {
-            recyclerGridAdapter.resetAllData(
-                when (it) {
-                    is MainDataItemResponse -> it.contents
-                    is FavoriteResponse -> it.listAll
-                    else -> null
-                }
-            )
-        }
-    }
-    ////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////// OVERRIDDEN FROM OnSearchCallback \\\\\\\\\\\\\\\\\\\\\\\\\\\\
-
-    override fun querySearch(view: View, query: CharSequence?, start: Int, before: Int, count: Int) {
-        when (viewModel.prevListMode.value) {
-            PublicContract.RecyclerMode.MODE_LIST -> {
-                if (query?.isNotBlank() == true) {
-                    resetRecyclerListData(viewModel.objData?.value)
-                    recyclerListAdapter.filter.filter(query)
-                }
-            }
-            PublicContract.RecyclerMode.MODE_GRID, PublicContract.RecyclerMode.MODE_STAGERRED_LIST -> {
-                resetRecyclerGridData(viewModel.objData?.value)
-                if (query?.isNotBlank() == true)
-                    recyclerGridAdapter.filter.filter(query)
-            }
-        }
-    }
-
-    override fun onSubmit(query: String) {
-
-    }
-
-    override fun onSearchCancelled() {
-        viewModel.let {
-            when (it.prevListMode.value) {
-                PublicContract.RecyclerMode.MODE_LIST -> {
-                    resetRecyclerListData(it.objData?.value)
-                    recyclerListAdapter.notifyDataSetChanged()
-                }
-                PublicContract.RecyclerMode.MODE_GRID, PublicContract.RecyclerMode.MODE_STAGERRED_LIST -> {
-                    resetRecyclerGridData(it.objData?.value)
-                    recyclerGridAdapter.notifyDataSetChanged()
-                }
-            }
-        }
-    }
-
-    override fun onTextCleared(searchHistory: String?) {
-    }
-
-    override fun onSearchStarted() {
-
-    }
-
-    override fun onListModeChange(listMode: Int) {
-        viewModel.prevListMode.postValue(listMode)
-    }
-    ///////////////////////////// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-    //////////////////////////////////////  OVERRIDDEN FROM OnSelectedFragment \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-
-    override fun start(fragment: Fragment, position: Int) {
-        Log.e("Start Fragment", "FragmentStart ${fragment.javaClass.simpleName}")
-        //initViewModel()
-        val listMode = mRequestIntoHostActivity.getListMode()
-        viewModel.apply {
-
-            when {
-                hasFirstInstantiate.value == false -> {
-                    prevListMode.value = listMode
-                    getAt(contentReqTypes, 1)
-                    hasFirstInstantiate.value = true
-                }
-                prevListMode.value != listMode -> prevListMode.value = listMode
-                types == PublicContract.ContentDisplayType.FAVORITES || hasForceLoadContent.value == true -> {
-                    getAt(contentReqTypes, 1)
-                    hasForceLoadContent.value = false
-                }
-            }
-        }
-
+        onCallbacks?.onItemClicked(this, recyclerView, position, v)
     }
     ////////////////////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
     override fun onForceRefresh(fragment: Fragment) {
         Log.d("SetsOnForce", "Sets to force load a fragment because due to database changes")
-        viewModel.hasForceLoadContent.value = true
+        mViewModel.load()
     }
 
     companion object {
-        private const val EXTRA_CONTENT_REQUESTED_TYPES = "CONTENT_REQ_TYPE"
         private const val EXTRA_CONTENT_TYPES = "CONTENT_TYPE"
+        const val ACTION_LAUNCH_MAIN = "id.apwdevs.app.catalogue.LAUNCH_MAIN_ACTIVITY"
+        const val ACTION_LAUNCH_DETAIL = "id.apwdevs.app.catalogue.LAUNCH_DETAIL_ACTIVITY"
 
         @JvmStatic
         internal fun newInstance(
-            typeOfContent: PublicContract.ContentDisplayType,
-            contentTypes: Parcelable
+            typeOfContent: MainListRepository.ContentDisplayType
         ): FragmentContents =
             FragmentContents().apply {
                 arguments = Bundle().apply {
-                    putParcelable(
-                        id.apwdevs.app.favoritedisplayer.fragment.FragmentContents.Companion.EXTRA_CONTENT_REQUESTED_TYPES,
-                        contentTypes
-                    )
-                    putParcelable(
-                        id.apwdevs.app.favoritedisplayer.fragment.FragmentContents.Companion.EXTRA_CONTENT_TYPES,
-                        typeOfContent
-                    )
+                    putParcelable(EXTRA_CONTENT_TYPES, typeOfContent)
                 }
             }
     }

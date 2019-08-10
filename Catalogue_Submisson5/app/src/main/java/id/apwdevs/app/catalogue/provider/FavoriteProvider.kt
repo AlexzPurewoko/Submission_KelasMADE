@@ -22,6 +22,15 @@ class FavoriteProvider : ContentProvider() {
         @JvmStatic
         val SCHEME = "content"
 
+        @JvmStatic
+        val BASE_URI_FAVORITE: Uri.Builder
+            get() {
+                return Uri.Builder().apply {
+                    scheme(SCHEME)
+                    authority(AUTHORITY)
+                    appendPath(FAVORITE_TABLE)
+                }
+            }
 
         private val sUriMatcher = UriMatcher(UriMatcher.NO_MATCH).apply {
             addURI(AUTHORITY, FAVORITE_TABLE, FAV_MATCH)
@@ -68,8 +77,8 @@ class FavoriteProvider : ContentProvider() {
 
     override fun update(uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<String>?): Int = -1
 
-    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?): Int =
-        favDb?.let {
+    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?): Int {
+        val retValue = favDb?.let {
             var deleted: Int = -1
             if (sUriMatcher.match(uri) == FAVORITE_ID) {
                 uri.lastPathSegment?.let { lastSegment ->
@@ -83,6 +92,12 @@ class FavoriteProvider : ContentProvider() {
             }
             deleted
         } ?: -1
+
+        if (retValue != -1) {
+            context?.contentResolver?.notifyChange(uri, null)
+        }
+        return retValue
+    }
 
     override fun getType(uri: Uri): String? = null
 
