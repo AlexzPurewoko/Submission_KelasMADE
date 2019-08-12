@@ -8,6 +8,8 @@ import android.graphics.Point
 import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.HandlerThread
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.ViewGroup
@@ -31,9 +33,11 @@ import id.apwdevs.app.catalogue.adapter.RecyclerCastsAdapter
 import id.apwdevs.app.catalogue.adapter.RecyclerReviewAdapter
 import id.apwdevs.app.catalogue.model.onDetail.SocmedIDModel
 import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemModel
+import id.apwdevs.app.catalogue.plugin.DataObserver
 import id.apwdevs.app.catalogue.plugin.ErrorAlertDialog
 import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.api.GetObjectFromServer
+import id.apwdevs.app.catalogue.provider.FavoriteProvider
 import id.apwdevs.app.catalogue.viewModel.DetailViewModel
 import kotlinx.android.synthetic.main.activity_detail_motion.*
 
@@ -43,6 +47,8 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
     private lateinit var loadSnackbar: Snackbar
     private lateinit var mTextProgress: TextView
     private var isFirstLaunched: Boolean = true
+    private var mContentHandlerThread: HandlerThread? = null
+    private var mObserver: DataObserver? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,7 +82,29 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
             viewModel.onClickFavoriteBtn(it)
 
         }
+        setupObserver()
+    }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        mObserver?.let {
+            contentResolver.unregisterContentObserver(it)
+        }
+        mContentHandlerThread?.quit()
+        mObserver = null
+        mContentHandlerThread = null
+    }
+
+    private fun setupObserver() {
+        mContentHandlerThread = HandlerThread("DetailDataObserver").apply {
+            start()
+            mObserver = DataObserver(Handler(looper)) {
+                viewModel.onDataChanged()
+            }
+            mObserver?.let {
+                contentResolver.registerContentObserver(FavoriteProvider.BASE_URI_FAVORITE.build(), true, it)
+            }
+        }
     }
 
     private fun setSnackbar() {

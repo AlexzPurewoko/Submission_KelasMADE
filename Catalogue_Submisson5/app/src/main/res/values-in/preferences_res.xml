@@ -56,4 +56,18 @@
         menyebabkan aplikasi crash
     </string>
 
+
+    <string name="release_today_reminder_title">Pengingat Keluaran Terbaru</string>
+    <string name="release_today_reminder_summaryOn">Selalu cek update dan ingatkan pengguna ketika ada Film atau acara
+        tv yang baru
+    </string>
+    <string name="release_today_reminder_summaryOff">Tidak akan memeriksa atau mengingatkan pengguna perihal acara Film
+        atau Siaran Tv terbaru
+    </string>
+
+    <string name="daily_reminder_title">Pengingat Harian</string>
+    <string name="daily_reminder_summaryOn">Selalu ingatkan pengguna setiap hari untuk membuka aplikasi secara rutin
+    </string>
+    <string name="daily_reminder_summaryOff">Tidak akan mengingatkan pengguna untuk membuka aplikasi ini</string>
+
 </resources>

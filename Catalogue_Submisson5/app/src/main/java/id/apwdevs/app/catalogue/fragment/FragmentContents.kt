@@ -43,7 +43,7 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
     internal lateinit var viewModel: MainListViewModel
     private lateinit var errorAdapter: ErrorSectionAdapter
     private lateinit var types: PublicContract.ContentDisplayType
-    private lateinit var contentReqTypes: Parcelable // order in MainListMovieModel and MainListTvModel or if this is fav pages its ordered into values of type
+    lateinit var contentReqTypes: Parcelable // order in MainListMovieModel and MainListTvModel or if this is fav pages its ordered into values of type
     private lateinit var recyclerListAdapter: ListAdapter<ResettableItem>
     private lateinit var recyclerGridAdapter: GridAdapter<ResettableItem>
     private var mRequestIntoHostActivity: GetFromHostActivity? = null
@@ -122,6 +122,10 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
         super.onDetach()
         mRequestIntoHostActivity = null
         onContentRequestAllRefresh = null
+    }
+
+    fun forceLoadContent(content: MainDataItemResponse?) {
+        viewModel.forceLoadIn(content)
     }
 
     private fun initViewModel() {

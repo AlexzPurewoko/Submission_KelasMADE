@@ -94,6 +94,10 @@ class MainListViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun forceLoadIn(content: ClassResponse?) {
+        repository?.forceLoadIn(content)
+    }
+
     @Parcelize
     enum class MovieTypeContract : Parcelable {
         DISCOVER,

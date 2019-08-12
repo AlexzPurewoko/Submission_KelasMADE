@@ -5,6 +5,8 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
+import android.os.HandlerThread
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
@@ -23,14 +25,23 @@ import id.apwdevs.app.catalogue.fragment.FragmentContents
 import id.apwdevs.app.catalogue.fragment.FragmentListContainer
 import id.apwdevs.app.catalogue.fragment.HolderPageAdapter
 import id.apwdevs.app.catalogue.fragment.OnRequestRefresh
+import id.apwdevs.app.catalogue.manager.BaseJobManager
 import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemModel
+import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemResponse
 import id.apwdevs.app.catalogue.plugin.ApplyLanguage
+import id.apwdevs.app.catalogue.plugin.DataObserver
 import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.callbacks.FragmentListCallback
 import id.apwdevs.app.catalogue.plugin.callbacks.OnItemFragmentClickListener
 import id.apwdevs.app.catalogue.plugin.view.SearchToolbarCard
+import id.apwdevs.app.catalogue.provider.FavoriteProvider
+import id.apwdevs.app.catalogue.workers.ReleaseTodayReminder
 import kotlinx.android.synthetic.main.activity_main_tab_user.*
 import kotlinx.android.synthetic.main.search_toolbar.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.*
 
 class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallback, FragmentListCallback,
@@ -44,6 +55,8 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
 
     private lateinit var searchToolbarCard: SearchToolbarCard
     private lateinit var listFragmentContainer: MutableList<Fragment>
+    private var mContentHandlerThread: HandlerThread? = null
+    private var mObserver: DataObserver? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_tab_user)
@@ -74,6 +87,85 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
         view_pager.offscreenPageLimit = 3
         setupTabs()
         setupVPager()
+        setupObserver()
+        startAllWorkers()
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        applyOptionBeforeLaunch(intent)
+    }
+
+    private fun applyOptionBeforeLaunch(nIntent: Intent?) {
+        nIntent?.apply {
+            if (getIntExtra(ReleaseTodayReminder.INTENT_FROM, 0) == ReleaseTodayReminder.FROM_REMINDER) {
+                val contentData = getParcelableExtra<MainDataItemResponse>(ReleaseTodayReminder.DISPLAY_CONTENT)
+                val contentType = getIntExtra(ReleaseTodayReminder.DISPLAY_TYPE, 0)
+                val oCType = PublicContract.ContentDisplayType.findId(contentType) ?: return
+                for ((idx, fg) in listFragmentContainer.withIndex()) {
+                    if (fg is FragmentListContainer && fg.type == oCType) {
+                        forceStart(idx, fg, ReleaseTodayReminder.FROM_REMINDER, oCType, contentData)
+                        break
+                    }
+                }
+
+            }
+            //(getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).cancel(getIntExtra(ReleaseTodayReminder.NOTIF_ID, 0))
+        }
+    }
+
+    private fun forceStart(
+        idx: Int,
+        fg: FragmentListContainer,
+        from: Int,
+        type: PublicContract.ContentDisplayType,
+        contentDataItemResponse: MainDataItemResponse
+    ) {
+        GlobalScope.launch(Dispatchers.Main) {
+            view_pager?.currentItem = idx
+            while (!fg.isVisible) delay(250)
+            fg.forceStartFragmentContent(from, type, contentDataItemResponse)
+        }
+    }
+
+    private fun startAllWorkers() {
+        val jobM = BaseJobManager.getInstance(applicationContext)
+        val sharedPref = getSharedPreferences(PublicContract.SHARED_PREF_GLOBAL_NAME, Context.MODE_PRIVATE)
+        if (sharedPref.getBoolean(getString(R.string.daily_reminder_key), true)) {
+            val timeStart = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, 8)
+                set(Calendar.MINUTE, 30)
+                set(Calendar.SECOND, 0)
+            }
+            if (timeStart.timeInMillis < System.currentTimeMillis()) {
+                timeStart.add(Calendar.DAY_OF_MONTH, 1)
+            }
+            jobM.start(0, timeStart)
+        }
+        if (sharedPref.getBoolean(getString(R.string.release_today_reminder_key), true)) {
+            val timeStart = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, 8)
+                set(Calendar.MINUTE, 30)
+                set(Calendar.SECOND, 0)
+            }
+            if (timeStart.timeInMillis < System.currentTimeMillis()) {
+                timeStart.add(Calendar.DAY_OF_MONTH, 1)
+            }
+            jobM.start(1, timeStart)
+        }
+    }
+
+    private fun setupObserver() {
+        mContentHandlerThread = HandlerThread("MainDataObserver").apply {
+            start()
+            mObserver = DataObserver(Handler(looper)) {
+                onDataHasChange(it)
+            }
+            mObserver?.let {
+                contentResolver.registerContentObserver(FavoriteProvider.BASE_URI_FAVORITE.build(), true, it)
+            }
+        }
     }
 
     override fun attachBaseContext(newBase: Context?) {
@@ -111,8 +203,14 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
     }
 
     override fun onDestroy() {
-        searchToolbarCard.close()
         super.onDestroy()
+        searchToolbarCard.close()
+        mObserver?.let {
+            contentResolver.unregisterContentObserver(it)
+        }
+        mContentHandlerThread?.quit()
+        mObserver = null
+        mContentHandlerThread = null
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -315,6 +413,14 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
                 it.onForceRefresh(fragment)
         }
     }
+
+    internal fun onDataHasChange(selfChange: Boolean) {
+        runOnUiThread {
+            if (!selfChange)
+                onForceRefresh(listFragmentContainer[view_pager.currentItem])
+        }
+    }
+
 }
 
 interface GetFromHostActivity {

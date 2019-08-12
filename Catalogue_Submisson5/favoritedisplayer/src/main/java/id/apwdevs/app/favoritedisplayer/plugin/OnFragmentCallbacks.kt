@@ -8,4 +8,5 @@ interface OnFragmentCallbacks {
     fun onItemClicked(fg: Fragment, recyclerView: RecyclerView, position: Int, v: View)
     fun onRequestRefresh(fragment: Fragment)
     fun onFavoriteChanged()
+    fun onRequestIntoMain()
 }

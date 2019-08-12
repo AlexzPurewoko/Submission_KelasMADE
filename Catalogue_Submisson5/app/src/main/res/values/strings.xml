@@ -103,4 +103,15 @@
     <string name="add_fav">Added Into Favorite</string>
     <string name="remove_fav">Removed from favorites</string>
 
+    <string-array name="daily_reminder_notiftitle">
+        <item>Let\'s Go back into MoTvCatalogue!</item>
+        <item>Daily Reminder</item>
+        <item>It seems any new Film/Tv Shows</item>
+    </string-array>
+    <string-array name="daily_reminder_notifcontent">
+        <item>Don\'t lost any updates, lets go back!</item>
+        <item>Remind you to go to application</item>
+        <item>Come on and find out any update availables</item>
+    </string-array>
+
 </resources>

@@ -21,14 +21,17 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
         <receiver
+                android:name=".receiver.StartExactJobReceiver"
+                android:enabled="true"
+                android:exported="true">
+        </receiver>
+        <receiver
                 android:name=".receiver.LaunchReceiver"
                 android:enabled="true"
                 android:exported="true">
             <intent-filter>
-                <action
-                        android:name="id.apwdevs.app.catalogue.LAUNCH_MAIN_ACTIVITY"/>
-                <action
-                        android:name="id.apwdevs.app.catalogue.LAUNCH_DETAIL_ACTIVITY"/>
+                <action android:name="id.apwdevs.app.catalogue.LAUNCH_MAIN_ACTIVITY"/>
+                <action android:name="id.apwdevs.app.catalogue.LAUNCH_DETAIL_ACTIVITY"/>
             </intent-filter>
         </receiver>
 
@@ -59,6 +62,7 @@
         </activity>
         <activity
                 android:name=".activities.MainTabUserActivity"
+                android:launchMode="singleTask"
                 android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

@@ -71,6 +71,7 @@ data class MainDataItemModel(
     }
 }
 
+@Parcelize
 data class MainDataItemResponse(
 
     @SerializedName("page")
@@ -87,4 +88,4 @@ data class MainDataItemResponse(
 
     var errorCode: Int = 0,
     var errorMessage: String? = null
-) : ClassResponse
+) : ClassResponse, Parcelable

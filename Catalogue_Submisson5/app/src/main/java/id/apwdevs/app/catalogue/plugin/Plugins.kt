@@ -159,6 +159,7 @@ fun configureFavorite(context: Context, model: ResettableItem?): Boolean =
         isFav
     } ?: false
 
+
 private fun converToStr(gModel: List<GenreModel>?): String {
     val sbuf = StringBuffer()
     gModel?.forEach {

@@ -198,6 +198,7 @@ class FragmentContentRepository<T : ClassResponse>(
     }
 
     @WorkerThread
+
     private fun addGenreIntoDb1Async(gDao: GenreDao, response: GenreModelResponse) = GlobalScope.async {
         gDao.addAll(response.allGenre)
     }
@@ -212,6 +213,19 @@ class FragmentContentRepository<T : ClassResponse>(
     }
 
     override fun onProgress(percent: Double) {
+    }
+
+    fun forceLoadIn(content: T?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            retError.postValue(null)
+            isLoading.postValue(true)
+            val db = FavoriteDatabase.getInstance(context)
+            val objServer = GetObjectFromServer.getInstance(context)
+            getGenreAsync(db, objServer).await()
+            applyGenreIntoModels(objData.value)
+            checkAndApplyFavorite(objData.value, db)
+            isLoading.postValue(false)
+        }
     }
 
 

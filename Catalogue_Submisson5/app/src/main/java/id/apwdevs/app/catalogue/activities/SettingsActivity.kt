@@ -24,6 +24,8 @@ class SettingsActivity : AppCompatActivity() {
     class SettingsFragment : PreferenceFragmentCompat() {
         private var cardBgStatus: SwitchPreferenceCompat? = null
         private var cardBgMode: ListPreference? = null
+        private var mDailyReminder: SwitchPreferenceCompat? = null
+        private var mReleaseTodayReminder: SwitchPreferenceCompat? = null
         private var backdropCardPref: ListPreference? = null
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
@@ -35,11 +37,30 @@ class SettingsActivity : AppCompatActivity() {
                 cardBgMode?.isEnabled = value
                 cardBgStatus?.isChecked = value
                 backdropCardPref?.isEnabled = value
+
                 value
             }
             val checked = cardBgStatus?.isChecked ?: false
             cardBgMode?.isEnabled = checked
             backdropCardPref?.isEnabled = checked
+            mDailyReminder?.setOnPreferenceChangeListener { preference, newValue ->
+                val value = newValue as Boolean
+                mDailyReminder?.setSummary(
+                    if (value) {
+                        R.string.daily_reminder_summaryOn
+                    } else R.string.daily_reminder_summaryOff
+                )
+                value
+            }
+            mReleaseTodayReminder?.setOnPreferenceChangeListener { preference, newValue ->
+                val value = newValue as Boolean
+                mReleaseTodayReminder?.setSummary(
+                    if (value) {
+                        R.string.release_today_reminder_summaryOn
+                    } else R.string.release_today_reminder_summaryOff
+                )
+                value
+            }
         }
 
         private fun <T : Preference> findPreference(@StringRes id: Int): T? = findPreference(getString(id))

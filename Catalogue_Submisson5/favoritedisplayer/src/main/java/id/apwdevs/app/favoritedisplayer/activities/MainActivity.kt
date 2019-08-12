@@ -132,11 +132,17 @@ class MainActivity : AppCompatActivity(), OnFragmentCallbacks {
 
 
     override fun onItemClicked(fg: Fragment, recyclerView: RecyclerView, position: Int, v: View) {
-        sendBroadcast(Intent(FragmentContents.ACTION_LAUNCH_DETAIL).also {
+        sendBroadcast(Intent(ACTION_LAUNCH_DETAIL).also {
             val adapter = recyclerView.adapter as ListAdapter
             val model = adapter.dataModel[position]
             it.putExtra(EXTRA_ID, model.id)
         })
+    }
+
+    override fun onRequestIntoMain() {
+        sendBroadcast(
+            Intent(ACTION_LAUNCH_MAIN)
+        )
     }
 
     override fun onRequestRefresh(fragment: Fragment) {
@@ -162,6 +168,8 @@ class MainActivity : AppCompatActivity(), OnFragmentCallbacks {
 
     companion object {
         const val EXTRA_ID = "EXTRA_CONTENT_ID"
+        const val ACTION_LAUNCH_MAIN = "id.apwdevs.app.catalogue.LAUNCH_MAIN_ACTIVITY"
+        const val ACTION_LAUNCH_DETAIL = "id.apwdevs.app.catalogue.LAUNCH_DETAIL_ACTIVITY"
     }
 
     private inner class VAdapter(p: FragmentManager) :

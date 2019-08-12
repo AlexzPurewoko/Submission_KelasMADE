@@ -2,6 +2,7 @@ package id.apwdevs.app.catalogue.plugin.api
 
 import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.viewModel.MainListViewModel.MovieTypeContract
+import java.util.*
 
 object GetMovies {
     fun getSocmedID(idMovies: Int): String =
@@ -32,5 +33,19 @@ object GetMovies {
 
     fun getAllGenre(languageString: String = "en-US"): String =
         "${PublicContract.URL_API}/${PublicContract.GENRE}/${PublicContract.MOVIE_DIR_PATH}/list?${PublicContract.API_KEY_QNAME}=${PublicContract.API_KEY}&language=$languageString"
+
+    fun getCurrentRelease(now: Calendar): String {
+        val year = now.get(Calendar.YEAR)
+        val month: String
+        now.get(Calendar.MONTH).apply {
+            when {
+                this < 10 -> month = "01"
+                else -> month = this.toString()
+            }
+        }
+        val date = now.get(Calendar.DAY_OF_MONTH)
+        val mDate = "$year-$month-$date"
+        return "${PublicContract.URL_API}/${PublicContract.DISCOVER_PATH}/${PublicContract.MOVIE_DIR_PATH}?${PublicContract.API_KEY_QNAME}=${PublicContract.API_KEY}&primary_release_date.gte=$mDate&primary_release_date.lte=$mDate"
+    }
 
 }

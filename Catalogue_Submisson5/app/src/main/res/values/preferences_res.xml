@@ -98,4 +98,17 @@
     </string-array>
 
 
+    <string name="daily_reminder_key" translatable="false">daily_reminder</string>
+    <bool name="daily_reminder_default">true</bool>
+    <string name="daily_reminder_title">Daily Reminder</string>
+    <string name="daily_reminder_summaryOn">Always remember me to open this application</string>
+    <string name="daily_reminder_summaryOff">Don\'t remember me to open this application</string>
+
+    <string name="release_today_reminder_key" translatable="false">release_today_reminder</string>
+    <bool name="release_today_reminder_default">true</bool>
+    <string name="release_today_reminder_title">Release Today Reminder</string>
+    <string name="release_today_reminder_summaryOn">Always checks and notify users from Movie or Tv Shows update
+    </string>
+    <string name="release_today_reminder_summaryOff">Don\'t check Tv or Movie update</string>
+
 </resources>

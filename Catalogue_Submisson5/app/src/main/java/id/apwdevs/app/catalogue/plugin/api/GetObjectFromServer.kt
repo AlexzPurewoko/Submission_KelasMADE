@@ -117,6 +117,36 @@ class GetObjectFromServer private constructor(appContext: Context) {
 
     }
 
+    @Suppress("UNCHECKED_CAST")
+    fun <T> getSynchronousObj(
+        url: String,
+        cls: Class<T>,
+        tag: String,
+        callbacks: GetObjectFromServerCallback<T>? = null,
+        priority: Priority = Priority.LOW,
+        connectTimeOut: Int = 15
+    ): T? {
+        val androidNet = getAndroidNet(
+            url,
+            tag,
+            priority,
+            connectTimeOut
+        ).setDownloadProgressListener { bytesDownloaded, totalBytes ->
+            if (weakContext.get() == null) {
+                AndroidNetworking.cancel(tag)
+            } else
+                callbacks?.onProgress((bytesDownloaded * 100 / totalBytes).toDouble())
+        }
+        val result = androidNet.executeForObject(cls)
+        if (result.isSuccess) return result.result as T?
+        else {
+            callbacks?.onFailed(composeError(result.error))
+            Log.e(tag, result.error.errorBody, result.error.cause)
+            return null
+        }
+
+    }
+
     suspend fun getResponseAsString(
         url: String,
         tag: String,

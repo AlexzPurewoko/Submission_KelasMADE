@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import id.apwdevs.app.catalogue.R
+import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemResponse
 import id.apwdevs.app.catalogue.plugin.CoroutineContextProvider
 import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.callbacks.FragmentListCallback
@@ -24,6 +25,8 @@ import id.apwdevs.app.catalogue.plugin.callbacks.OnSelectedFragment
 import id.apwdevs.app.catalogue.plugin.view.SearchToolbarCard
 import id.apwdevs.app.catalogue.viewModel.MainListViewModel.MovieTypeContract
 import id.apwdevs.app.catalogue.viewModel.MainListViewModel.TvTypeContract
+import id.apwdevs.app.catalogue.workers.ReleaseTodayReminder
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -211,6 +214,40 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
     override fun onDetach() {
         super.onDetach()
         onItemClickListener = null
+    }
+
+    fun forceStartFragmentContent(
+        from: Int,
+        type: PublicContract.ContentDisplayType,
+        contentData: MainDataItemResponse
+    ) {
+
+        if (from == ReleaseTodayReminder.FROM_REMINDER) {
+            loop@ for ((idx, fg) in mFragments.withIndex()) {
+                when (type) {
+                    PublicContract.ContentDisplayType.MOVIE ->
+                        if (fg is FragmentContents && fg.contentReqTypes == MovieTypeContract.DISCOVER) {
+                            forceStart(idx, fg, contentData)
+                            break@loop
+                        }
+                    PublicContract.ContentDisplayType.TV_SHOWS ->
+                        if (fg is FragmentContents && fg.contentReqTypes == TvTypeContract.DISCOVER) {
+                            forceStart(idx, fg, contentData)
+                            break@loop
+                        }
+                    else -> break@loop
+                }
+            }
+
+        }
+    }
+
+    private fun forceStart(idx: Int, fg: FragmentContents, contentData: MainDataItemResponse) {
+        GlobalScope.launch(Dispatchers.Main) {
+            vpager.currentItem = idx
+            while (!fg.isVisible) delay(400)
+            fg.forceLoadContent(contentData)
+        }
     }
 
     private fun startPrepareFragment(position: Int) {

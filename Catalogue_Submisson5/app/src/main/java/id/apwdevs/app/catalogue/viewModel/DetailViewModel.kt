@@ -14,10 +14,12 @@ import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.activities.DetailActivity
 import id.apwdevs.app.catalogue.adapter.RecyclerCastsAdapter
 import id.apwdevs.app.catalogue.adapter.RecyclerReviewAdapter
+import id.apwdevs.app.catalogue.database.FavoriteDatabase
 import id.apwdevs.app.catalogue.model.ResettableItem
 import id.apwdevs.app.catalogue.model.onDetail.CreditsModel
 import id.apwdevs.app.catalogue.model.onDetail.ReviewResponse
 import id.apwdevs.app.catalogue.model.onDetail.SocmedIDModel
+import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemModel
 import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.api.GetObjectFromServer
 import id.apwdevs.app.catalogue.plugin.configureFavorite
@@ -122,6 +124,21 @@ class DetailViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch(Dispatchers.IO) {
             val fav = configureFavorite(v.context, data1Obj.value)
             isFavorite.postValue(fav)
+        }
+    }
+
+    fun onDataChanged() {
+        val favoriteDao = FavoriteDatabase.getInstance(getApplication()).favoriteDao()
+        id.value?.let {
+            val isFav = favoriteDao.isAnyColumnIn(it)
+            isFavorite.postValue(isFav)
+            isAnyChangesMade.postValue(true)
+            viewModelScope.launch(Dispatchers.Main) {
+                data1Obj.value?.let {
+                    if (it is MainDataItemModel)
+                        it.isFavorite = isFav
+                }
+            }
         }
     }
 

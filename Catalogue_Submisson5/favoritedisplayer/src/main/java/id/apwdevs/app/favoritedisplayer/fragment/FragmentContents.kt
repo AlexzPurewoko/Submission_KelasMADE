@@ -1,7 +1,6 @@
 package id.apwdevs.app.favoritedisplayer.fragment
 
 import android.content.Context
-import android.content.Intent
 import android.graphics.Point
 import android.os.Bundle
 import android.util.Log
@@ -9,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
@@ -71,9 +69,7 @@ class FragmentContents : Fragment(), OnRequestRefresh {
         mLayoutError = view.findViewById(R.id.no_display_linear)
         mCardButton = view.findViewById(R.id.card_button)
         mCardButton.setOnClickListener {
-            Toast.makeText(requireContext(), "Hellelo", Toast.LENGTH_SHORT).show()
-            val intent = Intent(ACTION_LAUNCH_MAIN)
-            requireActivity().sendBroadcast(intent)
+            onCallbacks?.onRequestIntoMain()
         }
     }
 
@@ -163,8 +159,6 @@ class FragmentContents : Fragment(), OnRequestRefresh {
 
     companion object {
         private const val EXTRA_CONTENT_TYPES = "CONTENT_TYPE"
-        const val ACTION_LAUNCH_MAIN = "id.apwdevs.app.catalogue.LAUNCH_MAIN_ACTIVITY"
-        const val ACTION_LAUNCH_DETAIL = "id.apwdevs.app.catalogue.LAUNCH_DETAIL_ACTIVITY"
 
         @JvmStatic
         internal fun newInstance(

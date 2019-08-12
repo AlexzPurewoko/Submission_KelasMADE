@@ -99,4 +99,15 @@
     <string name="loading">Mempersiapkan Data…%1$d%%</string>
     <string name="add_fav">Ditambahkan ke Favorit</string>
     <string name="remove_fav">Dihapus dari favorit</string>
+
+    <string-array name="daily_reminder_notiftitle">
+        <item>Ayo, Buka kembali Aplikasi Katalog!</item>
+        <item>Pengingat Harian</item>
+        <item>Nampaknya Ada Update Terbaru Nih!</item>
+    </string-array>
+    <string-array name="daily_reminder_notifcontent">
+        <item>Jangan sampai ketinggalan update terkini, ayo buka aplikasi lagi!</item>
+        <item>Mengingatkanmu untuk kembali ke aplikasi</item>
+        <item>Buka dan cari update terkini dari Acara Tv maupun Film</item>
+    </string-array>
 </resources>
