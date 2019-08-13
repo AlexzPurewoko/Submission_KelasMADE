@@ -245,6 +245,7 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
     private fun forceStart(idx: Int, fg: FragmentContents, contentData: MainDataItemResponse) {
         GlobalScope.launch(Dispatchers.Main) {
             vpager.currentItem = idx
+            fg.isRunWithoutLoadFirst = true
             while (!fg.isVisible) delay(400)
             fg.forceLoadContent(contentData)
         }

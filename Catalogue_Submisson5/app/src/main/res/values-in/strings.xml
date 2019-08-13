@@ -99,6 +99,7 @@
     <string name="loading">Mempersiapkan Data…%1$d%%</string>
     <string name="add_fav">Ditambahkan ke Favorit</string>
     <string name="remove_fav">Dihapus dari favorit</string>
+    <string name="time_picker_allow_24">Pakai format 24 jam</string>
 
     <string-array name="daily_reminder_notiftitle">
         <item>Ayo, Buka kembali Aplikasi Katalog!</item>

@@ -6,6 +6,8 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.media.RingtoneManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.work.Worker
@@ -15,6 +17,11 @@ import id.apwdevs.app.catalogue.activities.MainTabUserActivity
 import java.util.*
 
 class DailyReminderNotif(context: Context, jobParams: WorkerParameters) : Worker(context, jobParams) {
+    companion object {
+        const val INTENT_FROM_DAILY_REMINDER: Int = 0xffaa
+        const val NOTIF_ID = 100
+    }
+
     override fun doWork(): Result {
         sendNotification()
         return Result.success()
@@ -33,12 +40,19 @@ class DailyReminderNotif(context: Context, jobParams: WorkerParameters) : Worker
             setLargeIcon(BitmapFactory.decodeResource(applicationContext.resources, R.mipmap.ic_launcher))
             setContentIntent(
                 PendingIntent.getActivity(
-                    applicationContext, 0, Intent(
+                    applicationContext, NOTIF_ID, Intent(
                         applicationContext,
                         MainTabUserActivity::class.java
-                    ), 0
+                    ).apply {
+                        putExtra(ReleaseTodayReminder.INTENT_FROM, INTENT_FROM_DAILY_REMINDER)
+                        putExtra(ReleaseTodayReminder.NOTIF_ID, NOTIF_ID)
+                    }, PendingIntent.FLAG_UPDATE_CURRENT
                 )
             )
+            priority = NotificationCompat.PRIORITY_HIGH
+            setVibrate(longArrayOf(1000, 500, 500, 1000))
+            setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+            setLights(Color.RED, 1000, 500)
         }
 
         val manager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -46,11 +60,11 @@ class DailyReminderNotif(context: Context, jobParams: WorkerParameters) : Worker
             manager.createNotificationChannel(
                 NotificationChannel(
                     channelId,
-                    "MCobaNotifHEllo",
+                    "Daily Reminder Notification",
                     NotificationManager.IMPORTANCE_DEFAULT
                 )
             )
         }
-        manager.notify(100, notifBuilder.build())
+        manager.notify(NOTIF_ID, notifBuilder.build())
     }
 }

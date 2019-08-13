@@ -36,6 +36,11 @@
                 app:defaultValue="@bool/daily_reminder_default"
                 app:title="@string/daily_reminder_title"
                 app:summary="@string/daily_reminder_summaryOn"/>
+        <Preference
+                app:iconSpaceReserved="false"
+                app:key="@string/daily_reminder_time_key"
+                app:title="@string/daily_reminder_time_title"
+                app:defaultValue="@string/daily_reminder_time_default"/>
 
         <SwitchPreferenceCompat
                 app:iconSpaceReserved="false"
@@ -43,6 +48,13 @@
                 app:defaultValue="@bool/release_today_reminder_default"
                 app:title="@string/release_today_reminder_title"
                 app:summary="@string/release_today_reminder_summaryOn"/>
+        <Preference
+                app:iconSpaceReserved="false"
+                app:key="@string/release_today_reminder_time_key"
+                app:title="@string/release_today_reminder_time_title"
+                app:defaultValue="@string/release_today_reminder_time_default"/>
+
+
     </PreferenceCategory>
 
     <PreferenceCategory

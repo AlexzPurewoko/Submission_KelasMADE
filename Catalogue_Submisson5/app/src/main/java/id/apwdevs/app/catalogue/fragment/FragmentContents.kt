@@ -47,6 +47,7 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
     private lateinit var recyclerListAdapter: ListAdapter<ResettableItem>
     private lateinit var recyclerGridAdapter: GridAdapter<ResettableItem>
     private var mRequestIntoHostActivity: GetFromHostActivity? = null
+    var isRunWithoutLoadFirst: Boolean = false
 
     var onItemClickListener: OnItemFragmentClickListener? = null
     private var onContentRequestAllRefresh: OnRequestRefresh? = null
@@ -294,7 +295,9 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
             when {
                 hasFirstInstantiate.value == false -> {
                     prevListMode.value = listMode
-                    getAt(contentReqTypes, 1)
+                    if (!isRunWithoutLoadFirst)
+                        getAt(contentReqTypes, 1)
+                    isRunWithoutLoadFirst = false
                     hasFirstInstantiate.value = true
                 }
                 prevListMode.value != listMode -> prevListMode.value = listMode

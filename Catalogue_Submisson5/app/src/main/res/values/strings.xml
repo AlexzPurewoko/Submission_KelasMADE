@@ -102,6 +102,7 @@
     <string name="loading">Loading Data…%1$d%%</string>
     <string name="add_fav">Added Into Favorite</string>
     <string name="remove_fav">Removed from favorites</string>
+    <string name="time_picker_allow_24">Use 24 hour format</string>
 
     <string-array name="daily_reminder_notiftitle">
         <item>Let\'s Go back into MoTvCatalogue!</item>

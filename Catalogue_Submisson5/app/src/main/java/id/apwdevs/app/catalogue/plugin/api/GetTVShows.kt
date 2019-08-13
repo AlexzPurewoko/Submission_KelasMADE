@@ -51,6 +51,6 @@ object GetTVShows {
         }
         val date = now.get(Calendar.DAY_OF_MONTH)
         val mDate = "$year-$month-$date"
-        return "${PublicContract.URL_API}/${PublicContract.DISCOVER_PATH}/${PublicContract.TV_DIR_PATH}?${PublicContract.API_KEY_QNAME}=${PublicContract.API_KEY}&primary_release_date.gte=$mDate&primary_release_date.lte=$mDate"
+        return "${PublicContract.URL_API}/${PublicContract.DISCOVER_PATH}/${PublicContract.TV_DIR_PATH}?${PublicContract.API_KEY_QNAME}=${PublicContract.API_KEY}&first_air_date.gte=$mDate&first_air_date.lte=$mDate"
     }
 }

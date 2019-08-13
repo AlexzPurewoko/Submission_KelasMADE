@@ -111,4 +111,16 @@
     </string>
     <string name="release_today_reminder_summaryOff">Don\'t check Tv or Movie update</string>
 
+    <string name="daily_reminder_time_key" translatable="false">daily_reminder_time</string>
+    <string name="daily_reminder_time_title">Daily Reminder Time</string>
+    <string name="daily_reminder_time_default" translatable="false">07:00</string>
+    <string name="daily_reminder_time_summaryOn">The Time to Run Daily Reminder is set up into %1$s</string>
+    <string name="daily_reminder_time_summaryOff">Daily Reminder is not enabled</string>
+
+    <string name="release_today_reminder_time_key" translatable="false">release_today_reminder_time</string>
+    <string name="release_today_reminder_time_title">Release Reminder Time</string>
+    <string name="release_today_reminder_time_default" translatable="false">08:00</string>
+    <string name="release_today_reminder_time_summaryOn">The Time to Run Release Today Reminder is set up into %1$s
+    </string>
+    <string name="release_today_reminder_time_summaryOff">Release Today Reminder is not enabled</string>
 </resources>

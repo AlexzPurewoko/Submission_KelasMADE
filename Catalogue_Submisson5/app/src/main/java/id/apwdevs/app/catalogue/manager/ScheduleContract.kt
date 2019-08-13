@@ -19,14 +19,14 @@ object ScheduleContract {
         PendingJobs(0x4ab, "DailyReleaseToday", ReleaseTodayReminder::class.java, true, false)
     )
 
-    fun buildIntoPendingIntent(context: Context, position: Int, calendar: Calendar): PendingIntent? {
+    fun buildIntoPendingIntent(context: Context, position: Int, calendar: Calendar, flags: Int = 0): PendingIntent? {
         if (position !in 0 until listPendingJobs.size) return null
         val pendingJob = listPendingJobs[position]
         val intent = Intent(context, StartExactJobReceiver::class.java).apply {
             putExtra(JOB_SELF_PARAMS, pendingJob)
             putExtra(RUN_EXACT_TIME_NOW, calendar.timeInMillis)
         }
-        return PendingIntent.getBroadcast(context, pendingJob.jobId, intent, 0)
+        return PendingIntent.getBroadcast(context, pendingJob.jobId, intent, flags)
     }
 
     fun getId(position: Int): Int =

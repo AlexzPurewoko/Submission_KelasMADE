@@ -70,4 +70,14 @@
     </string>
     <string name="daily_reminder_summaryOff">Tidak akan mengingatkan pengguna untuk membuka aplikasi ini</string>
 
+
+    <string name="daily_reminder_time_title">Waktu Pengingat Harian</string>
+    <string name="daily_reminder_time_summaryOn">Waktu untuk operasi Pengingat Harian diatur pada jam %1$s</string>
+    <string name="daily_reminder_time_summaryOff">Pengingat Harian tidak diaktifkan</string>
+
+    <string name="release_today_reminder_time_title">Waktu Pengingat Terbaru</string>
+    <string name="release_today_reminder_time_summaryOn">Waktu untuk operasi Pengingat Keluaran Terbaru diatur pada jam
+        %1$sThe Time to Run Release Today Reminder is set up into %1$s
+    </string>
+    <string name="release_today_reminder_time_summaryOff">Pengingat Keluaran Terbaru tidak diaktifkan</string>
 </resources>

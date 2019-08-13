@@ -6,7 +6,9 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.Typeface
+import android.media.RingtoneManager
 import android.os.Build
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
@@ -113,6 +115,10 @@ class ReleaseTodayReminder(context: Context, jobParams: WorkerParameters) : Coro
                     }
                     it.setBigContentTitle(nTitle)
                     it.setSummaryText(nSummary)
+                    priority = NotificationCompat.PRIORITY_HIGH
+                    setVibrate(longArrayOf(1000, 500, 1000, 1000))
+                    setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                    setLights(Color.BLUE, 1000, 500)
                 })
 
                 val intentTo = Intent(applicationContext, MainTabUserActivity::class.java).apply {
@@ -121,23 +127,16 @@ class ReleaseTodayReminder(context: Context, jobParams: WorkerParameters) : Coro
                     putExtra(NOTIF_ID, notifId)
                     putExtra(DISPLAY_TYPE, displayType.type)
                     putExtra(DISPLAY_CONTENT, mainDataItemResponse)
-                    /*putExtras(Bundle().also {
-                        it.putInt(INTENT_FROM, FROM_REMINDER)
-                        it.putInt(NOTIF_ID, notifId)
-                        it.putParcelable(DISPLAY_TYPE, displayType)
-                        it.putParcelable(DISPLAY_CONTENT, mainDataItemResponse)
-                    })*/
 
                 }
 
                 setContentIntent(
                     PendingIntent.getActivity(
                         applicationContext, notifId, intentTo, PendingIntent.FLAG_UPDATE_CURRENT
-                    ).also {
-                    }
+                    )
                 )
                 setGroup(GROUP_KEY_NOTIF)
-                //setGroupSummary(true)
+                setGroupSummary(true)
             }
 
             val manager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

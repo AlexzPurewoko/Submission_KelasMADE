@@ -222,6 +222,7 @@ class FragmentContentRepository<T : ClassResponse>(
             val db = FavoriteDatabase.getInstance(context)
             val objServer = GetObjectFromServer.getInstance(context)
             getGenreAsync(db, objServer).await()
+            objData.postValue(content)
             applyGenreIntoModels(objData.value)
             checkAndApplyFavorite(objData.value, db)
             isLoading.postValue(false)

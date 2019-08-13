@@ -1,5 +1,6 @@
 package id.apwdevs.app.catalogue.activities
 
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -11,11 +12,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.androidnetworking.AndroidNetworking
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.adapter.GridAdapter
@@ -25,7 +30,6 @@ import id.apwdevs.app.catalogue.fragment.FragmentContents
 import id.apwdevs.app.catalogue.fragment.FragmentListContainer
 import id.apwdevs.app.catalogue.fragment.HolderPageAdapter
 import id.apwdevs.app.catalogue.fragment.OnRequestRefresh
-import id.apwdevs.app.catalogue.manager.BaseJobManager
 import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemModel
 import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemResponse
 import id.apwdevs.app.catalogue.plugin.ApplyLanguage
@@ -35,7 +39,9 @@ import id.apwdevs.app.catalogue.plugin.callbacks.FragmentListCallback
 import id.apwdevs.app.catalogue.plugin.callbacks.OnItemFragmentClickListener
 import id.apwdevs.app.catalogue.plugin.view.SearchToolbarCard
 import id.apwdevs.app.catalogue.provider.FavoriteProvider
+import id.apwdevs.app.catalogue.workers.DailyReminderNotif
 import id.apwdevs.app.catalogue.workers.ReleaseTodayReminder
+import id.apwdevs.app.catalogue.workers.StartAlarmManager
 import kotlinx.android.synthetic.main.activity_main_tab_user.*
 import kotlinx.android.synthetic.main.search_toolbar.*
 import kotlinx.coroutines.Dispatchers
@@ -89,29 +95,49 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
         setupVPager()
         setupObserver()
         startAllWorkers()
+        applyOptionBeforeLaunch(intent)
     }
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        setIntent(intent)
         applyOptionBeforeLaunch(intent)
     }
 
     private fun applyOptionBeforeLaunch(nIntent: Intent?) {
         nIntent?.apply {
-            if (getIntExtra(ReleaseTodayReminder.INTENT_FROM, 0) == ReleaseTodayReminder.FROM_REMINDER) {
-                val contentData = getParcelableExtra<MainDataItemResponse>(ReleaseTodayReminder.DISPLAY_CONTENT)
-                val contentType = getIntExtra(ReleaseTodayReminder.DISPLAY_TYPE, 0)
-                val oCType = PublicContract.ContentDisplayType.findId(contentType) ?: return
-                for ((idx, fg) in listFragmentContainer.withIndex()) {
-                    if (fg is FragmentListContainer && fg.type == oCType) {
-                        forceStart(idx, fg, ReleaseTodayReminder.FROM_REMINDER, oCType, contentData)
-                        break
+            when (getIntExtra(ReleaseTodayReminder.INTENT_FROM, 0)) {
+                ReleaseTodayReminder.FROM_REMINDER -> {
+                    val contentData = getParcelableExtra<MainDataItemResponse>(ReleaseTodayReminder.DISPLAY_CONTENT)
+                    val contentType = getIntExtra(ReleaseTodayReminder.DISPLAY_TYPE, 0)
+                    val oCType = PublicContract.ContentDisplayType.findId(contentType) ?: return
+                    for ((idx, fg) in listFragmentContainer.withIndex()) {
+                        if (fg is FragmentListContainer && fg.type == oCType) {
+                            forceStart(idx, fg, ReleaseTodayReminder.FROM_REMINDER, oCType, contentData)
+                            break
+                        }
                     }
                 }
-
+                DailyReminderNotif.INTENT_FROM_DAILY_REMINDER -> {
+                    Snackbar.make(
+                        view_pager,
+                        "Thanks for going back into this application!\nHopefully you have great experience :)",
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                }
+                SettingsActivity.INTENT_FROM_SETTINGS_ACTIVITY -> {
+                    Toast.makeText(applicationContext, "Applying change into new configuration", Toast.LENGTH_LONG)
+                        .show()
+                    recreate()
+                    return
+                }
+                else -> return
             }
-            //(getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).cancel(getIntExtra(ReleaseTodayReminder.NOTIF_ID, 0))
+            (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).cancel(
+                getIntExtra(
+                    ReleaseTodayReminder.NOTIF_ID,
+                    0
+                )
+            )
         }
     }
 
@@ -130,30 +156,9 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
     }
 
     private fun startAllWorkers() {
-        val jobM = BaseJobManager.getInstance(applicationContext)
-        val sharedPref = getSharedPreferences(PublicContract.SHARED_PREF_GLOBAL_NAME, Context.MODE_PRIVATE)
-        if (sharedPref.getBoolean(getString(R.string.daily_reminder_key), true)) {
-            val timeStart = Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, 8)
-                set(Calendar.MINUTE, 30)
-                set(Calendar.SECOND, 0)
-            }
-            if (timeStart.timeInMillis < System.currentTimeMillis()) {
-                timeStart.add(Calendar.DAY_OF_MONTH, 1)
-            }
-            jobM.start(0, timeStart)
-        }
-        if (sharedPref.getBoolean(getString(R.string.release_today_reminder_key), true)) {
-            val timeStart = Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, 8)
-                set(Calendar.MINUTE, 30)
-                set(Calendar.SECOND, 0)
-            }
-            if (timeStart.timeInMillis < System.currentTimeMillis()) {
-                timeStart.add(Calendar.DAY_OF_MONTH, 1)
-            }
-            jobM.start(1, timeStart)
-        }
+        WorkManager.getInstance(applicationContext).enqueue(
+            OneTimeWorkRequest.Builder(StartAlarmManager::class.java).build()
+        )
     }
 
     private fun setupObserver() {
