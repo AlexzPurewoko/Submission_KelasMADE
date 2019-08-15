@@ -22,13 +22,21 @@
             android:label="@string/app_name"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
+        <receiver android:name=".widget.FavoriteWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+
+            <meta-data
+                    android:name="android.appwidget.provider"
+                    android:resource="@xml/favorite_widget_info"/>
+        </receiver>
         <receiver
                 android:name=".receiver.NotifyBootCompleted"
                 android:enabled="true"
                 android:exported="true">
             <intent-filter>
-                <action
-                        android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
         <receiver
@@ -89,6 +97,9 @@
                 android:exported="true"
                 android:readPermission="id.apwdevs.app.catalogue.READ_DATABASE"
                 android:writePermission="id.apwdevs.app.catalogue.WRITE_DATABASE"/>
+        <service
+                android:permission="android.permission.BIND_REMOTEVIEWS"
+                android:name=".widget.StackWidgetService"/>
     </application>
 
 </manifest>

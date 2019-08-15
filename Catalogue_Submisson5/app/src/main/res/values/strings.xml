@@ -103,6 +103,8 @@
     <string name="add_fav">Added Into Favorite</string>
     <string name="remove_fav">Removed from favorites</string>
     <string name="time_picker_allow_24">Use 24 hour format</string>
+    <string name="cancel">Cancel</string>
+    <string name="set">Set</string>
 
     <string-array name="daily_reminder_notiftitle">
         <item>Let\'s Go back into MoTvCatalogue!</item>
@@ -114,5 +116,9 @@
         <item>Remind you to go to application</item>
         <item>Come on and find out any update availables</item>
     </string-array>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+    <string name="go_into_activity">Add It</string>
+    <string name="err_text">No Favorite Added</string>
 
 </resources>

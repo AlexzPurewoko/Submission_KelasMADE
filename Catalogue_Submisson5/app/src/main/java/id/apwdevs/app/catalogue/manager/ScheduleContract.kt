@@ -3,30 +3,64 @@ package id.apwdevs.app.catalogue.manager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Parcelable
+import android.os.Bundle
 import id.apwdevs.app.catalogue.receiver.StartExactJobReceiver
 import id.apwdevs.app.catalogue.workers.DailyReminderNotif
 import id.apwdevs.app.catalogue.workers.ReleaseTodayReminder
-import kotlinx.android.parcel.Parcelize
 import java.util.*
 
 object ScheduleContract {
     const val RUN_EXACT_TIME_NOW: String = "JOB_TIME_MILLIS"
+    const val JOB_ID = "JOB_ID"
+    const val JOB_TAG = "JOB_TAG"
+    const val JOB_CLS_LIST_POS = "JOT_CLS_POS"
+    const val JOB_RECURRING = "JOB_RECURING"
+    const val JOB_RETRY_WHEN_FAIL = "JOB_RETRY_WHEN_FAIL"
+    const val JOB_MAX_RETRY_COUNT = "JOB_MAX_RETRY"
     const val JOB_SELF_PARAMS: String = "JOB_PARAMETERS"
-    val listPendingJobs: List<PendingJobs> = listOf(
+    val listPendingJobs: List<PendingAlarmRunJob> = listOf(
         // put your all service here
-        PendingJobs(0x44a, "DailyReminder", DailyReminderNotif::class.java, true, false),
-        PendingJobs(0x4ab, "DailyReleaseToday", ReleaseTodayReminder::class.java, true, false)
+        PendingAlarmRunJob(0x44a, "DailyReminder", 0, true, false),
+        PendingAlarmRunJob(0x4ab, "DailyReleaseToday", 1, true, false)
+    )
+    val listRunnerCls: List<Class<*>> = listOf(
+        DailyReminderNotif::class.java,
+        ReleaseTodayReminder::class.java
     )
 
     fun buildIntoPendingIntent(context: Context, position: Int, calendar: Calendar, flags: Int = 0): PendingIntent? {
         if (position !in 0 until listPendingJobs.size) return null
         val pendingJob = listPendingJobs[position]
         val intent = Intent(context, StartExactJobReceiver::class.java).apply {
-            putExtra(JOB_SELF_PARAMS, pendingJob)
+            putExtra(JOB_SELF_PARAMS, putIntoBundle(pendingJob))
             putExtra(RUN_EXACT_TIME_NOW, calendar.timeInMillis)
         }
         return PendingIntent.getBroadcast(context, pendingJob.jobId, intent, flags)
+    }
+
+    fun putIntoBundle(pendingJob: PendingAlarmRunJob): Bundle = Bundle().apply {
+        pendingJob.apply {
+            putInt(JOB_ID, jobId)
+            putString(JOB_TAG, jobTags)
+            putInt(JOB_CLS_LIST_POS, workJobClassPos)
+            putBoolean(JOB_RECURRING, hasRecurringAfterCalled)
+            putBoolean(JOB_RETRY_WHEN_FAIL, retryWhenJobFail)
+            putInt(JOB_MAX_RETRY_COUNT, maxRetryCount)
+        }
+    }
+
+    fun getObject(bundle: Bundle): PendingAlarmRunJob {
+        bundle.apply {
+            return PendingAlarmRunJob(
+                getInt(JOB_ID, 0),
+                getString(JOB_TAG, ""),
+                getInt(JOB_CLS_LIST_POS, -1),
+                getBoolean(JOB_RECURRING, false),
+                getBoolean(JOB_RETRY_WHEN_FAIL, false),
+                getInt(JOB_MAX_RETRY_COUNT, 0)
+            )
+
+        }
     }
 
     fun getId(position: Int): Int =
@@ -37,13 +71,3 @@ object ScheduleContract {
         if (position !in 0 until listPendingJobs.size) null
         else listPendingJobs[position].jobTags
 }
-
-@Parcelize
-data class PendingJobs(
-    val jobId: Int,
-    val jobTags: String?,
-    val workJobClass: Class<*>,
-    val hasRecurringAfterCalled: Boolean,
-    val retryWhenJobFail: Boolean = false,
-    val maxRetryCount: Int = 2
-) : Parcelable

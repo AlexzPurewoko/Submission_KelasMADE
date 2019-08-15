@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import androidx.work.*
 import id.apwdevs.app.catalogue.manager.BaseJobManager
-import id.apwdevs.app.catalogue.manager.PendingJobs
 import id.apwdevs.app.catalogue.manager.ScheduleContract
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -20,9 +19,14 @@ class StartExactJobReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         // This method is called when the BroadcastReceiver is receiving an Intent broadcast.
-        val pendingJob = intent.getParcelableExtra<PendingJobs>(ScheduleContract.JOB_SELF_PARAMS)
+        val pendingJob = ScheduleContract.getObject(intent.getBundleExtra(ScheduleContract.JOB_SELF_PARAMS))
+        val posCls = pendingJob.workJobClassPos
+        if (posCls < 0) return
+
+        @Suppress("UNCHECKED_CAST")
+        val clsWorker = ScheduleContract.listRunnerCls[posCls] as Class<Worker>
         // starts a specific jobs
-        val task = OneTimeWorkRequest.Builder(pendingJob.workJobClass as Class<Worker>).apply {
+        val task = OneTimeWorkRequest.Builder(clsWorker).apply {
             setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 20, TimeUnit.SECONDS)
             val data = Data.Builder().apply {
                 putInt(JOB_ID, pendingJob.jobId)

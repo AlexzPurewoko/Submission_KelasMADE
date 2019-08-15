@@ -107,7 +107,8 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
         nIntent?.apply {
             when (getIntExtra(ReleaseTodayReminder.INTENT_FROM, 0)) {
                 ReleaseTodayReminder.FROM_REMINDER -> {
-                    val contentData = getParcelableExtra<MainDataItemResponse>(ReleaseTodayReminder.DISPLAY_CONTENT)
+                    val contentData =
+                        MainDataItemResponse.fromBundleIntoModel(getBundleExtra(ReleaseTodayReminder.DISPLAY_CONTENT))
                     val contentType = getIntExtra(ReleaseTodayReminder.DISPLAY_TYPE, 0)
                     val oCType = PublicContract.ContentDisplayType.findId(contentType) ?: return
                     for ((idx, fg) in listFragmentContainer.withIndex()) {
@@ -127,6 +128,7 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
                 SettingsActivity.INTENT_FROM_SETTINGS_ACTIVITY -> {
                     Toast.makeText(applicationContext, "Applying change into new configuration", Toast.LENGTH_LONG)
                         .show()
+                    intent = null
                     recreate()
                     return
                 }

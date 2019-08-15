@@ -1,6 +1,7 @@
 package id.apwdevs.app.catalogue.workers
 
 import android.content.Context
+import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.work.Worker
@@ -43,11 +44,13 @@ class StartAlarmManager(context: Context, jobParams: WorkerParameters) : Worker(
                     )
                 }
         }
-        Toast.makeText(
-            applicationContext,
-            "Applied Alarm Configuration to ${StartAlarmManagerContract.listPendingAlarmJob.size} Pending Alarms successfully",
-            Toast.LENGTH_SHORT
-        ).show()
+        android.os.Handler(Looper.getMainLooper()).post {
+            Toast.makeText(
+                applicationContext,
+                "Applied Alarm Configuration to ${StartAlarmManagerContract.listPendingAlarmJob.size} Pending Alarms successfully",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
         return Result.success()
     }
 

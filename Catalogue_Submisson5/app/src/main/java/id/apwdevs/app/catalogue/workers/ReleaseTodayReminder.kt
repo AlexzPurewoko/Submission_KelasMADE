@@ -14,7 +14,9 @@ import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
+import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.content.edit
 import androidx.core.text.set
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -52,12 +54,16 @@ class ReleaseTodayReminder(context: Context, jobParams: WorkerParameters) : Coro
         val shouldRetryKey: Boolean
         val jobId: Int
         var maxRetryKey: Int
+        val sharedPref =
+            applicationContext.getSharedPreferences(PublicContract.SHARED_PREF_GLOBAL_NAME, Context.MODE_PRIVATE)
         inputData.apply {
             jobId = getInt(StartExactJobReceiver.JOB_ID, 0)
             maxRetryKey = getInt(StartExactJobReceiver.MAX_RETRY_KEY, 2)
             shouldRetryKey = getBoolean(StartExactJobReceiver.SHOULD_RETRY_KEY, false)
         }
         if (jobId <= 0) return Result.success()
+
+        val currRetryKey = sharedPref.getInt(StartExactJobReceiver.MAX_RETRY_KEY, maxRetryKey)
         val loadMovie = GlobalScope.async {
             loadReleaseMovie()
         }
@@ -67,10 +73,18 @@ class ReleaseTodayReminder(context: Context, jobParams: WorkerParameters) : Coro
         while (loadTv.isActive || loadMovie.isActive) delay(600)
         val resTv = loadTv.getCompleted()
         val resMovie = loadMovie.getCompleted()
-        if (resTv == null || resMovie == null && shouldRetryKey && maxRetryKey > 0) {
+        if ((resTv == null || resMovie == null) && shouldRetryKey && currRetryKey > 0) {
+            Log.d("ReminderRelease", "we should retry this job.... currentRetry is $currRetryKey")
+            sharedPref.edit {
+                putInt(StartExactJobReceiver.MAX_RETRY_KEY, currRetryKey - 1)
+            }
             return Result.retry()
         }
 
+        if (shouldRetryKey && currRetryKey <= 0)
+            sharedPref.edit {
+                remove(StartExactJobReceiver.MAX_RETRY_KEY)
+            }
         sendNotification(resMovie, "Movie", PublicContract.ContentDisplayType.MOVIE, 0x22a)
         sendNotification(resTv, "Tv Shows", PublicContract.ContentDisplayType.TV_SHOWS, 0x1af)
         return Result.success()
@@ -102,14 +116,14 @@ class ReleaseTodayReminder(context: Context, jobParams: WorkerParameters) : Coro
                     for ((idx, mData) in mainDataItemResponse.contents.withIndex()) {
                         if (idx == 6) {
                             it.addLine(SpannableString("...${mainDataItemResponse.contents.size - idx} more").also { span ->
-                                span[0 until span.length] = RelativeSizeSpan(0.9f)
+                                span[0..span.length] = RelativeSizeSpan(0.9f)
                             })
 
                         } else {
                             val titleCs = SpannableStringBuilder(mData.title)
-                            titleCs[0 until titleCs.length] = StyleSpan(Typeface.BOLD)
+                            titleCs[0..titleCs.length] = StyleSpan(Typeface.BOLD)
                             titleCs.append(" ${mData.overview}")
-                            titleCs[0 until titleCs.length] = RelativeSizeSpan(0.9f)
+                            titleCs[0..titleCs.length] = RelativeSizeSpan(0.9f)
                             it.addLine(titleCs)
                         }
                     }
@@ -126,7 +140,7 @@ class ReleaseTodayReminder(context: Context, jobParams: WorkerParameters) : Coro
                     putExtra(INTENT_FROM, FROM_REMINDER)
                     putExtra(NOTIF_ID, notifId)
                     putExtra(DISPLAY_TYPE, displayType.type)
-                    putExtra(DISPLAY_CONTENT, mainDataItemResponse)
+                    putExtra(DISPLAY_CONTENT, mainDataItemResponse.fromDataIntoBundle())
 
                 }
 

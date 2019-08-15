@@ -138,7 +138,9 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
                 setupRecycler(it, prevListMode.value ?: 0)
             })
             prevListMode.observe(this@FragmentContents, Observer {
-                setupRecycler(objData?.value, it)
+                it?.let {
+                    setupRecycler(objData?.value, it)
+                }
             })
             isLoading?.observe(this@FragmentContents, Observer {
                 val prevCond = refreshPage.isRefreshing
