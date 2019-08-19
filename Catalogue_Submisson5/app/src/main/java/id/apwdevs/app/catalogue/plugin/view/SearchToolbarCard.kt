@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.github.zawadz88.materialpopupmenu.MaterialPopupMenu
 import com.github.zawadz88.materialpopupmenu.popupMenu
 import id.apwdevs.app.catalogue.R
@@ -31,7 +31,7 @@ class SearchToolbarCard(
     private var contentMore: ImageView = cardView.findViewById(R.id.img_more)
     private var listMode: ImageView = cardView.findViewById(R.id.item_list_modes)
     private lateinit var popupMenu: MaterialPopupMenu
-    private var dataVModel: ToolbarCardViewModel = ViewModelProviders.of(activity).get(ToolbarCardViewModel::class.java)
+    private var dataVModel: ToolbarCardViewModel = ViewModelProvider(activity).get(ToolbarCardViewModel::class.java)
     private var hasToSubmitted: Boolean = false
     private var hasFirstUserSearch: Boolean = false
     internal val currentListMode: Int?
@@ -46,9 +46,11 @@ class SearchToolbarCard(
             imageSearch.setImageResource(
                 when (it) {
                     true -> {
+                        searchCb.onSearchStarted()
                         R.drawable.ic_arrow_back_black_24dp
                     }
                     false -> {
+                        searchCb.onSearchCancelled()
                         R.drawable.ic_search_black_24dp
                     }
                 }
@@ -141,6 +143,7 @@ class SearchToolbarCard(
         imageSearch.setOnClickListener {
             when (dataVModel.isInSearchMode.value) {
                 true -> {
+                    edtSearch.setText("")
                     setFocusable(false)
                     dataVModel.isInSearchMode.value = false
                 }
@@ -157,7 +160,10 @@ class SearchToolbarCard(
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 searchCb.onSubmit(edtSearch.text.toString())
                 hasToSubmitted = true
-                setFocusable(false)
+                getSystemService(activity, InputMethodManager::class.java)?.apply {
+                    hideSoftInputFromWindow(edtSearch.windowToken, InputMethodManager.RESULT_UNCHANGED_SHOWN)
+                }
+                //setFocusable(false)
             }
             true
         }

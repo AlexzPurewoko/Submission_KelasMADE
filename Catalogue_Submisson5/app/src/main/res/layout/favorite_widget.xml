@@ -1,35 +1,18 @@
-<!--<androidx.constraintlayout.widget.ConstraintLayout
+<LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="@dimen/widget_margin"
-        android:background="#00000000">
-    <TextView
-            android:text="@string/item_favorite_contentdesc"
-            android:layout_width="0dp"
-            android:layout_height="0dp" app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp" app:layout_constraintTop_toTopOf="parent"/>
-</androidx.constraintlayout.widget.ConstraintLayout>-->
-
-<LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:padding="@dimen/widget_margin"
-        android:weightSum="5"
-        android:background="#00000000">
-    <!--<RelativeLayout
-            android:layout_weight="5"
+        android:weightSum="10">
+    <FrameLayout
+            android:layout_weight="9"
             android:layout_width="match_parent"
             android:layout_height="0dp">
         <StackView
-                android:layout_width="match_parent" android:layout_height="match_parent"
+                android:loopViews="true"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:id="@+id/stackview_widget"
                 android:layout_marginBottom="8dp" />
         <LinearLayout
@@ -42,7 +25,8 @@
             <TextView
                     android:text="@string/err_text"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" android:gravity="center"/>
+                    android:layout_height="wrap_content"
+                    android:gravity="center"/>
             <Button
                     style="@style/Widget.AppCompat.Button.Colored"
                     android:text="Go to "
@@ -50,27 +34,31 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
         </LinearLayout>
-    </RelativeLayout>-->
-    <!--<RelativeLayout
-            android:layout_weight="2"
+    </FrameLayout>
+    <RelativeLayout
+            android:layout_weight="1"
             android:layout_width="match_parent"
-            android:layout_height="0dp">-->
+            android:layout_height="0dp">
 
-    <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:id="@+id/widget_settings"
-            app:srcCompat="@drawable/ic_settings_black_24dp"
-            android:paddingStart="16dp"
-            android:padding="8dp"/>
-    <TextView
-            tools:text="TextView"
-            android:layout_width="match_parent"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/title_display"
-    />
-    <!--</RelativeLayout>-->
+
+        <TextView
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_toStartOf="@id/widget_display"
+                android:text="Hello World"
+                android:id="@+id/text_display"
+                android:layout_centerVertical="true"
+                android:textColor="#fff"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        <ImageView
+                android:tint="#fff"
+                android:id="@+id/widget_display"
+                android:src="@drawable/ic_settings_black_24dp"
+                android:layout_alignParentEnd="true"
+                android:layout_width="wrap_content"
+                android:adjustViewBounds="true"
+                android:layout_height="match_parent"/>
+    </RelativeLayout>
 
 </LinearLayout>

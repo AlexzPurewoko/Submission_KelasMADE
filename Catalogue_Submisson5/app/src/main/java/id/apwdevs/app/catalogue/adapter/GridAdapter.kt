@@ -35,7 +35,7 @@ class GridAdapter<T : ResettableItem>(
     private val requestedWidth: Int = mContext.resources.getDimension(R.dimen.item_poster_width).toInt()
     private val requestedHeight: Int = mContext.resources.getDimension(R.dimen.item_poster_height).toInt()
     private val searchMethod = OnSearchMethod()
-
+    var notifyDataSetsChange: NotifyDataSetsChange? = null
     init {
         setHasStableIds(true)
     }
@@ -67,6 +67,7 @@ class GridAdapter<T : ResettableItem>(
             model.onReset()
         }
         this.shortListModels.addAll(shortListModels)
+        notifyDataSetsChange?.onDataChange(shortListModels.isEmpty(), shortListModels)
     }
 
     fun resetAllSpannables() {
@@ -80,6 +81,7 @@ class GridAdapter<T : ResettableItem>(
             aList?.let {
                 shortListModels.clear()
                 shortListModels.addAll(it)
+                notifyDataSetsChange?.onDataChange(it.isEmpty(), it)
                 notifyDataSetChanged()
             }
         }

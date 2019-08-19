@@ -50,6 +50,9 @@ data class MainDataItemModel(
     // by Repositories if this dataModel is favorite by user
     var isFavorite: Boolean = false,
 
+    //
+    var contentTypes: Int = 0,
+
     var actualGenreModel: MutableList<GenreModel>? = null
 ) : Parcelable, ResettableItem {
     // These fields is ignored from parcel
@@ -148,13 +151,14 @@ data class MainDataItemResponse(
             putString(RESPONSE_ERR_MSG, errorMessage)
             putInt(RESPONSE_ERR_CODE, errorCode)
 
-            contents?.let {
+            if (contents?.isNullOrEmpty() == true)
+                putBundle(RESPONSE_DATA_BUNDLE, Bundle.EMPTY)
+            contents.let {
                 for ((idx, model) in it.withIndex()) {
                     putBundle("$RESPONSE_DATA_BUNDLE$idx", model.fromDataIntoBundle())
-                    return@let
                 }
-                putBundle(RESPONSE_DATA_BUNDLE, Bundle.EMPTY)
             }
+
         }
     }
 

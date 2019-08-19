@@ -12,6 +12,7 @@ class FavoriteProvider : ContentProvider() {
         const val FAV_MATCH = 0xa
         const val FAVORITE_ID = 0x4f
         const val GENRE_MATCH = 0X5f
+        const val FAVORITE_TYPE = 0x44f
 
         @JvmStatic
         val FAVORITE_TABLE = "favorite"
@@ -21,6 +22,8 @@ class FavoriteProvider : ContentProvider() {
         val AUTHORITY = "id.apwdevs.app.catalogue"
         @JvmStatic
         val SCHEME = "content"
+        @JvmStatic
+        val FAV_TYPE = "type"
 
         @JvmStatic
         val BASE_URI_FAVORITE: Uri.Builder
@@ -34,6 +37,7 @@ class FavoriteProvider : ContentProvider() {
 
         private val sUriMatcher = UriMatcher(UriMatcher.NO_MATCH).apply {
             addURI(AUTHORITY, FAVORITE_TABLE, FAV_MATCH)
+            addURI(AUTHORITY, "$FAVORITE_TABLE/$FAV_TYPE/#", FAVORITE_TYPE)
             addURI(AUTHORITY, "$FAVORITE_TABLE/#", FAVORITE_ID)
             addURI(AUTHORITY, GENRE_TABLE, GENRE_MATCH)
         }
@@ -60,7 +64,10 @@ class FavoriteProvider : ContentProvider() {
                     uri.lastPathSegment?.let {
                         favDao.getItemAtByCursor(it.toInt())
                     }
-
+                FAVORITE_TYPE ->
+                    uri.lastPathSegment?.let {
+                        favDao.getAsTypeByCursor(it.toInt())
+                    }
                 GENRE_MATCH ->
                     genreDao.getAllByCursor()
                 else -> null

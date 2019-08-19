@@ -135,7 +135,7 @@ fun configureFavorite(context: Context, model: ResettableItem?): Boolean =
                         FavoriteEntity(
                             it.id,
                             "${it.title}",
-                            PublicContract.ContentDisplayType.MOVIE.type,
+                            it.contentTypes,
                             "${it.releaseDate}",
                             it.overview,
                             converToStr(it.actualGenreModel),
@@ -170,4 +170,6 @@ private fun converToStr(gModel: List<GenreModel>?): String {
         sbuf.deleteCharAt(sbuf.length - 1)
     return sbuf.toString()
 }
+
+
 

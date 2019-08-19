@@ -42,11 +42,12 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'com.github.zawadz88.materialpopupmenu:material-popup-menu:3.4.0'
-    implementation 'androidx.work:work-runtime-ktx:2.2.0-rc01'
+    implementation 'androidx.work:work-runtime-ktx:2.2.0'
 
     implementation 'com.amitshekhar.android:android-networking:1.0.2'
     implementation 'com.jaeger.statusbarutil:library:1.5.1'
     implementation 'com.neovisionaries:nv-i18n:1.22'
+    implementation 'jp.wasabeef:recyclerview-animators:3.0.0'
 
 
     // Room components

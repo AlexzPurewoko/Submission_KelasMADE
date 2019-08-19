@@ -7,18 +7,23 @@
     <androidx.viewpager.widget.ViewPager
             android:layout_width="match_parent"
             android:layout_height="match_parent" android:id="@+id/fg_content_pager"
-            android:layout_marginBottom="0dp" android:layout_above="@+id/fg_content_bottomnav"/>
+            android:layout_marginBottom="0dp" android:layout_above="@+id/bottom_nav_layout_holder"/>
     <View
-            android:layout_above="@id/fg_content_bottomnav"
+            android:layout_above="@id/bottom_nav_layout_holder"
             android:background="@color/elevation_bg"
             android:layout_width="match_parent"
             android:layout_height="2dp"/>
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:elevation="2dp"
-            app:itemIconSize="24dp"
-            app:menu="@menu/bottom_nav_tv"
+
+    <RelativeLayout
+            android:id="@+id/bottom_nav_layout_holder"
             android:layout_alignParentBottom="true"
-            android:id="@+id/fg_content_bottomnav"/>
+            android:layout_width="match_parent" android:layout_height="wrap_content">
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:elevation="2dp"
+                app:itemIconSize="24dp"
+                app:menu="@menu/bottom_nav_tv"
+                android:id="@+id/fg_content_bottomnav"/>
+    </RelativeLayout>
 </RelativeLayout>

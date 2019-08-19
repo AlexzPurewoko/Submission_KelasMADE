@@ -1,60 +1,114 @@
 package id.apwdevs.app.catalogue.widget
 
+import android.appwidget.AppWidgetManager
 import android.content.Context
+import android.content.Intent
+import android.database.Cursor
+import android.graphics.Bitmap
 import android.graphics.Point
+import android.os.Binder
+import android.widget.AdapterView
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import androidx.core.database.getStringOrNull
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.entity.FavoriteEntity
 import id.apwdevs.app.catalogue.plugin.PublicContract
-import id.apwdevs.app.catalogue.plugin.api.GetImageFiles
+import id.apwdevs.app.catalogue.plugin.PublicContract.ContentDisplayType
 import id.apwdevs.app.catalogue.plugin.api.GetObjectFromServer
+import id.apwdevs.app.catalogue.provider.FavoriteProvider
 import id.apwdevs.app.catalogue.provider.FavoriteProvider.Companion.BASE_URI_FAVORITE
+import id.apwdevs.app.catalogue.receiver.LaunchReceiver.Companion.EXTRA_ID
 
 class StackRemoteViewsFactory(
     private val context: Context
 ) : RemoteViewsService.RemoteViewsFactory {
 
-    var mListData: MutableList<FavoriteEntity> = mutableListOf()
+    private var mCursor: Cursor? = null
+    private val mListBitmapRef: HashMap<Int, Bitmap?> = hashMapOf()
+
+    private val requestedWidth: Int = context.resources.getDimension(R.dimen.item_poster_width).toInt()
+    private val requestedHeight: Int = context.resources.getDimension(R.dimen.item_poster_height).toInt()
     override fun onCreate() {
-        mListData.addAll(getFavorite(context, PublicContract.ContentDisplayType.MOVIE))
+        /*GlobalScope.launch (Dispatchers.IO){
+            mListData.addAll(getFavorite(context, PublicContract.ContentDisplayType.MOVIE))
+            Log.d("LoadAllDb", "list -> $mListData")
+        }*/
     }
 
-    override fun getLoadingView(): RemoteViews = RemoteViews(context.packageName, R.layout.favorite_stackwidget_item)
+    override fun getLoadingView(): RemoteViews = RemoteViews(context.packageName, R.layout.widget_loading)
 
     override fun getItemId(position: Int): Long = 0
 
     override fun onDataSetChanged() {
-
+        val id = Binder.clearCallingIdentity()
+        mCursor?.close()
+        mListBitmapRef.clear()
+        mCursor = context.contentResolver.query(BASE_URI_FAVORITE.apply {
+            appendPath(FavoriteProvider.FAV_TYPE)
+            appendPath(ContentDisplayType.MOVIE.type.toString())
+        }.build(), null, null, null, null)
+        mCursor?.apply {
+            moveToFirst()
+            val size = Point(requestedWidth, requestedHeight)
+            while (!isAfterLast) {
+                getStringOrNull(getColumnIndex("posterPath"))?.let {
+                    var bmp: Bitmap? = null
+                    var isFinished = false
+                    val mId = getInt(getColumnIndex("id"))
+                    GetObjectFromServer.getInstance(context)
+                        .getBitmapNoProgress(size, it, true, forceLoadFromCache = true) { bitmap ->
+                            bmp = bitmap
+                            isFinished = true
+                        }
+                    while (!isFinished) Thread.sleep(100)
+                    mListBitmapRef.put(mId, bmp)
+                }
+                moveToNext()
+            }
+            moveToFirst()
+        }
+        Binder.restoreCallingIdentity(id)
     }
 
     override fun hasStableIds(): Boolean = false
 
-    override fun getViewAt(position: Int): RemoteViews =
-        RemoteViews(context.packageName, R.layout.favorite_stackwidget_item).apply {
-            val item = mListData[position]
-            GetObjectFromServer.getInstance(context).apply {
-                val size = Point(300, 300)
-                item.posterPath?.let {
-                    getBitmapNoProgress(size, GetImageFiles.getImg(size.x, it), false) { bitmap ->
-                        setImageViewBitmap(R.id.stackview_widget_item, bitmap)
-                    }
+    override fun getViewAt(position: Int): RemoteViews {
+        val views = RemoteViews(context.packageName, R.layout.favorite_stackwidget_item)
+        mCursor?.apply {
+            if (position == AdapterView.INVALID_POSITION || !moveToPosition(position)) {
+                return@apply
+            }
+            views.apply {
+                mListBitmapRef[getInt(getColumnIndex("id"))]?.let {
+                    setImageViewBitmap(R.id.stackview_widget_item, it)
                 }
-                setTextViewText(R.id.widget_fav_item_title, item.title)
+                val id = getInt(getColumnIndex("id"))
+                setTextViewText(R.id.widget_fav_item_title, getString(getColumnIndex("title")))
+                /*setOnClickFillInIntent(R.id.favorite_widget_btn, Intent().apply {
+                    `package` = context.packageName
+                    action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                    putExtra(FavoriteWidget.UPDATE_TYPE, FavoriteWidget.STACK_REMOVE_ITEM)
+                    putExtra(FavoriteWidget.STACK_ITEM_ID, id)
+                })*/
+                setOnClickFillInIntent(R.id.favorite_widget_btn, Intent().also {
+                    it.`package` = context.packageName
+                    it.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                    it.putExtra(EXTRA_ID, id)
+                })
             }
         }
+        return views
+    }
 
-    override fun getCount(): Int = mListData.size
+    override fun getCount(): Int = mCursor?.count ?: 0
 
     override fun getViewTypeCount(): Int = 1
 
     override fun onDestroy() {
-
+        mCursor?.close()
+        mListBitmapRef.clear()
     }
-
-    fun removeFromFavorite(context: Context, id: Int): Int =
-        context.contentResolver.delete(BASE_URI_FAVORITE.appendPath(id.toString()).build(), null, null)
 
 
     fun getFavorite(context: Context, displayType: PublicContract.ContentDisplayType): List<FavoriteEntity> {

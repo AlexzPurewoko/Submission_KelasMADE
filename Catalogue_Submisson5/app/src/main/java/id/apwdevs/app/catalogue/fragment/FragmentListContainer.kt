@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.RelativeLayout
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -22,7 +23,9 @@ import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.callbacks.FragmentListCallback
 import id.apwdevs.app.catalogue.plugin.callbacks.OnItemFragmentClickListener
 import id.apwdevs.app.catalogue.plugin.callbacks.OnSelectedFragment
+import id.apwdevs.app.catalogue.plugin.gone
 import id.apwdevs.app.catalogue.plugin.view.SearchToolbarCard
+import id.apwdevs.app.catalogue.plugin.visible
 import id.apwdevs.app.catalogue.viewModel.MainListViewModel.MovieTypeContract
 import id.apwdevs.app.catalogue.viewModel.MainListViewModel.TvTypeContract
 import id.apwdevs.app.catalogue.workers.ReleaseTodayReminder
@@ -35,10 +38,11 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
     OnItemFragmentClickListener, OnRequestRefresh {
 
     private lateinit var bottomNavigationView: BottomNavigationView
+    private var bottomNavHolder: RelativeLayout? = null
     private lateinit var vpager: ViewPager
 
     private lateinit var mFragments: MutableList<Fragment>
-    lateinit var type: PublicContract.ContentDisplayType
+    internal var type: PublicContract.ContentDisplayType? = null
 
     private val fragmentTag: String
         get() {
@@ -52,6 +56,7 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
                 PublicContract.ContentDisplayType.FAVORITES -> {
                     "FragmentListContainerFavorites"
                 }
+                else -> ""
             }
         }
     var fragmentListCb: FragmentListCallback? = null
@@ -67,6 +72,7 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
                 PublicContract.ContentDisplayType.MOVIE -> R.layout.fg_holder_movies
                 PublicContract.ContentDisplayType.TV_SHOWS -> R.layout.fg_holder_tv
                 PublicContract.ContentDisplayType.FAVORITES -> R.layout.fg_holder_favorites
+                else -> R.layout.fg_holder_movies
             }, container, false
         )
     }
@@ -75,6 +81,7 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
         super.onViewCreated(view, savedInstanceState)
         vpager = view.findViewById(R.id.fg_content_pager)
         bottomNavigationView = view.findViewById(R.id.fg_content_bottomnav)
+        bottomNavHolder = view.findViewById(R.id.bottom_nav_layout_holder)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,23 +108,25 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
 
             )
             mFragments = mutableListOf()
-            when (type) {
-                PublicContract.ContentDisplayType.TV_SHOWS -> {
-                    tvModeSupport.forEach {
-                        mFragments.add(FragmentContents.newInstance(type, it))
+            type?.let { ftypes ->
+                when (type) {
+                    PublicContract.ContentDisplayType.TV_SHOWS -> {
+                        tvModeSupport.forEach {
+                            mFragments.add(FragmentContents.newInstance(ftypes, it))
+                        }
+
                     }
+                    PublicContract.ContentDisplayType.MOVIE -> {
+                        movieModeSupport.forEach {
+                            mFragments.add(FragmentContents.newInstance(ftypes, it))
+                        }
+                    }
+                    PublicContract.ContentDisplayType.FAVORITES ->
+                        favModeSupport.forEach {
+                            mFragments.add(FragmentContents.newInstance(ftypes, it))
+                        }
 
                 }
-                PublicContract.ContentDisplayType.MOVIE -> {
-                    movieModeSupport.forEach {
-                        mFragments.add(FragmentContents.newInstance(type, it))
-                    }
-                }
-                PublicContract.ContentDisplayType.FAVORITES ->
-                    favModeSupport.forEach {
-                        mFragments.add(FragmentContents.newInstance(type, it))
-                    }
-
             }
         } else {
             mFragments = mutableListOf()
@@ -168,7 +177,7 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
                     dummyLockUntilFinish = false
                     bottomNavigationView.selectedItemId = bottomNavigationView.menu.getItem(position).itemId
                     currItem = position
-                    fragmentListCb?.onFragmentChange(mFragments[position], type)
+                    type?.let { fragmentListCb?.onFragmentChange(mFragments[position], this@FragmentListContainer, it) }
                     startPrepareFragment(position)
                     dummyLockUntilFinish = true
                 }
@@ -182,7 +191,7 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
                     dummyLockUntilFinish = false
                     vpager.setCurrentItem(menuPos, true)
                     currItem = menuPos
-                    fragmentListCb?.onFragmentChange(mFragments[menuPos], type)
+                    type?.let { fragmentListCb?.onFragmentChange(mFragments[menuPos], this@FragmentListContainer, it) }
                     startPrepareFragment(menuPos)
                     dummyLockUntilFinish = true
                     break
@@ -246,7 +255,7 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
         GlobalScope.launch(Dispatchers.Main) {
             vpager.currentItem = idx
             fg.isRunWithoutLoadFirst = true
-            while (!fg.isVisible) delay(400)
+            while (!fg.isVisible || fg.types == null) delay(400)
             fg.forceLoadContent(contentData)
         }
     }
@@ -276,7 +285,10 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
     }
 
     override fun onSubmit(query: String) {
-
+        mFragments[vpager.currentItem].apply {
+            if (this is SearchToolbarCard.OnSearchCallback)
+                onSubmit(query)
+        }
     }
 
     override fun onSearchCancelled() {
@@ -285,6 +297,7 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
                 if (this is SearchToolbarCard.OnSearchCallback)
                     onSearchCancelled()
             }
+            bottomNavHolder?.visible()
         }
     }
 
@@ -293,7 +306,7 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
     }
 
     override fun onSearchStarted() {
-
+        bottomNavHolder?.gone()
     }
 
     override fun onListModeChange(listMode: Int) {
@@ -308,6 +321,10 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
             if (it is OnRequestRefresh)
                 it.onForceRefresh(fragment)
         }
+    }
+
+    fun showBottomNav() {
+        bottomNavHolder?.visible()
     }
 
 

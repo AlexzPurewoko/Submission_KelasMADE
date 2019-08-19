@@ -40,7 +40,8 @@ class GetObjectFromServer private constructor(appContext: Context) {
         url: String,
         tag: String,
         priority: Priority,
-        connectTimeOut: Int
+        connectTimeOut: Int,
+        forceLoadFromCache: Boolean = false
     ): ANRequest<*> {
         return AndroidNetworking.get(url).apply {
             setTag(tag)
@@ -48,7 +49,7 @@ class GetObjectFromServer private constructor(appContext: Context) {
             setOkHttpClient(OkHttpClient.Builder().also {
                 it.connectTimeout(connectTimeOut.toLong(), TimeUnit.SECONDS)
             }.build())
-            if (!availNet)
+            if (!availNet || forceLoadFromCache)
                 responseOnlyIfCached
         }.build()
     }
@@ -58,6 +59,7 @@ class GetObjectFromServer private constructor(appContext: Context) {
         posterPath: String,
         enableScaling: Boolean = false,
         scaleType: ImageView.ScaleType = ImageView.ScaleType.FIT_XY,
+        forceLoadFromCache: Boolean = false,
         response: (response: Bitmap?) -> Unit
     ) {
         AndroidNetworking.get(GetImageFiles.getImg(size.x, posterPath)).apply {
@@ -68,6 +70,8 @@ class GetObjectFromServer private constructor(appContext: Context) {
                 setBitmapMaxWidth(size.x)
                 setImageScaleType(scaleType)
             }
+            if (!availNet || forceLoadFromCache)
+                responseOnlyIfCached
         }.build()
             .getAsBitmap(object : BitmapRequestListener {
                 override fun onResponse(response: Bitmap?) {
@@ -80,6 +84,24 @@ class GetObjectFromServer private constructor(appContext: Context) {
 
             })
     }
+
+    fun loadBitmapFromCache(
+        size: Point,
+        posterPath: String,
+        enableScaling: Boolean = false,
+        scaleType: ImageView.ScaleType = ImageView.ScaleType.FIT_XY
+    ): Bitmap? {
+        return AndroidNetworking.get(GetImageFiles.getImg(size.x, posterPath)).apply {
+            setPriority(Priority.LOW)
+            setTag("")
+            if (enableScaling) {
+                setBitmapMaxHeight(size.y)
+                setBitmapMaxWidth(size.x)
+                setImageScaleType(scaleType)
+            }
+        }.build().executeForBitmap().result as Bitmap?
+    }
+
 
     suspend fun <T> getObj(
         url: String,
@@ -97,7 +119,8 @@ class GetObjectFromServer private constructor(appContext: Context) {
                 isFinished = true
             } else
                 callbacks?.onProgress((bytesDownloaded * 100 / totalBytes).toDouble())
-        }.getAsObject(cls, object : ParsedRequestListener<T> {
+        }
+            .getAsObject(cls, object : ParsedRequestListener<T> {
             override fun onResponse(response: T) {
                 isFinished = true
                 callbacks?.onSuccess(response)

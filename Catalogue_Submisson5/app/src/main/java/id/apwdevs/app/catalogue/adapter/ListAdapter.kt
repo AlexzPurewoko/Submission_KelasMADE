@@ -43,6 +43,7 @@ class ListAdapter<T : ResettableItem>(
     private val requestedWidth: Int = mContext.resources.getDimension(R.dimen.item_poster_width).toInt()
     private val requestedHeight: Int = mContext.resources.getDimension(R.dimen.item_poster_height).toInt()
     private val searchMethod = OnSearchMethod()
+    var notifyDataSetsChange: NotifyDataSetsChange? = null
 
     init {
         setHasStableIds(true)
@@ -79,6 +80,7 @@ class ListAdapter<T : ResettableItem>(
         newDataModel?.let {
             dataModel.clear()
             dataModel.addAll(it)
+            notifyDataSetsChange?.onDataChange(it.isEmpty(), it)
             resetAllSpannables()
         }
     }
@@ -88,6 +90,7 @@ class ListAdapter<T : ResettableItem>(
             aList?.let {
                 dataModel.clear()
                 dataModel.addAll(it)
+                notifyDataSetsChange?.onDataChange(it.isEmpty(), it)
                 notifyDataSetChanged()
             }
         }
@@ -286,4 +289,8 @@ class ListAdapter<T : ResettableItem>(
         const val ADD_FAVORITE = "ADD_FAVORITE"
         const val REMOVE_FAVORITE = "REMOVE_FAVORITE"
     }
+}
+
+interface NotifyDataSetsChange {
+    fun onDataChange(isEmptyData: Boolean, listData: List<Any>)
 }

@@ -34,6 +34,9 @@ object GetMovies {
     fun getAllGenre(languageString: String = "en-US"): String =
         "${PublicContract.URL_API}/${PublicContract.GENRE}/${PublicContract.MOVIE_DIR_PATH}/list?${PublicContract.API_KEY_QNAME}=${PublicContract.API_KEY}&language=$languageString"
 
+    fun search(query: String, languageString: String = "en-US"): String =
+        "${PublicContract.URL_API}/search/${PublicContract.MOVIE_DIR_PATH}?${PublicContract.API_KEY_QNAME}=${PublicContract.API_KEY}&language=$languageString&query=$query"
+
     fun getCurrentRelease(now: Calendar): String {
         val year = now.get(Calendar.YEAR)
         val month: String

@@ -37,4 +37,7 @@ interface FavoriteDao {
 
     @Query("SELECT * FROM $tableName WHERE id LIKE :id")
     fun getItemAtByCursor(id: Int): Cursor?
+
+    @Query("SELECT * FROM $tableName WHERE contentType LIKE :displayType")
+    fun getAsTypeByCursor(displayType: Int): Cursor?
 }

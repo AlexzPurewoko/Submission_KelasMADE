@@ -58,6 +58,12 @@ class ErrorSectionAdapter(private val itemError: View) {
                 errorBody.text = ctx.getString(R.string.err_not_found_message)
                 errorSuggestions.text = ctx.getString(R.string.err_not_found_suggest)
             }
+            ERR_NO_RESULTS -> {
+                imgError.setImageResource(R.drawable.ic_sentiment_dissatisfied_black_24dp)
+                errorTitle.text = ctx.getString(R.string.err_no_results)
+                errorBody.text = ""
+                errorSuggestions.text = ctx.getString(R.string.err_no_results_suggest)
+            }
             else -> return
         }
         errorMore.text = ctx.getString(R.string.caused_by, "${retError.cause?.javaClass?.simpleName}")
@@ -73,6 +79,7 @@ class ErrorSectionAdapter(private val itemError: View) {
         const val ERR_CODE_NO_NETWORK = 0xaaf
         const val ERR_CODE_NET_FAILED = 0x3a
         const val ERR_CODE_UNSPECIFIED = 0x4af
+        const val ERR_NO_RESULTS: Int = 0x44a
 
     }
 }

@@ -31,7 +31,7 @@ class FragmentContents : Fragment(), OnRequestRefresh {
     private lateinit var recyclerContent: RecyclerView
     private lateinit var recyclerListAdapter: ListAdapter
 
-    private lateinit var mViewModel: MainListViewModel
+    private var mViewModel: MainListViewModel? = null
     private lateinit var mLayoutError: LinearLayout
     private lateinit var mCardButton: CardView
 
@@ -45,7 +45,7 @@ class FragmentContents : Fragment(), OnRequestRefresh {
             this,
             ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application)
         ).get(MainListViewModel::class.java)
-        mViewModel.type = arguments?.getParcelable(EXTRA_CONTENT_TYPES)
+        mViewModel?.type = arguments?.getParcelable(EXTRA_CONTENT_TYPES)
         recyclerListAdapter = ListAdapter(
             requireActivity() as AppCompatActivity
         ) {
@@ -76,11 +76,11 @@ class FragmentContents : Fragment(), OnRequestRefresh {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        mViewModel.mFavList.observe(this, Observer {
+        mViewModel?.mFavList?.observe(this, Observer {
             setupPage(it)
         })
 
-        mViewModel.hasLoading.observe(this, Observer {
+        mViewModel?.hasLoading?.observe(this, Observer {
             refreshPage.isRefreshing = it
             if (it) {
                 mLayoutError.visibility = View.GONE
@@ -88,9 +88,9 @@ class FragmentContents : Fragment(), OnRequestRefresh {
         })
         // we have to obtain a value of ViewModel
         refreshPage.setOnRefreshListener {
-            mViewModel.load()
+            mViewModel?.load()
         }
-        mViewModel.load()
+        mViewModel?.load()
     }
 
     override fun onAttach(context: Context) {
@@ -108,7 +108,7 @@ class FragmentContents : Fragment(), OnRequestRefresh {
     }
 
     fun reload() {
-        mViewModel.load()
+        mViewModel?.load()
     }
 
     fun setupPage(page: List<FavoriteEntity>?) {
@@ -154,7 +154,7 @@ class FragmentContents : Fragment(), OnRequestRefresh {
 
     override fun onForceRefresh(fragment: Fragment) {
         Log.d("SetsOnForce", "Sets to force load a fragment because due to database changes")
-        mViewModel.load()
+        mViewModel?.load()
     }
 
     companion object {

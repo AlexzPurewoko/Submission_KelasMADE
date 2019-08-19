@@ -16,7 +16,6 @@ import id.apwdevs.app.catalogue.adapter.RecyclerReviewAdapter.OnLaunchItemClickL
 import id.apwdevs.app.catalogue.model.ResettableItem
 import id.apwdevs.app.catalogue.model.onDetail.*
 import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemModel
-import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.gone
 import id.apwdevs.app.catalogue.plugin.visible
 import id.apwdevs.app.catalogue.repository.onDetail.DetailActivityRepository
@@ -26,7 +25,7 @@ import kotlin.math.abs
 
 class DetailLayoutRecyclerAdapter(
     private val context: Context,
-    contentType: DetailActivityRepository.TypeContentContract,
+    private val contentType: DetailActivityRepository.TypeContentContract,
     private val viewModel: DetailViewModel,
     private val maxReviewLimits: Int,
     private val maxCreditsLimit: Int
@@ -39,6 +38,7 @@ class DetailLayoutRecyclerAdapter(
     private var listCastModel: List<CastModel>? = null
     private var reviewModel: ReviewResponse? = null
     private var createdBy: List<ModelTvCreatedBy>? = null // for Tv usages only
+
 
     var onItemAction: OnItemActionListener? = null
 
@@ -144,7 +144,7 @@ class DetailLayoutRecyclerAdapter(
                     })
             }
             ViewType.CONTENT_ABOUT -> {
-                holder.bindItem(data1Model, data2OtherModel)
+                holder.bindItem(data1Model, data2OtherModel, contentType)
             }
             ViewType.CONTENT_LIST_CAST -> {
                 holder.bindItem(listCastModel, maxCreditsLimit)
@@ -218,7 +218,7 @@ class DetailLayoutRecyclerAdapter(
          * Note :
          *  Please to specify the values as defined in ViewType's enum :
          *      CONTENT_OVERVIEW -> value can be of (String)
-         *      CONTENT_ABOUT -> value can be of (model1, otherModel2)
+         *      CONTENT_ABOUT -> value can be of (model1, otherModel2, types)
          *      CONTENT_REVIEWS -> value can be of (ReviewResponse, limits)
          *      CONTENT_CREATED_BY -> value can be of (List<ModelTvCreatedBy>)
          *      CONTENT_LIST_CREW -> value can be of (List<CrewModel>, limits)
@@ -317,7 +317,7 @@ class DetailLayoutRecyclerAdapter(
                             ctx,
                             aboutModel,
                             otherAboutModel,
-                            PublicContract.ContentDisplayType.MOVIE
+                            item[2] as DetailActivityRepository.TypeContentContract
                         )
                     }
                 }

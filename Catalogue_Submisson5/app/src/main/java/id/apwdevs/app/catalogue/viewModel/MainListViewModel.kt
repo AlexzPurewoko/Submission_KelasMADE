@@ -34,8 +34,11 @@ class MainListViewModel(application: Application) : AndroidViewModel(application
 
     var objData: LiveData<ClassResponse>? = null
     var isLoading: LiveData<Boolean>? = null
+    var isInSearchMode: LiveData<Boolean>? = null
+    var loadProgress: LiveData<Double>? = null
     private var allGenre: LiveData<List<GenreModel>>? = null
     var retError: LiveData<GetObjectFromServer.RetError>? = null
+    val mTextSearchQuery = MutableLiveData<String>()
 
     init {
         // we have to initialize these variables to be available for first instance
@@ -66,7 +69,8 @@ class MainListViewModel(application: Application) : AndroidViewModel(application
         allGenre = repository?.allGenre
         objData = repository?.objData
         retError = repository?.retError
-
+        isInSearchMode = repository?.inSearchMode
+        loadProgress = repository?.loadProgress
     }
 
     fun getAt(
@@ -96,6 +100,15 @@ class MainListViewModel(application: Application) : AndroidViewModel(application
 
     fun forceLoadIn(content: ClassResponse?) {
         repository?.forceLoadIn(content)
+    }
+
+    fun requestSearchFromAPI(search: String, query: String) {
+        mTextSearchQuery.value = query
+        repository?.requestSearch(search)
+    }
+
+    fun forceEndSearch() {
+        repository?.forceEndSearch()
     }
 
     @Parcelize

@@ -39,9 +39,11 @@ import id.apwdevs.app.catalogue.plugin.callbacks.FragmentListCallback
 import id.apwdevs.app.catalogue.plugin.callbacks.OnItemFragmentClickListener
 import id.apwdevs.app.catalogue.plugin.view.SearchToolbarCard
 import id.apwdevs.app.catalogue.provider.FavoriteProvider
+import id.apwdevs.app.catalogue.widget.services.FavoriteObserver
 import id.apwdevs.app.catalogue.workers.DailyReminderNotif
 import id.apwdevs.app.catalogue.workers.ReleaseTodayReminder
 import id.apwdevs.app.catalogue.workers.StartAlarmManager
+import jp.wasabeef.recyclerview.adapters.AnimationAdapter
 import kotlinx.android.synthetic.main.activity_main_tab_user.*
 import kotlinx.android.synthetic.main.search_toolbar.*
 import kotlinx.coroutines.Dispatchers
@@ -111,10 +113,15 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
                         MainDataItemResponse.fromBundleIntoModel(getBundleExtra(ReleaseTodayReminder.DISPLAY_CONTENT))
                     val contentType = getIntExtra(ReleaseTodayReminder.DISPLAY_TYPE, 0)
                     val oCType = PublicContract.ContentDisplayType.findId(contentType) ?: return
-                    for ((idx, fg) in listFragmentContainer.withIndex()) {
-                        if (fg is FragmentListContainer && fg.type == oCType) {
-                            forceStart(idx, fg, ReleaseTodayReminder.FROM_REMINDER, oCType, contentData)
-                            break
+                    GlobalScope.launch(Dispatchers.Default) {
+                        for ((idx, fg) in listFragmentContainer.withIndex()) {
+                            if (fg is FragmentListContainer) {
+                                while (fg.type == null) delay(150)
+                                if (fg.type == oCType) {
+                                    forceStart(idx, fg, ReleaseTodayReminder.FROM_REMINDER, oCType, contentData)
+                                    break
+                                }
+                            }
                         }
                     }
                 }
@@ -161,6 +168,7 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
         WorkManager.getInstance(applicationContext).enqueue(
             OneTimeWorkRequest.Builder(StartAlarmManager::class.java).build()
         )
+        startService(Intent(this, FavoriteObserver::class.java))
     }
 
     private fun setupObserver() {
@@ -230,11 +238,16 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
         }
     }
 
+    fun findAdapters(adapter: RecyclerView.Adapter<*>?): RecyclerView.Adapter<*>? {
+        if (adapter is AnimationAdapter)
+            return findAdapters(adapter.wrappedAdapter)
+        return adapter
+    }
     override fun onItemClicked(fg: Fragment, recyclerView: RecyclerView, position: Int, v: View) {
 
         startActivityForResult(
             Intent(this, DetailActivity::class.java).apply {
-                val adapter = recyclerView.adapter
+                val adapter = findAdapters(recyclerView.adapter)
                 if (adapter is ListAdapter<*>) {
                     val model = adapter.dataModel
                     if (model.size > 0) {
@@ -408,8 +421,13 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
 
     override fun getListMode(): Int = searchToolbarCard.currentListMode ?: PublicContract.RecyclerMode.MODE_LIST
 
-    override fun onFragmentChange(newFragment: Fragment, fragmentType: PublicContract.ContentDisplayType) {
+    override fun onFragmentChange(
+        newFragment: Fragment,
+        container: FragmentListContainer,
+        fragmentType: PublicContract.ContentDisplayType
+    ) {
         searchToolbarCard.forceSearchCancel()
+        container.showBottomNav()
     }
 
 

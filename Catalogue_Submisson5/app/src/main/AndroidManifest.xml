@@ -22,6 +22,12 @@
             android:label="@string/app_name"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
+        <service
+                android:name=".widget.services.FavoriteObserver"
+                android:enabled="true"
+                android:exported="true">
+        </service>
+
         <receiver android:name=".widget.FavoriteWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
@@ -37,6 +43,11 @@
                 android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_REPLACED"/>
+
+                <data android:scheme="package"/>
             </intent-filter>
         </receiver>
         <receiver
@@ -97,9 +108,10 @@
                 android:exported="true"
                 android:readPermission="id.apwdevs.app.catalogue.READ_DATABASE"
                 android:writePermission="id.apwdevs.app.catalogue.WRITE_DATABASE"/>
+
         <service
-                android:permission="android.permission.BIND_REMOTEVIEWS"
-                android:name=".widget.StackWidgetService"/>
+                android:name=".widget.StackWidgetService"
+                android:permission="android.permission.BIND_REMOTEVIEWS"/>
     </application>
 
 </manifest>

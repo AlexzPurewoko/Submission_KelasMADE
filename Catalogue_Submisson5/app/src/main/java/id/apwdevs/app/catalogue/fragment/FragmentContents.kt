@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.pm.ActivityInfo
 import android.graphics.Point
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.Parcelable
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.ScrollView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
@@ -23,18 +26,29 @@ import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.activities.GetFromHostActivity
 import id.apwdevs.app.catalogue.adapter.GridAdapter
 import id.apwdevs.app.catalogue.adapter.ListAdapter
+import id.apwdevs.app.catalogue.adapter.NotifyDataSetsChange
 import id.apwdevs.app.catalogue.entity.FavoriteResponse
 import id.apwdevs.app.catalogue.model.ClassResponse
 import id.apwdevs.app.catalogue.model.ResettableItem
 import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemResponse
 import id.apwdevs.app.catalogue.plugin.*
+import id.apwdevs.app.catalogue.plugin.api.GetMovies
+import id.apwdevs.app.catalogue.plugin.api.GetObjectFromServer
+import id.apwdevs.app.catalogue.plugin.api.GetTVShows
 import id.apwdevs.app.catalogue.plugin.callbacks.OnItemFragmentClickListener
 import id.apwdevs.app.catalogue.plugin.callbacks.OnSelectedFragment
 import id.apwdevs.app.catalogue.plugin.view.ErrorSectionAdapter
 import id.apwdevs.app.catalogue.plugin.view.SearchToolbarCard
 import id.apwdevs.app.catalogue.viewModel.MainListViewModel
+import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter
+import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter
+import jp.wasabeef.recyclerview.adapters.SlideInLeftAnimationAdapter
+import jp.wasabeef.recyclerview.animators.LandingAnimator
+import kotlinx.android.synthetic.main.fg_holder_content.*
 
-class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelectedFragment, OnRequestRefresh {
+class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelectedFragment, OnRequestRefresh,
+    NotifyDataSetsChange {
+
 
     private lateinit var refreshPage: SwipeRefreshLayout
     private lateinit var errorLayout: ScrollView
@@ -42,7 +56,7 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
 
     internal lateinit var viewModel: MainListViewModel
     private lateinit var errorAdapter: ErrorSectionAdapter
-    private lateinit var types: PublicContract.ContentDisplayType
+    internal var types: PublicContract.ContentDisplayType? = null
     lateinit var contentReqTypes: Parcelable // order in MainListMovieModel and MainListTvModel or if this is fav pages its ordered into values of type
     private lateinit var recyclerListAdapter: ListAdapter<ResettableItem>
     private lateinit var recyclerGridAdapter: GridAdapter<ResettableItem>
@@ -70,6 +84,8 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
             viewModel.getAt(contentReqTypes, 1)
             onContentRequestAllRefresh?.onForceRefresh(this@FragmentContents)
         }
+        recyclerListAdapter.notifyDataSetsChange = this
+        recyclerGridAdapter.notifyDataSetsChange = this
 
         arguments?.apply {
             types = getParcelable(EXTRA_CONTENT_TYPES)
@@ -106,6 +122,7 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
         refreshPage.setOnRefreshListener {
             viewModel.getAt(contentReqTypes, 1)
         }
+        recyclerContent.itemAnimator = LandingAnimator()
 
     }
 
@@ -133,7 +150,7 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
         viewModel.apply {
 
             if (hasFirstInstantiate.value == false)
-                setup(types)
+                types?.let { setup(it) }
             objData?.observe(this@FragmentContents, Observer {
                 setupRecycler(it, prevListMode.value ?: 0)
             })
@@ -147,6 +164,10 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
                 refreshPage.isRefreshing = it
 
                 if (!it && prevCond) {
+                    if (isInSearchMode?.value == true) {
+                        querySearch(recyclerContent, mTextSearchQuery.value, 0, 0, 0)
+                        (isInSearchMode as MutableLiveData?)?.value = false
+                    }
                     recyclerListAdapter.notifyDataSetChanged()
                     recyclerGridAdapter.notifyDataSetChanged()
                 }
@@ -176,13 +197,13 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
                 when (listMode) {
                     PublicContract.RecyclerMode.MODE_LIST -> {
                         layoutManager = LinearLayoutManager(context)
-                        adapter = recyclerListAdapter
+                        adapter = adapterAnimator(recyclerListAdapter)
                         resetRecyclerListData(it)
                         recyclerListAdapter.notifyDataSetChanged()
                     }
                     PublicContract.RecyclerMode.MODE_GRID -> {
                         layoutManager = GridLayoutManager(context, calculateMaxColumn(context, wSize))
-                        adapter = recyclerGridAdapter
+                        adapter = adapterAnimator(recyclerGridAdapter)
                         resetRecyclerGridData(it)
                         recyclerGridAdapter.notifyDataSetChanged()
                     }
@@ -191,7 +212,7 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
                             calculateMaxColumn(context, wSize),
                             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
                         )
-                        adapter = recyclerGridAdapter
+                        adapter = adapterAnimator(recyclerGridAdapter)
                         resetRecyclerGridData(it)
                         recyclerGridAdapter.notifyDataSetChanged()
                     }
@@ -206,6 +227,16 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
                 }
 
             }
+        }
+    }
+
+    private fun adapterAnimator(adapter: RecyclerView.Adapter<*>): RecyclerView.Adapter<*> {
+        return AlphaInAnimationAdapter(SlideInLeftAnimationAdapter(ScaleInAnimationAdapter(adapter).apply {
+            setFirstOnly(false)
+        }).apply {
+            setFirstOnly(false)
+        }).apply {
+            setFirstOnly(false)
         }
     }
 
@@ -257,18 +288,32 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
     }
 
     override fun onSubmit(query: String) {
-
+        swipe_content_refresh.isRefreshing = true
+        when (types) {
+            PublicContract.ContentDisplayType.TV_SHOWS -> {
+                viewModel.requestSearchFromAPI(GetTVShows.search(query), query)
+            }
+            PublicContract.ContentDisplayType.MOVIE -> {
+                viewModel.requestSearchFromAPI(GetMovies.search(query), query)
+            }
+            else -> {
+                swipe_content_refresh.isRefreshing = false
+            }
+        }
     }
 
     override fun onSearchCancelled() {
-        viewModel.let {
-            when (it.prevListMode.value) {
+        viewModel.apply {
+            if (isInSearchMode?.value == true) {
+                forceEndSearch()
+            }
+            when (prevListMode.value) {
                 PublicContract.RecyclerMode.MODE_LIST -> {
-                    resetRecyclerListData(it.objData?.value)
+                    resetRecyclerListData(objData?.value)
                     recyclerListAdapter.notifyDataSetChanged()
                 }
                 PublicContract.RecyclerMode.MODE_GRID, PublicContract.RecyclerMode.MODE_STAGERRED_LIST -> {
-                    resetRecyclerGridData(it.objData?.value)
+                    resetRecyclerGridData(objData?.value)
                     recyclerGridAdapter.notifyDataSetChanged()
                 }
             }
@@ -312,6 +357,17 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
 
     }
     ////////////////////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    override fun onDataChange(isEmptyData: Boolean, listData: List<Any>) {
+        Handler(Looper.getMainLooper()).post {
+            if (isEmptyData) {
+                errorAdapter.displayError(GetObjectFromServer.RetError(ErrorSectionAdapter.ERR_NO_RESULTS, null))
+                recyclerContent.gone()
+            } else {
+                recyclerContent.visible()
+                errorAdapter.unDisplayError()
+            }
+        }
+    }
 
     override fun onForceRefresh(fragment: Fragment) {
         Log.d("SetsOnForce", "Sets to force load a fragment because due to database changes")
