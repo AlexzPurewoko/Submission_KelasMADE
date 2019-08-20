@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.graphics.Point
+import android.graphics.drawable.Drawable
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.AndroidViewModel
@@ -119,10 +120,10 @@ class DetailViewModel(application: Application) : AndroidViewModel(application) 
         return rectSize
     }
 
-    fun onClickFavoriteBtn(v: View?) {
+    fun onClickFavoriteBtn(v: View?, posterDrawable: Drawable?) {
         if (v == null) return
         viewModelScope.launch(Dispatchers.IO) {
-            val fav = configureFavorite(v.context, data1Obj.value)
+            val fav = configureFavorite(v.context, data1Obj.value, posterDrawable)
             isFavorite.postValue(fav)
         }
     }

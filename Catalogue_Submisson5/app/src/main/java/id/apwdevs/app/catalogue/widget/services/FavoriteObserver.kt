@@ -74,7 +74,7 @@ class FavoriteObserver : Service() {
             weakContext.get()?.let {
                 it.sendBroadcast(Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE).apply {
                     `package` = it.packageName
-                    putExtra(FavoriteWidget.UPDATE_TYPE, FavoriteWidget.STACK_UPDATE_ALL)
+                    putExtra(FavoriteWidget.ACTION_TYPE, FavoriteWidget.STACK_UPDATE_ALL)
                 })
             }
 

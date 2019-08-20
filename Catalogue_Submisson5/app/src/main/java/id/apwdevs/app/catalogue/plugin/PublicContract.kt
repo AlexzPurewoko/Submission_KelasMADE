@@ -5,6 +5,7 @@ import kotlinx.android.parcel.Parcelize
 
 object PublicContract {
 
+    const val WIDGET_SHARED_PREFERENCES: String = "appwidget_pref"
     const val SHARED_PREF_GLOBAL_NAME = "id.apwdevs.app.catalogue_preferences"
     const val TV_OTA: String = "on_the_air"
     const val TV_AIRING_TODAY: String = "airing_today"
@@ -14,6 +15,7 @@ object PublicContract {
     const val UPCOMING: String = "upcoming"
     const val TOP_RATED: String = "top_rated"
     const val DISCOVER_PATH: String = "discover"
+    const val FAVORITE_POSTER_PATH = "favorite_poster"
 
     const val TV_DIR_PATH: String = "tv"
     const val CREDITS_QNAME: String = "credits"

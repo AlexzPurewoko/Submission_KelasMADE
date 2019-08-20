@@ -74,6 +74,22 @@ class SearchToolbarCard(
         popupMenu = popupMenu {
             section {
                 item {
+                    icon = R.drawable.ic_page_indicator_24dp
+                    label = "Toggle Page Indicator"
+                    dismissOnSelect = true
+                    callback = {
+                        searchCb.onTogglePageIndicator()
+                    }
+                }
+                item {
+                    icon = R.drawable.ic_advanced_configuration_24dp
+                    label = "Advanced Page Configuration"
+                    dismissOnSelect = true
+                    callback = {
+                        searchCb.onTogglePageConfiguration()
+                    }
+                }
+                item {
                     icon = R.drawable.ic_settings_black_24dp
                     label = activity.getString(R.string.setting)
                     dismissOnSelect = true
@@ -230,5 +246,7 @@ class SearchToolbarCard(
         fun onTextCleared(searchHistory: String?)
         fun onSearchStarted()
         fun onListModeChange(listMode: Int)
+        fun onTogglePageIndicator()
+        fun onTogglePageConfiguration()
     }
 }

@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.RelativeLayout
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import id.apwdevs.app.catalogue.R
+import id.apwdevs.app.catalogue.adapter.PageIndicatorAdapter
 import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemResponse
 import id.apwdevs.app.catalogue.plugin.CoroutineContextProvider
 import id.apwdevs.app.catalogue.plugin.PublicContract
@@ -40,6 +42,13 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
     private lateinit var bottomNavigationView: BottomNavigationView
     private var bottomNavHolder: RelativeLayout? = null
     private lateinit var vpager: ViewPager
+
+
+    private var pageIndicatorLayout: RelativeLayout? = null
+    private var pageLeftArrow: ImageView? = null
+    private var pageRightArrow: ImageView? = null
+    private var recyclerPage: RecyclerView? = null
+    private var mPageAdapter: PageIndicatorAdapter? = null
 
     private lateinit var mFragments: MutableList<Fragment>
     internal var type: PublicContract.ContentDisplayType? = null
@@ -82,6 +91,10 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
         vpager = view.findViewById(R.id.fg_content_pager)
         bottomNavigationView = view.findViewById(R.id.fg_content_bottomnav)
         bottomNavHolder = view.findViewById(R.id.bottom_nav_layout_holder)
+        pageIndicatorLayout = view.findViewById(R.id.adapter_page_indicator)
+        pageLeftArrow = view.findViewById(R.id.adapter_page_previous)
+        pageRightArrow = view.findViewById(R.id.adapter_page_next)
+        recyclerPage = view.findViewById(R.id.adapter_page_indicator)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -199,7 +212,9 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
             }
             true
         }
+        mPageAdapter = PageIndicatorAdapter()
         vpager.adapter = ContentPageAdapter(childFragmentManager, mFragments)
+        recyclerPage?.adapter = mPageAdapter
     }
 
     override fun onResume() {
@@ -307,6 +322,22 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
 
     override fun onSearchStarted() {
         bottomNavHolder?.gone()
+    }
+
+    override fun onTogglePageIndicator() {
+        /*if(requestTogglePageIndicator()){
+            val isPageIndicatorVisible = isPageIndicatorVisible()
+            if(!isPageIndicatorVisible){
+                val maxNumberPageIndicator = getMaxNumberPageIndicator()
+                val selectedPageIndicator = getCurrentSelectedPage()
+                mPageAdapter?.pageLength = maxNumberPageIndicator
+                bottomNavigationView
+                mPageAdapter.
+            }
+        }*/
+    }
+
+    override fun onTogglePageConfiguration() {
     }
 
     override fun onListModeChange(listMode: Int) {

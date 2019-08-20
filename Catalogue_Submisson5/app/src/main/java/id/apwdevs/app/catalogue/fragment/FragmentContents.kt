@@ -45,7 +45,6 @@ import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter
 import jp.wasabeef.recyclerview.adapters.SlideInLeftAnimationAdapter
 import jp.wasabeef.recyclerview.animators.LandingAnimator
 import kotlinx.android.synthetic.main.fg_holder_content.*
-
 class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelectedFragment, OnRequestRefresh,
     NotifyDataSetsChange {
 
@@ -172,6 +171,12 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
                     recyclerGridAdapter.notifyDataSetChanged()
                 }
             })
+            isInSearchMode?.observe(this@FragmentContents, Observer {
+                if (it) {
+                    recyclerContent.invisible()
+                    errorAdapter.displayError(GetObjectFromServer.RetError(ErrorSectionAdapter.ON_SEARCH_MODE, null))
+                }
+            })
             retError?.observe(this@FragmentContents, Observer {
                 if (it == null) {
                     recyclerContent.visible()
@@ -234,7 +239,7 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
         return AlphaInAnimationAdapter(SlideInLeftAnimationAdapter(ScaleInAnimationAdapter(adapter).apply {
             setFirstOnly(false)
         }).apply {
-            setFirstOnly(false)
+            setFirstOnly(true)
         }).apply {
             setFirstOnly(false)
         }
@@ -330,6 +335,15 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
     override fun onListModeChange(listMode: Int) {
         viewModel.prevListMode.postValue(listMode)
     }
+
+
+    override fun onTogglePageIndicator() {
+
+    }
+
+    override fun onTogglePageConfiguration() {
+
+    }
     ///////////////////////////// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     //////////////////////////////////////  OVERRIDDEN FROM OnSelectedFragment \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
@@ -361,7 +375,7 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
         Handler(Looper.getMainLooper()).post {
             if (isEmptyData) {
                 errorAdapter.displayError(GetObjectFromServer.RetError(ErrorSectionAdapter.ERR_NO_RESULTS, null))
-                recyclerContent.gone()
+                recyclerContent.invisible()
             } else {
                 recyclerContent.visible()
                 errorAdapter.unDisplayError()

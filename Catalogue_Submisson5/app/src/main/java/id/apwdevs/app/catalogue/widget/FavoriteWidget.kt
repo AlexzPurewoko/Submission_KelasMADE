@@ -7,12 +7,15 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Bundle
 import android.widget.RemoteViews
 import id.apwdevs.app.catalogue.R
+import id.apwdevs.app.catalogue.activities.DetailActivity
 import id.apwdevs.app.catalogue.activities.MainTabUserActivity
-import id.apwdevs.app.catalogue.provider.FavoriteProvider.Companion.BASE_URI_FAVORITE
+import id.apwdevs.app.catalogue.activities.StackWidgetPreferenceActivity
+import id.apwdevs.app.catalogue.database.FavoriteDatabase
+import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.widget.services.FavoriteObserver
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -35,25 +38,38 @@ class FavoriteWidget : AppWidgetProvider() {
 
     override fun onDisabled(context: Context) {
         // Enter relevant functionality for when the last widget is disabled
-        context.stopService(Intent(context, FavoriteObserver::class.java))
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        when (intent?.getStringExtra(UPDATE_TYPE)) {
+        when (intent?.getStringExtra(ACTION_TYPE)) {
             STACK_UPDATE_ALL -> context?.let {
                 val wInstance = AppWidgetManager.getInstance(it)
                 val update = wInstance.getAppWidgetIds(ComponentName(it, FavoriteWidget::class.java))
                 wInstance.notifyAppWidgetViewDataChanged(update, R.id.stackview_widget)
             }
-            STACK_REMOVE_ITEM -> context?.let {
-                GlobalScope.launch(Dispatchers.IO) {
-                    if (removeFromFavorite(it, intent.getIntExtra(STACK_ITEM_ID, -1)) >= -1)
-                        it.contentResolver.notifyChange(
-                            BASE_URI_FAVORITE.build(),
-                            FavoriteObserver.DataWidgetObserver.forceGetInstance()
+            STACK_LAUNCH_DETAIL_ITEM -> context?.let {
+                GlobalScope.launch {
+                    val cId = intent.getIntExtra(STACK_ITEM_ID, -1)
+                    if (cId == -1) return@launch
+                    val favDao = FavoriteDatabase.getInstance(context).favoriteDao()
+                    favDao.getItemAt(cId)?.let {
+                        context.startActivity(
+                            Intent(context, DetailActivity::class.java).apply {
+                                putExtras(Bundle().also { mExtra ->
+                                    mExtra.putParcelable(
+                                        DetailActivity.EXTRA_DETAIL_TYPES,
+                                        PublicContract.ContentDisplayType.FAVORITES
+                                    )
+                                    mExtra.putInt(DetailActivity.EXTRA_ID, it.id)
+                                    mExtra.putParcelable(DetailActivity.EXTRA_CONTENT_DETAILS, it)
+                                })
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            }
                         )
-                }
 
+
+                    }
+                }
             }
             START_OBSERVER_AND_UPDATE -> context?.let {
                 val wInstance = AppWidgetManager.getInstance(it)
@@ -65,55 +81,61 @@ class FavoriteWidget : AppWidgetProvider() {
         }
 
     }
-
-    fun removeFromFavorite(context: Context, id: Int): Int =
-        context.contentResolver.delete(BASE_URI_FAVORITE.appendPath(id.toString()).build(), null, null)
-
     companion object {
 
         const val START_OBSERVER_AND_UPDATE: String = "OBSERVER_START"
         const val STACK_ITEM_ID: String = "STACK_ID"
-        const val STACK_REMOVE_ITEM: String = "REMOVE_FAVORITE_ITEM"
-        private val TOAST_ACTION: String = "HHHH"
+        const val STACK_LAUNCH_DETAIL_ITEM: String = "REMOVE_FAVORITE_ITEM"
 
         const val STACK_UPDATE_ALL: String = "REQ_UPDATE_ALL"
-        const val UPDATE_TYPE: String = "APPWIDGET_UPDATE_TYPE"
+        const val ACTION_TYPE: String = "APPWIDGET_UPDATE_TYPE"
         internal fun updateAppWidget(
             context: Context, appWidgetManager: AppWidgetManager,
             appWidgetId: Int
         ) {
+            appWidgetManager.updateAppWidget(
+                appWidgetId,
+                RemoteViews(context.packageName, R.layout.favorite_widget).apply {
+                    setRemoteAdapter(R.id.stackview_widget, Intent(context, StackWidgetService::class.java).also {
+                        it.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                        it.data = Uri.parse(it.toUri(Intent.URI_INTENT_SCHEME))
+                    })
+                    setEmptyView(R.id.stackview_widget, R.id.empty_views)
+                    val idType =
+                        context.getSharedPreferences(PublicContract.WIDGET_SHARED_PREFERENCES, Context.MODE_PRIVATE)
+                            .getInt("widget_conf_${appWidgetId}_type", -1)
+                    setTextViewText(
+                        R.id.text_display, when (PublicContract.ContentDisplayType.findId(idType)) {
+                            PublicContract.ContentDisplayType.TV_SHOWS -> "My Favorite Tv Shows"
+                            PublicContract.ContentDisplayType.MOVIE -> "My Favorite Movies"
+                            else -> "Whatever :("
+                        }
+                    )
+                    setOnClickPendingIntent(
+                        R.id.btn_goto_app,
+                        PendingIntent.getActivity(
+                            context,
+                            0xca2f,
+                            Intent(context, MainTabUserActivity::class.java).apply {
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            },
+                            PendingIntent.FLAG_UPDATE_CURRENT
+                        )
+                    )
+                    setOnClickPendingIntent(
+                        R.id.widget_display,
+                        PendingIntent.getActivity(
+                            context,
+                            0xaafa,
+                            Intent(context, StackWidgetPreferenceActivity::class.java).apply {
+                                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                                putExtra(StackWidgetPreferenceActivity.OWN_UPDATE, true)
+                            },
+                            PendingIntent.FLAG_UPDATE_CURRENT
+                        )
+                    )
 
-            // Construct the RemoteViews object
-            val intent = Intent(context, StackWidgetService::class.java).also {
-                it.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                it.data = Uri.parse(it.toUri(Intent.URI_INTENT_SCHEME))
-            }
-            val remoteViews = RemoteViews(context.packageName, R.layout.favorite_widget)
-            remoteViews.setRemoteAdapter(R.id.stackview_widget, intent)
-            remoteViews.setEmptyView(R.id.stackview_widget, R.id.empty_views)
-            //remoteViews.setImageViewResource(R.id.widget_settings, R.drawable.ic_settings_black_24dp)
-            //remoteViews.setTextColor(R.id.title_display, Color.WHITE)
-            remoteViews.setTextViewText(R.id.text_display, "My Favorite Movie")
-            remoteViews.setOnClickPendingIntent(
-                R.id.btn_goto_app,
-                PendingIntent.getActivity(context, 0xca2f, Intent(context, MainTabUserActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                }, PendingIntent.FLAG_UPDATE_CURRENT)
-            )
-
-            val toastIntent = Intent(context, FavoriteWidget::class.java).also {
-                it.action = FavoriteWidget.TOAST_ACTION
-                it.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-            }
-
-            remoteViews.setPendingIntentTemplate(
-                R.id.stackview_widget,
-                PendingIntent.getBroadcast(context, 0, toastIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-            )
-
-
-            // Instruct the widget manager to update the widget
-            appWidgetManager.updateAppWidget(appWidgetId, remoteViews)
+                })
         }
     }
 }

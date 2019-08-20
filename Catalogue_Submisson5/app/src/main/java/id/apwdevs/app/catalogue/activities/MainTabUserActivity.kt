@@ -419,6 +419,15 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
         searchToolbarCard.forceSearchCancel()
     }
 
+
+    override fun onTogglePageIndicator() {
+
+    }
+
+    override fun onTogglePageConfiguration() {
+
+    }
+
     override fun getListMode(): Int = searchToolbarCard.currentListMode ?: PublicContract.RecyclerMode.MODE_LIST
 
     override fun onFragmentChange(

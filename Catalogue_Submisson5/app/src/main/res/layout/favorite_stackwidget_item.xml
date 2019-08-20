@@ -5,6 +5,9 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent">
     <ImageView
+            android:src="@drawable/ic_sentiment_dissatisfied_black_24dp"
+            android:backgroundTint="@android:color/white"
+            android:scaleType="fitCenter"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:adjustViewBounds="true"
@@ -24,7 +27,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="20dp"
                 android:tint="#fff"
-                android:src="@drawable/ic_favorite_activated_24dp"
+                android:src="@drawable/ic_launch_24dp"
                 android:id="@+id/favorite_widget_btn"/>
         <TextView
                 android:textStyle="bold"

@@ -17,8 +17,13 @@
     <RelativeLayout
             android:id="@+id/bottom_nav_layout_holder"
             android:layout_alignParentBottom="true"
-            android:layout_width="match_parent" android:layout_height="wrap_content">
+            android:layout_centerHorizontal="true"
+            android:layout_width="wrap_content" android:layout_height="wrap_content">
+        <include
+                android:visibility="gone"
+                layout="@layout/adapter_page_indicator"/>
         <com.google.android.material.bottomnavigation.BottomNavigationView
+                android:visibility="visible"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:elevation="2dp"

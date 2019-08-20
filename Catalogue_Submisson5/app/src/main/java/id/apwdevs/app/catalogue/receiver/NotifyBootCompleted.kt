@@ -36,7 +36,7 @@ class NotifyBootCompleted : BroadcastReceiver() {
         it.sendBroadcast(
             Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE).apply {
                 `package` = it.packageName
-                putExtra(FavoriteWidget.UPDATE_TYPE, FavoriteWidget.START_OBSERVER_AND_UPDATE)
+                putExtra(FavoriteWidget.ACTION_TYPE, FavoriteWidget.START_OBSERVER_AND_UPDATE)
             }
         )
     }

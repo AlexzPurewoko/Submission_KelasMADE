@@ -3,10 +3,12 @@ package id.apwdevs.app.catalogue.plugin
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Point
+import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import androidx.annotation.WorkerThread
+import androidx.core.graphics.drawable.toBitmap
 import com.androidnetworking.AndroidNetworking
 import com.androidnetworking.common.Priority
 import com.androidnetworking.error.ANError
@@ -19,6 +21,9 @@ import id.apwdevs.app.catalogue.model.ResettableItem
 import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemModel
 import id.apwdevs.app.catalogue.plugin.api.GetImageFiles
 import id.apwdevs.app.catalogue.provider.FavoriteProvider
+import java.io.File
+import java.io.FileOutputStream
+
 fun View.visible() {
     visibility = View.VISIBLE
 }
@@ -112,13 +117,20 @@ fun getBitmap(
 }
 
 @WorkerThread
-fun configureFavorite(context: Context, model: ResettableItem?): Boolean =
+fun configureFavorite(context: Context, model: ResettableItem?, posterDrawable: Drawable?): Boolean =
     model?.let {
         val db = FavoriteDatabase.getInstance(context)
         val favDao = db.favoriteDao()
+        var posterPath: String? = null
         val id: Int = when (it) {
-            is MainDataItemModel -> it.id
-            is FavoriteEntity -> it.id
+            is MainDataItemModel -> {
+                posterPath = it.posterPath
+                it.id
+            }
+            is FavoriteEntity -> {
+                posterPath = it.posterPath
+                it.id
+            }
             else -> -1
         }
         if (id == -1) return@let false
@@ -154,22 +166,43 @@ fun configureFavorite(context: Context, model: ResettableItem?): Boolean =
         val isFav = favDao.isAnyColumnIn(id)
         if (it is MainDataItemModel) it.isFavorite = isFav
         if (isFav) {
+            posterDrawable?.let {
+                posterPath?.let { posterPath ->
+                    val bmp = it.toBitmap()
+                    val file = File(File(context.cacheDir, PublicContract.FAVORITE_POSTER_PATH).apply {
+                        mkdirs()
+                    }, posterPath)
+                    val fos = FileOutputStream(file)
+                    bmp.compress(Bitmap.CompressFormat.JPEG, 90, fos)
+                    fos.flush()
+                    fos.close()
+                }
+            }
+            context.contentResolver.notifyChange(FavoriteProvider.BASE_URI_FAVORITE.build(), null)
+        } else if (!isFav && currentIsFavorite) {
+            File(File(context.cacheDir, PublicContract.FAVORITE_POSTER_PATH).apply {
+                mkdirs()
+            }, posterPath).delete()
             context.contentResolver.notifyChange(FavoriteProvider.BASE_URI_FAVORITE.build(), null)
         }
         isFav
     } ?: false
 
 
-private fun converToStr(gModel: List<GenreModel>?): String {
-    val sbuf = StringBuffer()
-    gModel?.forEach {
-        sbuf.append(it.genreName)
-        sbuf.append(",")
+private fun converToStr(gModel: List<GenreModel>?): String? =
+    gModel?.let {
+        if (it.isEmpty()) return@let null
+        val sbuf = StringBuffer()
+        it.forEach { genre ->
+            sbuf.append(genre.genreName)
+            sbuf.append(",")
+        }
+        if (sbuf[sbuf.length - 1] == ',')
+            sbuf.deleteCharAt(sbuf.length - 1)
+        sbuf.toString()
     }
-    if (sbuf[sbuf.length - 1] == ',')
-        sbuf.deleteCharAt(sbuf.length - 1)
-    return sbuf.toString()
-}
+
+
 
 
 

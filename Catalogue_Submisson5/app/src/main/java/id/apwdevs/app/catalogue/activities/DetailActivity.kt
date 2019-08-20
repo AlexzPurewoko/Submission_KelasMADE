@@ -79,7 +79,7 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
         confViewModel()
         actdetail_favorite.setOnClickListener {
             viewModel.isAnyChangesMade.value = true
-            viewModel.onClickFavoriteBtn(it)
+            viewModel.onClickFavoriteBtn(it, item_poster_image?.drawable)
 
         }
         setupObserver()
@@ -176,6 +176,7 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
                         false -> {
                         }
                         true -> {
+                            actdetail_favorite?.isEnabled = false
                             loadSnackbar.show()
                         }
                     }
@@ -253,6 +254,7 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
             loadFinished.observe(this@DetailActivity, Observer {
                 if (it) {
                     loadSnackbar.dismiss()
+                    actdetail_favorite?.isEnabled = true
                     setRecycler(this)
                 }
             })

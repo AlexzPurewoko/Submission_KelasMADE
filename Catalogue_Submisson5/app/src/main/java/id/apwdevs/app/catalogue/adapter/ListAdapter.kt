@@ -246,7 +246,7 @@ class ListAdapter<T : ResettableItem>(
         override fun onClick(v: View?) {
             if (v?.id == itemFavorites.id) {
                 GlobalScope.launch(Dispatchers.IO) {
-                    val fav = configureFavorite(itemView.context, tmpModel)
+                    val fav = configureFavorite(itemView.context, tmpModel, poster.drawable)
                     if (tmpModel is FavoriteEntity) {
                         mContext.runOnUiThread {
                             reqRefreshRootDataSets()
