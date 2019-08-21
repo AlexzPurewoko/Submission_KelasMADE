@@ -20,7 +20,7 @@
             android:layout_centerHorizontal="true"
             android:layout_width="wrap_content" android:layout_height="wrap_content">
         <include
-                android:visibility="gone"
+                android:visibility="invisible"
                 layout="@layout/adapter_page_indicator"/>
         <com.google.android.material.bottomnavigation.BottomNavigationView
                 android:visibility="visible"

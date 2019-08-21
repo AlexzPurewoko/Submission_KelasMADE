@@ -42,18 +42,18 @@ import id.apwdevs.app.catalogue.plugin.view.SearchToolbarCard
 import id.apwdevs.app.catalogue.viewModel.MainListViewModel
 import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter
 import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter
-import jp.wasabeef.recyclerview.adapters.SlideInLeftAnimationAdapter
 import jp.wasabeef.recyclerview.animators.LandingAnimator
 import kotlinx.android.synthetic.main.fg_holder_content.*
+
 class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelectedFragment, OnRequestRefresh,
-    NotifyDataSetsChange {
+    NotifyDataSetsChange, PageIndicatorCb {
 
 
     private lateinit var refreshPage: SwipeRefreshLayout
     private lateinit var errorLayout: ScrollView
     private lateinit var recyclerContent: RecyclerView
 
-    internal lateinit var viewModel: MainListViewModel
+    internal var viewModel: MainListViewModel? = null
     private lateinit var errorAdapter: ErrorSectionAdapter
     internal var types: PublicContract.ContentDisplayType? = null
     lateinit var contentReqTypes: Parcelable // order in MainListMovieModel and MainListTvModel or if this is fav pages its ordered into values of type
@@ -71,18 +71,21 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
             ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory(requireActivity().application)).get(
                 MainListViewModel::class.java
             )
-        viewModel.applyConfiguration()
-        recyclerGridAdapter =
-            GridAdapter(requireContext(), viewModel.cardItemBg, viewModel.colorredTextState, viewModel.backdropSize)
-        recyclerListAdapter = ListAdapter(
-            requireActivity() as AppCompatActivity,
-            viewModel.cardItemBg,
-            viewModel.colorredTextState,
-            viewModel.backdropSize
-        ) {
-            viewModel.getAt(contentReqTypes, 1)
-            onContentRequestAllRefresh?.onForceRefresh(this@FragmentContents)
+        viewModel?.apply {
+            applyConfiguration()
+            recyclerGridAdapter =
+                GridAdapter(requireContext(), cardItemBg, colorredTextState, backdropSize)
+            recyclerListAdapter = ListAdapter(
+                requireActivity() as AppCompatActivity,
+                cardItemBg,
+                colorredTextState,
+                backdropSize
+            ) {
+                getAt(contentReqTypes, 1)
+                onContentRequestAllRefresh?.onForceRefresh(this@FragmentContents)
+            }
         }
+
         recyclerListAdapter.notifyDataSetsChange = this
         recyclerGridAdapter.notifyDataSetsChange = this
 
@@ -119,7 +122,7 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
         // we have to obtain a value of ViewModel
         initViewModel()
         refreshPage.setOnRefreshListener {
-            viewModel.getAt(contentReqTypes, 1)
+            types?.let { viewModel?.refreshPage(it, contentReqTypes) }
         }
         recyclerContent.itemAnimator = LandingAnimator()
 
@@ -142,11 +145,11 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
     }
 
     fun forceLoadContent(content: MainDataItemResponse?) {
-        viewModel.forceLoadIn(content)
+        viewModel?.forceLoadIn(content)
     }
 
     private fun initViewModel() {
-        viewModel.apply {
+        viewModel?.apply {
 
             if (hasFirstInstantiate.value == false)
                 types?.let { setup(it) }
@@ -236,10 +239,8 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
     }
 
     private fun adapterAnimator(adapter: RecyclerView.Adapter<*>): RecyclerView.Adapter<*> {
-        return AlphaInAnimationAdapter(SlideInLeftAnimationAdapter(ScaleInAnimationAdapter(adapter).apply {
+        return AlphaInAnimationAdapter(ScaleInAnimationAdapter(adapter).apply {
             setFirstOnly(false)
-        }).apply {
-            setFirstOnly(true)
         }).apply {
             setFirstOnly(false)
         }
@@ -277,15 +278,15 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
     ///////////////////////////// OVERRIDDEN FROM OnSearchCallback \\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
     override fun querySearch(view: View, query: CharSequence?, start: Int, before: Int, count: Int) {
-        when (viewModel.prevListMode.value) {
+        when (viewModel?.prevListMode?.value) {
             PublicContract.RecyclerMode.MODE_LIST -> {
                 if (query?.isNotBlank() == true) {
-                    resetRecyclerListData(viewModel.objData?.value)
+                    resetRecyclerListData(viewModel?.objData?.value)
                     recyclerListAdapter.filter.filter(query)
                 }
             }
             PublicContract.RecyclerMode.MODE_GRID, PublicContract.RecyclerMode.MODE_STAGERRED_LIST -> {
-                resetRecyclerGridData(viewModel.objData?.value)
+                resetRecyclerGridData(viewModel?.objData?.value)
                 if (query?.isNotBlank() == true)
                     recyclerGridAdapter.filter.filter(query)
             }
@@ -296,10 +297,10 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
         swipe_content_refresh.isRefreshing = true
         when (types) {
             PublicContract.ContentDisplayType.TV_SHOWS -> {
-                viewModel.requestSearchFromAPI(GetTVShows.search(query), query)
+                viewModel?.requestSearchFromAPI(GetTVShows.search(query), query)
             }
             PublicContract.ContentDisplayType.MOVIE -> {
-                viewModel.requestSearchFromAPI(GetMovies.search(query), query)
+                viewModel?.requestSearchFromAPI(GetMovies.search(query), query)
             }
             else -> {
                 swipe_content_refresh.isRefreshing = false
@@ -308,8 +309,8 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
     }
 
     override fun onSearchCancelled() {
-        viewModel.apply {
-            if (isInSearchMode?.value == true) {
+        viewModel?.apply {
+            if (isInSearchMode?.value != true) {
                 forceEndSearch()
             }
             when (prevListMode.value) {
@@ -326,6 +327,7 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
     }
 
     override fun onTextCleared(searchHistory: String?) {
+
     }
 
     override fun onSearchStarted() {
@@ -333,25 +335,37 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
     }
 
     override fun onListModeChange(listMode: Int) {
-        viewModel.prevListMode.postValue(listMode)
+        viewModel?.prevListMode?.postValue(listMode)
     }
 
 
-    override fun onTogglePageIndicator() {
-
-    }
-
-    override fun onTogglePageConfiguration() {
+    override fun onTogglePageIndicator(mode: Boolean) {
 
     }
     ///////////////////////////// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+    override fun getCurrentSelectedPage(): Int {
+        return viewModel?.currentPage?.value ?: 1
+    }
+
+    override fun getMaxNumberPageIndicator(): Int {
+        return viewModel?.maxPage?.value ?: 1
+    }
+
+    override fun requestTogglePageIndicator(): Boolean {
+        return viewModel?.allowToggleIndicator?.value ?: false
+    }
+
+    override fun onSelectedPageNumber(pageNumber: Int) {
+        viewModel?.getAt(contentReqTypes, pageNumber)
+    }
     //////////////////////////////////////  OVERRIDDEN FROM OnSelectedFragment \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
     override fun start(fragment: Fragment, position: Int) {
         Log.e("Start Fragment", "FragmentStart ${fragment.javaClass.simpleName}")
         //initViewModel()
         val listMode = mRequestIntoHostActivity?.getListMode()
-        viewModel.apply {
+        viewModel?.apply {
 
             when {
                 hasFirstInstantiate.value == false -> {
@@ -385,7 +399,7 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
 
     override fun onForceRefresh(fragment: Fragment) {
         Log.d("SetsOnForce", "Sets to force load a fragment because due to database changes")
-        viewModel.hasForceLoadContent.value = true
+        viewModel?.hasForceLoadContent?.value = true
     }
 
     companion object {

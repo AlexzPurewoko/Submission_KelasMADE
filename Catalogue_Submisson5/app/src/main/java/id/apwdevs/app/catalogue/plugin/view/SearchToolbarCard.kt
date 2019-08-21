@@ -37,6 +37,9 @@ class SearchToolbarCard(
     internal val currentListMode: Int?
         get() = dataVModel.currentListMode.value
 
+    private val isVisiblePageIndicator: Boolean
+        get() = dataVModel.pageIndicatorMode.value ?: false
+
 
     init {
         dataVModel.currentListMode.observe(activity, Observer {
@@ -68,6 +71,17 @@ class SearchToolbarCard(
         initImgLeft()
         initImgListMode()
         initImgMore()
+        initPageIndicator()
+    }
+
+    private fun initPageIndicator() {
+        dataVModel.pageIndicatorMode.observe(activity, Observer {
+            searchCb.onTogglePageIndicator(it)
+        })
+    }
+
+    fun togglePageIndicator(mode: Boolean) {
+        dataVModel.pageIndicatorMode.value = mode
     }
 
     private fun initImgMore() {
@@ -78,15 +92,7 @@ class SearchToolbarCard(
                     label = "Toggle Page Indicator"
                     dismissOnSelect = true
                     callback = {
-                        searchCb.onTogglePageIndicator()
-                    }
-                }
-                item {
-                    icon = R.drawable.ic_advanced_configuration_24dp
-                    label = "Advanced Page Configuration"
-                    dismissOnSelect = true
-                    callback = {
-                        searchCb.onTogglePageConfiguration()
+                        dataVModel.pageIndicatorMode.value = !isVisiblePageIndicator
                     }
                 }
                 item {
@@ -246,7 +252,6 @@ class SearchToolbarCard(
         fun onTextCleared(searchHistory: String?)
         fun onSearchStarted()
         fun onListModeChange(listMode: Int)
-        fun onTogglePageIndicator()
-        fun onTogglePageConfiguration()
+        fun onTogglePageIndicator(mode: Boolean)
     }
 }

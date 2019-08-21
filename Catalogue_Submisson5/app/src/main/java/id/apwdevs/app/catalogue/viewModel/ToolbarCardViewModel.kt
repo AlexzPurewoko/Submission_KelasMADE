@@ -8,10 +8,12 @@ class ToolbarCardViewModel : ViewModel() {
     val currentListMode: MutableLiveData<Int> = MutableLiveData()
     val isInSearchMode: MutableLiveData<Boolean> = MutableLiveData()
     val queryTextSearch: MutableLiveData<QueryStrData> = MutableLiveData()
+    val pageIndicatorMode: MutableLiveData<Boolean> = MutableLiveData()
 
     init {
         currentListMode.value = PublicContract.RecyclerMode.MODE_LIST
         isInSearchMode.value = false
+        pageIndicatorMode.value = false
     }
 
     data class QueryStrData(

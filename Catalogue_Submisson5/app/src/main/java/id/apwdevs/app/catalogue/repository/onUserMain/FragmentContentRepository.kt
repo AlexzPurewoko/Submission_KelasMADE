@@ -44,6 +44,7 @@ class FragmentContentRepository<T : ClassResponse>(
     val inSearchMode: MutableLiveData<Boolean> = MutableLiveData()
     //val searchAPIResult: MutableLiveData<T> = MutableLiveData()
     val loadProgress: MutableLiveData<Double> = MutableLiveData()
+    val maxPageNumber: MutableLiveData<Int> = MutableLiveData()
     init {
         isLoading.value = false
     }
@@ -65,14 +66,14 @@ class FragmentContentRepository<T : ClassResponse>(
             val obj = when (type) {
                 PublicContract.ContentDisplayType.MOVIE -> {
                     loadFromInet(
-                        GetMovies.getList(commands[0] as MainListViewModel.MovieTypeContract),
+                        GetMovies.getList(commands[0] as MainListViewModel.MovieTypeContract, (commands[1] as Int)),
                         "GetListMovie${commands[0]}",
                         objServer
                     )
                 }
                 PublicContract.ContentDisplayType.TV_SHOWS -> {
                     loadFromInet(
-                        GetTVShows.getList(commands[0] as MainListViewModel.TvTypeContract, 1),
+                        GetTVShows.getList(commands[0] as MainListViewModel.TvTypeContract, (commands[1] as Int)),
                         "GetListTv${commands[0]}",
                         objServer
                     )
@@ -96,6 +97,13 @@ class FragmentContentRepository<T : ClassResponse>(
             while (!getGenre.isCompleted) delay(200)
             applyGenreIntoModels(obj)
             checkAndApplyFavorite(obj, db)
+            maxPageNumber.postValue(
+                when (obj) {
+                    is MainDataItemResponse ->
+                        obj.totalPages
+                    else -> 1
+                }
+            )
             objData.postValue(obj)
             isLoading.postValue(false)
         }

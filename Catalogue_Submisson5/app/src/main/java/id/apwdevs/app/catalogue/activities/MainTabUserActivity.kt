@@ -420,12 +420,11 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
     }
 
 
-    override fun onTogglePageIndicator() {
-
-    }
-
-    override fun onTogglePageConfiguration() {
-
+    override fun onTogglePageIndicator(mode: Boolean) {
+        listFragmentContainer[view_pager.currentItem].apply {
+            if (this is SearchToolbarCard.OnSearchCallback)
+                onTogglePageIndicator(mode)
+        }
     }
 
     override fun getListMode(): Int = searchToolbarCard.currentListMode ?: PublicContract.RecyclerMode.MODE_LIST
@@ -437,6 +436,7 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
     ) {
         searchToolbarCard.forceSearchCancel()
         container.showBottomNav()
+        searchToolbarCard.togglePageIndicator(false)
     }
 
 

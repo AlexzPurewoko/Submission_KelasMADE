@@ -1,15 +1,20 @@
 package id.apwdevs.app.catalogue.fragment
 
 import android.content.Context
+import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.SpannedString
+import android.text.style.StyleSpan
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import androidx.core.text.clearSpans
+import androidx.core.text.toSpannable
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -20,14 +25,11 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.adapter.PageIndicatorAdapter
 import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemResponse
-import id.apwdevs.app.catalogue.plugin.CoroutineContextProvider
-import id.apwdevs.app.catalogue.plugin.PublicContract
+import id.apwdevs.app.catalogue.plugin.*
 import id.apwdevs.app.catalogue.plugin.callbacks.FragmentListCallback
 import id.apwdevs.app.catalogue.plugin.callbacks.OnItemFragmentClickListener
 import id.apwdevs.app.catalogue.plugin.callbacks.OnSelectedFragment
-import id.apwdevs.app.catalogue.plugin.gone
 import id.apwdevs.app.catalogue.plugin.view.SearchToolbarCard
-import id.apwdevs.app.catalogue.plugin.visible
 import id.apwdevs.app.catalogue.viewModel.MainListViewModel.MovieTypeContract
 import id.apwdevs.app.catalogue.viewModel.MainListViewModel.TvTypeContract
 import id.apwdevs.app.catalogue.workers.ReleaseTodayReminder
@@ -50,7 +52,7 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
     private var recyclerPage: RecyclerView? = null
     private var mPageAdapter: PageIndicatorAdapter? = null
 
-    private lateinit var mFragments: MutableList<Fragment>
+    private var mFragments: MutableList<Fragment>? = null
     internal var type: PublicContract.ContentDisplayType? = null
 
     private val fragmentTag: String
@@ -71,6 +73,23 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
     var fragmentListCb: FragmentListCallback? = null
     private var onItemClickListener: OnItemFragmentClickListener? = null
     private var currItem: Int = 0
+    private var isPageIndicatorVisible: Boolean = false
+    private val mRegisterScroll = object : RecyclerView.OnScrollListener() {
+        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+            val min = recyclerView.findViewHolderForAdapterPosition(0) != null
+            val max = recyclerView.findViewHolderForAdapterPosition(getMaxNumberPageIndicator() - 1) != null
+            if (min) {
+                pageLeftArrow?.invisible()
+                pageRightArrow?.visible()
+            } else if (!min && !max) {
+                pageLeftArrow?.visible()
+                pageRightArrow?.visible()
+            } else if (max) {
+                pageLeftArrow?.visible()
+                pageRightArrow?.invisible()
+            }
+        }
+    }
 
     @Volatile
     private var dummyLockUntilFinish: Boolean = false
@@ -91,7 +110,7 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
         vpager = view.findViewById(R.id.fg_content_pager)
         bottomNavigationView = view.findViewById(R.id.fg_content_bottomnav)
         bottomNavHolder = view.findViewById(R.id.bottom_nav_layout_holder)
-        pageIndicatorLayout = view.findViewById(R.id.adapter_page_indicator)
+        pageIndicatorLayout = view.findViewById(R.id.adapter_page_indicator_container)
         pageLeftArrow = view.findViewById(R.id.adapter_page_previous)
         pageRightArrow = view.findViewById(R.id.adapter_page_next)
         recyclerPage = view.findViewById(R.id.adapter_page_indicator)
@@ -125,18 +144,18 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
                 when (type) {
                     PublicContract.ContentDisplayType.TV_SHOWS -> {
                         tvModeSupport.forEach {
-                            mFragments.add(FragmentContents.newInstance(ftypes, it))
+                            mFragments?.add(FragmentContents.newInstance(ftypes, it))
                         }
 
                     }
                     PublicContract.ContentDisplayType.MOVIE -> {
                         movieModeSupport.forEach {
-                            mFragments.add(FragmentContents.newInstance(ftypes, it))
+                            mFragments?.add(FragmentContents.newInstance(ftypes, it))
                         }
                     }
                     PublicContract.ContentDisplayType.FAVORITES ->
                         favModeSupport.forEach {
-                            mFragments.add(FragmentContents.newInstance(ftypes, it))
+                            mFragments?.add(FragmentContents.newInstance(ftypes, it))
                         }
 
                 }
@@ -148,13 +167,13 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
                 try {
                     val fg =
                         childFragmentManager.getFragment(savedInstanceState, "Content$fragmentTag${idx++}") ?: break
-                    mFragments.add(fg)
+                    mFragments?.add(fg)
                 } catch (e: Exception) {
                     break
                 }
             }
         }
-        mFragments.forEach {
+        mFragments?.forEach {
             if (it is FragmentContents) {
                 it.onItemClickListener = this
             }
@@ -164,8 +183,11 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putInt(EXTRA_CURRENT_ITEM_POSITION, currItem)
-        for ((idx, fg) in mFragments.withIndex()) {
-            childFragmentManager.putFragment(outState, "Content$fragmentTag$idx", fg)
+
+        mFragments?.let {
+            for ((idx, fg) in it.withIndex()) {
+                childFragmentManager.putFragment(outState, "Content$fragmentTag$idx", fg)
+            }
         }
     }
 
@@ -190,7 +212,16 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
                     dummyLockUntilFinish = false
                     bottomNavigationView.selectedItemId = bottomNavigationView.menu.getItem(position).itemId
                     currItem = position
-                    type?.let { fragmentListCb?.onFragmentChange(mFragments[position], this@FragmentListContainer, it) }
+
+                    mFragments?.let { mFg ->
+                        type?.let {
+                            fragmentListCb?.onFragmentChange(
+                                mFg[position],
+                                this@FragmentListContainer,
+                                it
+                            )
+                        }
+                    }
                     startPrepareFragment(position)
                     dummyLockUntilFinish = true
                 }
@@ -204,7 +235,16 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
                     dummyLockUntilFinish = false
                     vpager.setCurrentItem(menuPos, true)
                     currItem = menuPos
-                    type?.let { fragmentListCb?.onFragmentChange(mFragments[menuPos], this@FragmentListContainer, it) }
+
+                    mFragments?.let { mFg ->
+                        type?.let {
+                            fragmentListCb?.onFragmentChange(
+                                mFg[menuPos],
+                                this@FragmentListContainer,
+                                it
+                            )
+                        }
+                    }
                     startPrepareFragment(menuPos)
                     dummyLockUntilFinish = true
                     break
@@ -213,8 +253,29 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
             true
         }
         mPageAdapter = PageIndicatorAdapter()
-        vpager.adapter = ContentPageAdapter(childFragmentManager, mFragments)
+
+        mFragments?.let {
+            vpager.adapter = ContentPageAdapter(childFragmentManager, it)
+        }
         recyclerPage?.adapter = mPageAdapter
+        pageLeftArrow?.setOnClickListener {
+            recyclerPage?.layoutManager?.smoothScrollToPosition(
+                recyclerPage,
+                RecyclerView.State().apply {
+                    willRunPredictiveAnimations()
+                },
+                0
+            )
+        }
+        pageRightArrow?.setOnClickListener {
+            recyclerPage?.layoutManager?.smoothScrollToPosition(
+                recyclerPage,
+                RecyclerView.State().apply {
+                    willRunPredictiveAnimations()
+                },
+                getMaxNumberPageIndicator() - 1
+            )
+        }
     }
 
     override fun onResume() {
@@ -247,19 +308,22 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
     ) {
 
         if (from == ReleaseTodayReminder.FROM_REMINDER) {
-            loop@ for ((idx, fg) in mFragments.withIndex()) {
-                when (type) {
-                    PublicContract.ContentDisplayType.MOVIE ->
-                        if (fg is FragmentContents && fg.contentReqTypes == MovieTypeContract.DISCOVER) {
-                            forceStart(idx, fg, contentData)
-                            break@loop
-                        }
-                    PublicContract.ContentDisplayType.TV_SHOWS ->
-                        if (fg is FragmentContents && fg.contentReqTypes == TvTypeContract.DISCOVER) {
-                            forceStart(idx, fg, contentData)
-                            break@loop
-                        }
-                    else -> break@loop
+
+            mFragments?.let {
+                loop@ for ((idx, fg) in it.withIndex()) {
+                    when (type) {
+                        PublicContract.ContentDisplayType.MOVIE ->
+                            if (fg is FragmentContents && fg.contentReqTypes == MovieTypeContract.DISCOVER) {
+                                forceStart(idx, fg, contentData)
+                                break@loop
+                            }
+                        PublicContract.ContentDisplayType.TV_SHOWS ->
+                            if (fg is FragmentContents && fg.contentReqTypes == TvTypeContract.DISCOVER) {
+                                forceStart(idx, fg, contentData)
+                                break@loop
+                            }
+                        else -> break@loop
+                    }
                 }
             }
 
@@ -276,22 +340,27 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
     }
 
     private fun startPrepareFragment(position: Int) {
-        val fg = mFragments[position]
-        if (fg is OnSelectedFragment) {
-            // we have to wait its fragment until done for creating its instance
-            GlobalScope.launch(CoroutineContextProvider().main) {
-                while (!fg.isAdded)
-                    delay(500)
-                Handler(Looper.getMainLooper()).post { fg.start(fg, position) }
+
+        mFragments?.let {
+            val fg = it[position]
+            if (fg is OnSelectedFragment) {
+                // we have to wait its fragment until done for creating its instance
+                GlobalScope.launch(CoroutineContextProvider().main) {
+                    while (!fg.isAdded)
+                        delay(500)
+                    Handler(Looper.getMainLooper()).post { fg.start(fg, position) }
+                }
             }
         }
     }
 
 
     override fun querySearch(view: View, query: CharSequence?, start: Int, before: Int, count: Int) {
-        mFragments[vpager.currentItem].apply {
-            if (this is SearchToolbarCard.OnSearchCallback)
-                querySearch(view, query, start, before, count)
+        mFragments?.let {
+            it[vpager.currentItem].apply {
+                if (this is SearchToolbarCard.OnSearchCallback)
+                    querySearch(view, query, start, before, count)
+            }
         }
     }
 
@@ -300,17 +369,21 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
     }
 
     override fun onSubmit(query: String) {
-        mFragments[vpager.currentItem].apply {
-            if (this is SearchToolbarCard.OnSearchCallback)
-                onSubmit(query)
+        mFragments?.let {
+            it[vpager.currentItem].apply {
+                if (this is SearchToolbarCard.OnSearchCallback)
+                    onSubmit(query)
+            }
         }
     }
 
     override fun onSearchCancelled() {
         if (dummyLockUntilFinish) {
-            mFragments[vpager.currentItem].apply {
-                if (this is SearchToolbarCard.OnSearchCallback)
-                    onSearchCancelled()
+            mFragments?.let {
+                it[vpager.currentItem].apply {
+                    if (this is SearchToolbarCard.OnSearchCallback)
+                        onSearchCancelled()
+                }
             }
             bottomNavHolder?.visible()
         }
@@ -324,31 +397,119 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
         bottomNavHolder?.gone()
     }
 
-    override fun onTogglePageIndicator() {
-        /*if(requestTogglePageIndicator()){
-            val isPageIndicatorVisible = isPageIndicatorVisible()
-            if(!isPageIndicatorVisible){
+    override fun onTogglePageIndicator(mode: Boolean) {
+        if (requestTogglePageIndicator()) {
+            if (mode) {
                 val maxNumberPageIndicator = getMaxNumberPageIndicator()
                 val selectedPageIndicator = getCurrentSelectedPage()
+                mPageAdapter?.markCurrentSelectedPage = selectedPageIndicator
                 mPageAdapter?.pageLength = maxNumberPageIndicator
-                bottomNavigationView
-                mPageAdapter.
+                bottomNavigationView.gone()
+                pageIndicatorLayout?.visible()
+                ItemClickSupport.addTo(recyclerPage)?.onItemClickListener =
+                    object : ItemClickSupport.OnItemClickListener {
+                        override fun onItemClicked(recyclerView: RecyclerView, position: Int, v: View) {
+                            onPageIndicatorSelected(recyclerView, position, v)
+                        }
+                    }
+                recyclerPage?.layoutManager?.smoothScrollToPosition(
+                    recyclerPage,
+                    RecyclerView.State().apply {
+                        willRunPredictiveAnimations()
+                    },
+                    selectedPageIndicator
+                )
+                recyclerPage?.addOnScrollListener(mRegisterScroll)
+            } else {
+                // unregister onClickListener and clicked position
+                recyclerPage?.let {
+                    removeAllSpansFromHolder(it)
+                    ItemClickSupport.removeFrom(it)
+                    it.removeOnScrollListener(mRegisterScroll)
+                }
+                pageIndicatorLayout?.invisible()
+                bottomNavigationView.visible()
             }
-        }*/
+        }
     }
 
-    override fun onTogglePageConfiguration() {
+    private fun getCurrentSelectedPage(): Int {
+
+        mFragments?.let {
+            it[vpager.currentItem].apply {
+                if (this is PageIndicatorCb)
+                    return getCurrentSelectedPage()
+            }
+        }
+        return 0
+    }
+
+    private fun getMaxNumberPageIndicator(): Int {
+        mFragments?.let {
+            it[vpager.currentItem].apply {
+                if (this is PageIndicatorCb)
+                    return getMaxNumberPageIndicator()
+            }
+        }
+        return 0
+    }
+
+    private fun requestTogglePageIndicator(): Boolean {
+        mFragments?.let {
+            it[vpager.currentItem].apply {
+                if (this is PageIndicatorCb)
+                    return requestTogglePageIndicator()
+            }
+        }
+        return false
+    }
+
+    private fun onPageIndicatorSelected(recyclerView: RecyclerView, position: Int, v: View) {
+        removeAllSpansFromHolder(recyclerView)
+        val mHolder = recyclerView.getChildViewHolder(v)
+        if (mHolder is PageIndicatorAdapter.PageIndicatorHolder) {
+            (mHolder.textIndicator.text as SpannedString).apply {
+                toSpannable().let {
+                    it.clearSpans()
+                    it.setSpan(StyleSpan(Typeface.BOLD), 0, length, 0)
+                    mHolder.textIndicator.text = it
+                }
+            }
+        }
+
+        mFragments?.let {
+            it[vpager.currentItem].apply {
+                if (this is PageIndicatorCb)
+                    onSelectedPageNumber(position + 1)
+            }
+        }
+
+    }
+
+    private fun removeAllSpansFromHolder(recyclerView: RecyclerView) {
+        recyclerView.adapter?.let {
+            if (it is PageIndicatorAdapter) {
+                it.availableHolder.forEach {
+                    val text = it.textIndicator.text
+                    if (text is SpannedString)
+                        it.textIndicator.text = text.toSpannable().apply { clearSpans() }
+                }
+            }
+        }
     }
 
     override fun onListModeChange(listMode: Int) {
-        mFragments[vpager.currentItem].apply {
-            if (this is SearchToolbarCard.OnSearchCallback)
-                onListModeChange(listMode)
+
+        mFragments?.let {
+            it[vpager.currentItem].apply {
+                if (this is SearchToolbarCard.OnSearchCallback)
+                    onListModeChange(listMode)
+            }
         }
     }
 
     override fun onForceRefresh(fragment: Fragment) {
-        mFragments.forEach {
+        mFragments?.forEach {
             if (it is OnRequestRefresh)
                 it.onForceRefresh(fragment)
         }
@@ -371,6 +532,16 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
 
         private const val EXTRA_CURRENT_ITEM_POSITION = "CURRENT_POS"
     }
+}
+
+interface PageIndicatorCb {
+    fun getCurrentSelectedPage(): Int
+
+    fun getMaxNumberPageIndicator(): Int
+
+    fun requestTogglePageIndicator(): Boolean
+
+    fun onSelectedPageNumber(pageNumber: Int)
 }
 
 internal class ContentPageAdapter(fragmentManager: FragmentManager, private val fragments: MutableList<Fragment>) :

@@ -2,6 +2,7 @@ package id.apwdevs.app.catalogue.viewModel
 
 import android.app.Application
 import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Parcelable
@@ -14,7 +15,9 @@ import id.apwdevs.app.catalogue.model.GenreModel
 import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemResponse
 import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.plugin.api.GetImageFiles
+import id.apwdevs.app.catalogue.plugin.api.GetMovies
 import id.apwdevs.app.catalogue.plugin.api.GetObjectFromServer
+import id.apwdevs.app.catalogue.plugin.api.GetTVShows
 import id.apwdevs.app.catalogue.repository.onUserMain.FragmentContentRepository
 import kotlinx.android.parcel.Parcelize
 
@@ -29,6 +32,11 @@ class MainListViewModel(application: Application) : AndroidViewModel(application
     val hasFirstInstantiate: MutableLiveData<Boolean> = MutableLiveData()
     val prevListMode: MutableLiveData<Int> = MutableLiveData()
     val hasForceLoadContent: MutableLiveData<Boolean> = MutableLiveData()
+    var maxPage: LiveData<Int>? = null
+    val currentPage: MutableLiveData<Int> = MutableLiveData()
+    val currentPageMode: MutableLiveData<Int> = MutableLiveData()
+    val allowToggleIndicator: MutableLiveData<Boolean> = MutableLiveData()
+    val searchModel: MutableLiveData<SearchModel> = MutableLiveData()
 
     private var repository: FragmentContentRepository<ClassResponse>? = null
 
@@ -39,12 +47,19 @@ class MainListViewModel(application: Application) : AndroidViewModel(application
     private var allGenre: LiveData<List<GenreModel>>? = null
     var retError: LiveData<GetObjectFromServer.RetError>? = null
     val mTextSearchQuery = MutableLiveData<String>()
+    val sharedPreferences: SharedPreferences
+        get() = (getApplication() as Context).getSharedPreferences(
+            PublicContract.SHARED_PREF_GLOBAL_NAME,
+            Context.MODE_PRIVATE
+        )
 
     init {
         // we have to initialize these variables to be available for first instance
         hasFirstInstantiate.value = false
         prevListMode.value = 0
         hasForceLoadContent.value = false
+        currentPage.value = 1
+        currentPageMode.value = PAGE_MODE_NORMAL
     }
 
     fun setup(
@@ -71,13 +86,17 @@ class MainListViewModel(application: Application) : AndroidViewModel(application
         retError = repository?.retError
         isInSearchMode = repository?.inSearchMode
         loadProgress = repository?.loadProgress
+        maxPage = repository?.maxPageNumber
     }
 
     fun getAt(
         types: Parcelable, // get as MovieTypeContract or TvTypeContract
         pages: Int
     ) {
-        repository?.load(types)
+        allowToggleIndicator.value = true
+        currentPage.value = pages
+        currentPageMode.value = PAGE_MODE_NORMAL
+        repository?.load(types, pages)
     }
 
     fun applyConfiguration() {
@@ -98,17 +117,44 @@ class MainListViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun refreshPage(contentDisplayType: PublicContract.ContentDisplayType, types: Parcelable) {
+        when (currentPageMode.value) {
+            PAGE_MODE_NORMAL -> getAt(types, currentPage.value ?: 1)
+            PAGE_MODE_SEARCH -> {
+                val mQuery = mTextSearchQuery.value ?: ""
+                when (contentDisplayType) {
+                    PublicContract.ContentDisplayType.MOVIE -> requestSearchFromAPI(GetMovies.search(mQuery), mQuery)
+                    PublicContract.ContentDisplayType.TV_SHOWS -> requestSearchFromAPI(
+                        GetTVShows.search(mQuery),
+                        mQuery
+                    )
+                    PublicContract.ContentDisplayType.FAVORITES -> {
+                    }
+                }
+            }
+
+
+        }
+
+    }
+
     fun forceLoadIn(content: ClassResponse?) {
+        allowToggleIndicator.value = false
         repository?.forceLoadIn(content)
     }
 
     fun requestSearchFromAPI(search: String, query: String) {
         mTextSearchQuery.value = query
+        allowToggleIndicator.value = false
+        currentPageMode.value = PAGE_MODE_SEARCH
         repository?.requestSearch(search)
     }
 
     fun forceEndSearch() {
+        currentPageMode.value = PAGE_MODE_NORMAL
+        allowToggleIndicator.value = true
         repository?.forceEndSearch()
+
     }
 
     @Parcelize
@@ -142,8 +188,17 @@ class MainListViewModel(application: Application) : AndroidViewModel(application
         LIGHT_WITH_BG(Color.parseColor("#302E2E"), Color.parseColor("#302E2E"), PorterDuff.Mode.OVERLAY, Color.WHITE)
     }
 
+    data class SearchModel(
+        val page: Int,
+        val maxPage: Int,
+        val query: String
+    )
     companion object {
         const val DEFAULT_COLOR = -6565
+
+        private const val PAGE_MODE_NORMAL: Int = 0xaa2
+        private const val PAGE_MODE_SEARCH: Int = 0xaca4
     }
 
 }
+
