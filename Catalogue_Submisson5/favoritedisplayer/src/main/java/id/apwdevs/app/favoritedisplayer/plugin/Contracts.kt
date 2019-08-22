@@ -25,9 +25,16 @@ object Contracts {
         }
 
     fun removeFromFavorite(context: Context, id: Int): Int =
-        context.contentResolver.delete(BASE_URI_FAVORITE.appendPath(id.toString()).build(), null, null)
+        context.contentResolver.delete(
+            BASE_URI_FAVORITE.appendPath(id.toString()).build(),
+            null,
+            null
+        )
 
-    fun getFavorite(context: Context, displayType: MainListRepository.ContentDisplayType): List<FavoriteEntity> {
+    fun getFavorite(
+        context: Context,
+        displayType: MainListRepository.ContentDisplayType
+    ): List<FavoriteEntity> {
         val uri = BASE_URI_FAVORITE.build()
         val mCursor = context.contentResolver.query(uri, null, null, null, null)
         val mListFavorites: MutableList<FavoriteEntity> = mutableListOf()

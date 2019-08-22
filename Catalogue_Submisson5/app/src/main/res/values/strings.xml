@@ -116,8 +116,6 @@
         <item>Remind you to go to application</item>
         <item>Come on and find out any update availables</item>
     </string-array>
-    <string name="add_widget">Add widget</string>
-    <string name="go_into_activity">Add It</string>
     <string name="err_text">No Favorite Added</string>
     <string name="err_no_results">No Results</string>
     <string name="err_no_results_suggest">Refresh, submit or change the right query</string>
@@ -137,6 +135,7 @@
     <string name="find_out">Let\'s find out what of that!</string>
     <string name="reminder_onmain"> If you want to use Page Indicator, refresh the page then click Toggle Page Indicator on the menu</string>
     <string name="using_page_indicator_ex_search">Please exit search mode by clicking left arrow (toolbar) to enable Toggle Page Indicator</string>
-    <string name="toggle_page_indicator">Mode Indikator Halaman</string>
-
+    <string name="toggle_page_indicator">Toggle Page Indicator</string>
+    <string name="explanation_toast_widget">The title is %1$s at position %2$d and have id %3$d, if you want to more details, please click launch button on side bottom right of element.</string>
+    <string name="applying_reminder">Applied Alarm Configuration to %1$d Pending Alarms successfully</string>
 </resources>

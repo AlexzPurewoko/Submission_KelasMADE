@@ -1,32 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list
-        xmlns:android="http://schemas.android.com/apk/res/android">
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
 
     <item>
-        <shape
-                android:shape="rectangle">
+        <shape android:shape="rectangle">
 
-            <solid
-                    android:color="@android:color/white"/>
+            <solid android:color="@android:color/white" />
         </shape>
     </item>
 
 
-    <item android:top="-200dp"
-          android:right="-200dp"
-          android:bottom="-200dp"
-          android:left="297dp"
-    >
-        <rotate
-                android:fromDegrees="-20">
-            <shape
-                    android:shape="rectangle">
+    <item
+            android:bottom="-200dp"
+            android:left="297dp"
+            android:right="-200dp"
+            android:top="-200dp">
+        <rotate android:fromDegrees="-20">
+            <shape android:shape="rectangle">
 
                 <gradient
                         android:angle="45"
-                        android:startColor="#CDC4C4C4"
-                        android:endColor="#70BDBDBD"/>
+                        android:endColor="#70BDBDBD"
+                        android:startColor="#CDC4C4C4" />
                 <!--<gradient
                         android:angle="135"
                         android:startColor="#F57C00"
@@ -35,51 +30,45 @@
             </shape>
         </rotate>
     </item>
-    <item android:top="-200dp"
-          android:right="-200dp"
-          android:bottom="-200dp"
-          android:left="300dp"
-    >
-        <rotate
-                android:fromDegrees="-20">
-            <shape
-                    android:shape="rectangle">
+    <item
+            android:bottom="-200dp"
+            android:left="300dp"
+            android:right="-200dp"
+            android:top="-200dp">
+        <rotate android:fromDegrees="-20">
+            <shape android:shape="rectangle">
 
 
                 <gradient
                         android:angle="135"
-                        android:startColor="#F57C00"
                         android:centerColor="#FFA000"
-                        android:endColor="#FBC02D"/>
+                        android:endColor="#FBC02D"
+                        android:startColor="#F57C00" />
             </shape>
         </rotate>
     </item>
 
-    <item android:top="-200dp"
-          android:right="-200dp"
-          android:bottom="-200dp"
-          android:left="297dp"
-    >
-        <rotate
-                android:fromDegrees="20">
-            <shape
-                    android:shape="rectangle">
+    <item
+            android:bottom="-200dp"
+            android:left="297dp"
+            android:right="-200dp"
+            android:top="-200dp">
+        <rotate android:fromDegrees="20">
+            <shape android:shape="rectangle">
                 <gradient
                         android:angle="45"
-                        android:startColor="#CDC4C4C4"
-                        android:endColor="#70BDBDBD"/>
+                        android:endColor="#70BDBDBD"
+                        android:startColor="#CDC4C4C4" />
             </shape>
         </rotate>
     </item>
-    <item android:top="-200dp"
-          android:right="-200dp"
-          android:bottom="-200dp"
-          android:left="300dp"
-    >
-        <rotate
-                android:fromDegrees="20">
-            <shape
-                    android:shape="rectangle">
+    <item
+            android:bottom="-200dp"
+            android:left="300dp"
+            android:right="-200dp"
+            android:top="-200dp">
+        <rotate android:fromDegrees="20">
+            <shape android:shape="rectangle">
                 <!--<gradient
                     android:angle="135"
                     android:startColor="#22227C"
@@ -88,9 +77,9 @@
 
                 <gradient
                         android:angle="90"
-                        android:startColor="#1F1F4D"
                         android:centerColor="#2A2A38"
-                        android:endColor="#131320"/>
+                        android:endColor="#131320"
+                        android:startColor="#1F1F4D" />
             </shape>
         </rotate>
     </item>

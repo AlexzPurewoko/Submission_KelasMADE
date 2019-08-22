@@ -23,7 +23,12 @@ class BaseJobManager private constructor(context: Context) {
     }
 
     private fun isRunning(context: Context, atTime: Calendar, position: Int): Boolean {
-        return ScheduleContract.buildIntoPendingIntent(context, position, atTime, PendingIntent.FLAG_NO_CREATE) != null
+        return ScheduleContract.buildIntoPendingIntent(
+            context,
+            position,
+            atTime,
+            PendingIntent.FLAG_NO_CREATE
+        ) != null
     }
 
     fun startAtId(id: Int, atTime: Calendar) {
@@ -41,7 +46,12 @@ class BaseJobManager private constructor(context: Context) {
         weakContext.get()?.apply {
             val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val pendingJobs =
-                ScheduleContract.buildIntoPendingIntent(this, position, alarmOn, PendingIntent.FLAG_NO_CREATE)
+                ScheduleContract.buildIntoPendingIntent(
+                    this,
+                    position,
+                    alarmOn,
+                    PendingIntent.FLAG_NO_CREATE
+                )
             pendingJobs?.let {
                 alarmManager.cancel(it)
             }

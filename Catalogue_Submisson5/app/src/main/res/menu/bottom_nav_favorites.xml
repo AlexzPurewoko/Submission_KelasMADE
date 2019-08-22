@@ -3,9 +3,9 @@
     <item
             android:id="@+id/action_movie"
             android:icon="@drawable/ic_movie_24dp"
-            android:title="@string/movie_title"/>
+            android:title="@string/movie_title" />
     <item
             android:id="@+id/action_tv"
             android:icon="@drawable/ic_tv_24dp"
-            android:title="@string/tv_title"/>
+            android:title="@string/tv_title" />
 </menu>

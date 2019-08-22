@@ -31,7 +31,8 @@ class InitialNotifyBroadcast : BroadcastReceiver() {
 
     private fun startObserverIfAny(it: Context) {
         val appWidgetManager = AppWidgetManager.getInstance(it)
-        val lContents = appWidgetManager.getAppWidgetIds(ComponentName(it, FavoriteWidget::class.java))
+        val lContents =
+            appWidgetManager.getAppWidgetIds(ComponentName(it, FavoriteWidget::class.java))
         if (lContents.isEmpty()) return
         it.sendBroadcast(
             Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE).apply {

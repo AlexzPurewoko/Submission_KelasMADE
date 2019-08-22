@@ -40,8 +40,10 @@ class ListAdapter<T : ResettableItem>(
 ) :
     RecyclerView.Adapter<ListAdapter<T>.ListViewHolder<T>>(), Filterable {
     var dataModel: ArrayList<T> = arrayListOf()
-    private val requestedWidth: Int = mContext.resources.getDimension(R.dimen.item_poster_width).toInt()
-    private val requestedHeight: Int = mContext.resources.getDimension(R.dimen.item_poster_height).toInt()
+    private val requestedWidth: Int =
+        mContext.resources.getDimension(R.dimen.item_poster_width).toInt()
+    private val requestedHeight: Int =
+        mContext.resources.getDimension(R.dimen.item_poster_height).toInt()
     private val searchMethod = OnSearchMethod()
     var notifyDataSetsChange: NotifyDataSetsChange? = null
 
@@ -53,7 +55,8 @@ class ListAdapter<T : ResettableItem>(
     override fun getFilter(): Filter = searchMethod.filter
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ListViewHolder<T> {
-        val view = LayoutInflater.from(mContext).inflate(R.layout.item_list_movies_or_tv, viewGroup, false)
+        val view =
+            LayoutInflater.from(mContext).inflate(R.layout.item_list_movies_or_tv, viewGroup, false)
         return ListViewHolder(view)
     }
 
@@ -225,7 +228,11 @@ class ListAdapter<T : ResettableItem>(
             rating.rating = getRating(voteAverage)
             voteCountTxt.text = "($voteCount)"
             posterPath?.let {
-                mWorker.getBitmapNoProgress(Point(requestedWidth, requestedHeight), it, true) { bitmap ->
+                mWorker.getBitmapNoProgress(
+                    Point(requestedWidth, requestedHeight),
+                    it,
+                    true
+                ) { bitmap ->
                     poster.setImageBitmap(bitmap)
                 }
 

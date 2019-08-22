@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
@@ -9,41 +8,44 @@
 
     <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/main_tab_appbar"
-            android:layout_height="wrap_content"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:theme="@style/AppTheme.AppBarOverlay">
+
         <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
+
             <androidx.appcompat.widget.Toolbar
-                    app:contentInsetStart="6dp"
-                    app:contentInsetEnd="6dp"
-                    app:titleMarginTop="6dp"
-                    app:titleMarginBottom="8dp"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                <include
-                        layout="@layout/search_toolbar"/>
+                    android:layout_height="wrap_content"
+                    app:contentInsetEnd="6dp"
+                    app:contentInsetStart="6dp"
+                    app:titleMarginBottom="8dp"
+                    app:titleMarginTop="6dp">
+
+                <include layout="@layout/search_toolbar" />
             </androidx.appcompat.widget.Toolbar>
 
         </FrameLayout>
+
         <com.google.android.material.tabs.TabLayout
-                app:tabGravity="fill"
-                app:tabTextAppearance="@style/TextAppearance.AppCompat.Small"
                 android:id="@+id/tabs"
-                app:tabMode="fixed"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?attr/colorPrimary">
-        </com.google.android.material.tabs.TabLayout>
+                android:background="?attr/colorPrimary"
+                app:tabGravity="fill"
+                app:tabMode="fixed"
+                app:tabTextAppearance="@style/TextAppearance.AppCompat.Small"></com.google.android.material.tabs.TabLayout>
     </com.google.android.material.appbar.AppBarLayout>
+
     <androidx.viewpager.widget.ViewPager
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:id="@+id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:focusable="true"
             android:focusableInTouchMode="true"
-            android:id="@+id/view_pager"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -32,7 +32,7 @@ object ScheduleContract {
             "DailyReleaseToday",
             1,
             hasRecurringAfterCalled = true,
-            retryWhenJobFail = false
+            retryWhenJobFail = true
         )
     )
     val listRunnerCls: List<Class<*>> = listOf(
@@ -40,7 +40,12 @@ object ScheduleContract {
         ReleaseTodayReminder::class.java
     )
 
-    fun buildIntoPendingIntent(context: Context, position: Int, calendar: Calendar, flags: Int = 0): PendingIntent? {
+    fun buildIntoPendingIntent(
+        context: Context,
+        position: Int,
+        calendar: Calendar,
+        flags: Int = 0
+    ): PendingIntent? {
         if (position !in 0 until listPendingJobs.size) return null
         val pendingJob = listPendingJobs[position]
         val intent = Intent(context, StartExactJobReceiver::class.java).apply {

@@ -32,7 +32,11 @@ class RecyclerCrewsAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerCrewsVH =
         RecyclerCrewsVH(
-            LayoutInflater.from(parent.context).inflate(R.layout.adapter_item_list_crews, parent, false)
+            LayoutInflater.from(parent.context).inflate(
+                R.layout.adapter_item_list_crews,
+                parent,
+                false
+            )
         )
 
     override fun getItemCount(): Int = crewModels.size.let {

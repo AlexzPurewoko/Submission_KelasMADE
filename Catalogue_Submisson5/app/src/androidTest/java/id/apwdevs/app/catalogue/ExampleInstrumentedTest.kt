@@ -58,7 +58,11 @@ class ExampleInstrumentedTest {
         while (true) Thread.sleep(1000)
     }
 
-    private suspend fun <T> loadFromInet(url: String, tag: String, objServer: GetObjectFromServer): T? {
+    private suspend fun <T> loadFromInet(
+        url: String,
+        tag: String,
+        objServer: GetObjectFromServer
+    ): T? {
         var progress = 0.0
         var isFinished = false
 

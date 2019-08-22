@@ -1,7 +1,7 @@
 package id.apwdevs.app.favoritedisplayer.plugin
 
 object GetImageFiles {
-    val LIST_SUPPORTED_WSIZES = mutableListOf(
+    private val LIST_SUPPORTED_WSIZES = mutableListOf(
         92,
         154,
         185,

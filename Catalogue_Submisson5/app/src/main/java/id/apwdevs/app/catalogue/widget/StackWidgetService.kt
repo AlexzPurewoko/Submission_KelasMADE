@@ -7,6 +7,9 @@ import android.widget.RemoteViewsService
 class StackWidgetService : RemoteViewsService() {
 
     override fun onGetViewFactory(intent: Intent?): RemoteViewsFactory =
-        StackRemoteViewsFactory(applicationContext, intent?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1)
+        StackRemoteViewsFactory(
+            applicationContext,
+            intent?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+        )
 
 }

@@ -4,7 +4,6 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import id.apwdevs.app.favoritedisplayer.R
 
-
 class ItemClickSupport private constructor(private val mRecyclerView: RecyclerView) {
     var onItemClickListener: OnItemClickListener? = null
     var onItemLongClickListener: OnItemLongClickListener? = null

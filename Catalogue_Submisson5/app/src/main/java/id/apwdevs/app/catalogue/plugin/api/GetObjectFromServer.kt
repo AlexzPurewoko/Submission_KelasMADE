@@ -95,7 +95,12 @@ class GetObjectFromServer private constructor(appContext: Context) {
     ) {
 
         var isFinished = false
-        getAndroidNet(url, tag, priority, connectTimeOut).setDownloadProgressListener { bytesDownloaded, totalBytes ->
+        getAndroidNet(
+            url,
+            tag,
+            priority,
+            connectTimeOut
+        ).setDownloadProgressListener { bytesDownloaded, totalBytes ->
             if (weakContext.get() == null) {
                 AndroidNetworking.cancel(tag)
                 isFinished = true
@@ -103,18 +108,18 @@ class GetObjectFromServer private constructor(appContext: Context) {
                 callbacks?.onProgress((bytesDownloaded * 100 / totalBytes).toDouble())
         }
             .getAsObject(cls, object : ParsedRequestListener<T> {
-            override fun onResponse(response: T) {
-                isFinished = true
-                callbacks?.onSuccess(response)
-            }
+                override fun onResponse(response: T) {
+                    isFinished = true
+                    callbacks?.onSuccess(response)
+                }
 
-            override fun onError(anError: ANError?) {
-                isFinished = true
-                callbacks?.onFailed(composeError(anError))
+                override fun onError(anError: ANError?) {
+                    isFinished = true
+                    callbacks?.onFailed(composeError(anError))
 
-            }
+                }
 
-        })
+            })
 
         while (!isFinished && weakContext.get() != null) {
             delay(500)
@@ -161,7 +166,12 @@ class GetObjectFromServer private constructor(appContext: Context) {
     ) {
 
         var isFinished = false
-        getAndroidNet(url, tag, priority, connectTimeOut).setDownloadProgressListener { bytesDownloaded, totalBytes ->
+        getAndroidNet(
+            url,
+            tag,
+            priority,
+            connectTimeOut
+        ).setDownloadProgressListener { bytesDownloaded, totalBytes ->
             if (weakContext.get() == null) {
                 AndroidNetworking.cancel(tag)
                 isFinished = true

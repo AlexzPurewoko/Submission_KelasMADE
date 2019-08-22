@@ -54,7 +54,10 @@ class RecyclerReviewAdapter(
         private val content: TextView = view.findViewById(R.id.item_review_content)
         private val launch: ImageView = view.findViewById(R.id.item_review_btn_launch)
 
-        fun bind(reviewResultModel: ReviewResultModel, onLaunchItemClickListener: OnLaunchItemClickListener?) {
+        fun bind(
+            reviewResultModel: ReviewResultModel,
+            onLaunchItemClickListener: OnLaunchItemClickListener?
+        ) {
             name.text = reviewResultModel.author
             content.text = reviewResultModel.content
             launch.setOnClickListener {

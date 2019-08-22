@@ -44,6 +44,7 @@ class MainListViewModel(application: Application) : AndroidViewModel(application
     private var allGenre: LiveData<List<GenreModel>>? = null
     var retError: LiveData<GetObjectFromServer.RetError>? = null
     val mTextSearchQuery = MutableLiveData<String>()
+
     init {
         // we have to initialize these variables to be available for first instance
         hasFirstInstantiate.value = false
@@ -91,20 +92,21 @@ class MainListViewModel(application: Application) : AndroidViewModel(application
 
     fun applyConfiguration() {
         val ctx: Context = getApplication()
-        ctx.getSharedPreferences(PublicContract.SHARED_PREF_GLOBAL_NAME, Context.MODE_PRIVATE).apply {
-            cardBgStatus = getBoolean("card_bg_status", cardBgStatus)
-            colorredTextState = getBoolean("colored_text_state", colorredTextState)
-            backdropSize = getString("carddrop_w_key", backdropSize) ?: backdropSize
-            cardBgMode = getString("card_bg_mode", cardBgMode) ?: cardBgMode
-            if (cardBgStatus)
-                cardItemBg = when (cardBgMode) {
-                    "light" -> ItemCardOptions.LIGHT
-                    "dark" -> ItemCardOptions.DARK
-                    "bg_darken" -> ItemCardOptions.DARK_WITH_BG
-                    "bg_overlay" -> ItemCardOptions.LIGHT_WITH_BG
-                    else -> ItemCardOptions.DARK_WITH_BG
-                }
-        }
+        ctx.getSharedPreferences(PublicContract.SHARED_PREF_GLOBAL_NAME, Context.MODE_PRIVATE)
+            .apply {
+                cardBgStatus = getBoolean("card_bg_status", cardBgStatus)
+                colorredTextState = getBoolean("colored_text_state", colorredTextState)
+                backdropSize = getString("carddrop_w_key", backdropSize) ?: backdropSize
+                cardBgMode = getString("card_bg_mode", cardBgMode) ?: cardBgMode
+                if (cardBgStatus)
+                    cardItemBg = when (cardBgMode) {
+                        "light" -> ItemCardOptions.LIGHT
+                        "dark" -> ItemCardOptions.DARK
+                        "bg_darken" -> ItemCardOptions.DARK_WITH_BG
+                        "bg_overlay" -> ItemCardOptions.LIGHT_WITH_BG
+                        else -> ItemCardOptions.DARK_WITH_BG
+                    }
+            }
     }
 
     fun refreshPage(contentDisplayType: PublicContract.ContentDisplayType, types: Parcelable) {
@@ -113,7 +115,11 @@ class MainListViewModel(application: Application) : AndroidViewModel(application
             PAGE_MODE_SEARCH -> {
                 val mQuery = mTextSearchQuery.value ?: ""
                 when (contentDisplayType) {
-                    PublicContract.ContentDisplayType.MOVIE -> requestSearchFromAPI(GetMovies.search(mQuery), mQuery)
+                    PublicContract.ContentDisplayType.MOVIE -> requestSearchFromAPI(
+                        GetMovies.search(
+                            mQuery
+                        ), mQuery
+                    )
                     PublicContract.ContentDisplayType.TV_SHOWS -> requestSearchFromAPI(
                         GetTVShows.search(mQuery),
                         mQuery
@@ -173,10 +179,26 @@ class MainListViewModel(application: Application) : AndroidViewModel(application
         val itemColor: Int
     ) : Parcelable {
         LIGHT(Color.WHITE, Color.WHITE, PorterDuff.Mode.SRC_IN, DEFAULT_COLOR),
-        DARK(Color.parseColor("#302E2E"), Color.parseColor("#302E2E"), PorterDuff.Mode.SRC_IN, Color.WHITE),
-        DARK_WITH_BG(Color.parseColor("#302E2E"), Color.parseColor("#302E2E"), PorterDuff.Mode.DARKEN, Color.WHITE),
-        LIGHT_WITH_BG(Color.parseColor("#302E2E"), Color.parseColor("#302E2E"), PorterDuff.Mode.OVERLAY, Color.WHITE)
+        DARK(
+            Color.parseColor("#302E2E"),
+            Color.parseColor("#302E2E"),
+            PorterDuff.Mode.SRC_IN,
+            Color.WHITE
+        ),
+        DARK_WITH_BG(
+            Color.parseColor("#302E2E"),
+            Color.parseColor("#302E2E"),
+            PorterDuff.Mode.DARKEN,
+            Color.WHITE
+        ),
+        LIGHT_WITH_BG(
+            Color.parseColor("#302E2E"),
+            Color.parseColor("#302E2E"),
+            PorterDuff.Mode.OVERLAY,
+            Color.WHITE
+        )
     }
+
     companion object {
         const val DEFAULT_COLOR = -6565
 

@@ -1,43 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".activities.StackWidgetPreferenceActivity" android:padding="10dp">
+        android:padding="10dp"
+        tools:context=".activities.StackWidgetPreferenceActivity">
 
     <RadioGroup
+            android:id="@+id/radioGroup_content_types"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/select_content_display_type_text"
-            app:layout_constraintStart_toStartOf="@+id/select_content_display_type_text"
-            app:layout_constraintEnd_toEndOf="@+id/select_content_display_type_text" android:layout_marginStart="8dp"
-            android:orientation="vertical" android:id="@+id/radioGroup_content_types">
-        <RadioButton
-                android:text="Favorite Movie"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:id="@+id/radio_favorite_movie"/>
-        <RadioButton
-                android:text="Favorite Tv Shows"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:id="@+id/radio_favorite_tv"/>
-    </RadioGroup>
-    <TextView
-            android:text="Selects the content of favorite that should to be shown as widget"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/select_content_display_type_text" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginStart="8dp"
-            app:layout_constraintTop_toTopOf="parent" app:layout_constraintEnd_toEndOf="parent"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+            android:layout_marginTop="8dp"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="@+id/select_content_display_type_text"
+            app:layout_constraintStart_toStartOf="@+id/select_content_display_type_text"
+            app:layout_constraintTop_toBottomOf="@+id/select_content_display_type_text">
+
+        <RadioButton
+                android:id="@+id/radio_favorite_movie"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Favorite Movie" />
+
+        <RadioButton
+                android:id="@+id/radio_favorite_tv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Favorite Tv Shows" />
+    </RadioGroup>
+
+    <TextView
+            android:id="@+id/select_content_display_type_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Selects the content of favorite that should to be shown as widget"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
     <Button
+            android:id="@+id/btn_save"
             style="@style/Widget.AppCompat.Button.Colored"
-            android:text="Okay!"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/btn_save" app:layout_constraintEnd_toEndOf="@+id/radioGroup_content_types"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/radioGroup_content_types"/>
+            android:text="Okay!"
+            app:layout_constraintEnd_toEndOf="@+id/radioGroup_content_types"
+            app:layout_constraintTop_toBottomOf="@+id/radioGroup_content_types" />
 </androidx.constraintlayout.widget.ConstraintLayout>

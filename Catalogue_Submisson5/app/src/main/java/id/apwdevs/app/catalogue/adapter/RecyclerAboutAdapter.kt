@@ -45,7 +45,12 @@ class RecyclerAboutAdapter(
         val det1 = shortDetail as MainDataItemModel
         listToBeAdded.apply {
             add(Item(context.getString(R.string.original_title), det1.originalTitle))
-            add(Item(context.getString(R.string.original_language), Locale(det1.originalLanguage).displayLanguage))
+            add(
+                Item(
+                    context.getString(R.string.original_language),
+                    Locale(det1.originalLanguage).displayLanguage
+                )
+            )
             add(Item(context.getString(R.string.genre), det1.actualGenreModel))
         }
         when (type) {
@@ -69,8 +74,18 @@ class RecyclerAboutAdapter(
                     add(Item(context.getString(R.string.release_date), det1.releaseDate))
                     add(Item(context.getString(R.string.runtime), getReadableTime(det2.runtime)))
                     add(Item(context.getString(R.string.status), det2.status))
-                    add(Item(context.getString(R.string.budget), getCurrency("$", det2.movieBudget.toString())))
-                    add(Item(context.getString(R.string.revenue), getCurrency("$", det2.revenue.toString())))
+                    add(
+                        Item(
+                            context.getString(R.string.budget),
+                            getCurrency("$", det2.movieBudget.toString())
+                        )
+                    )
+                    add(
+                        Item(
+                            context.getString(R.string.revenue),
+                            getCurrency("$", det2.revenue.toString())
+                        )
+                    )
                     add(Item(context.getString(R.string.homepage), det2.homepage, true))
                     add(Item(context.getString(R.string.tagline), det2.tagLine))
                 }
@@ -80,7 +95,13 @@ class RecyclerAboutAdapter(
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerAboutVH =
-        RecyclerAboutVH(LayoutInflater.from(parent.context).inflate(R.layout.adapter_item_about, parent, false))
+        RecyclerAboutVH(
+            LayoutInflater.from(parent.context).inflate(
+                R.layout.adapter_item_about,
+                parent,
+                false
+            )
+        )
 
     override fun getItemCount(): Int = listToBeAdded.size
 

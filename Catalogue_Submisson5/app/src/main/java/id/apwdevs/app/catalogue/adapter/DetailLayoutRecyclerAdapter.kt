@@ -76,7 +76,10 @@ class DetailLayoutRecyclerAdapter(
         notifyDataSetChanged()
     }
 
-    private fun computeRequirements(contentTypes: MutableList<ViewType>, viewModel: DetailViewModel): List<String> {
+    private fun computeRequirements(
+        contentTypes: MutableList<ViewType>,
+        viewModel: DetailViewModel
+    ): List<String> {
         val listRequirementsKey = mutableListOf<String>()
         var sz = contentTypes.size
         var pos = 0
@@ -227,7 +230,10 @@ class DetailLayoutRecyclerAdapter(
         @Suppress("UNCHECKED_CAST")
         fun bindItem(vararg item: Any?) {
 
-            Log.d("RecyclerDetailww", "Onbind Review -> $itemType == ${ViewType.CONTENT_REVIEWS.type} content -> $item")
+            Log.d(
+                "RecyclerDetailww",
+                "Onbind Review -> $itemType == ${ViewType.CONTENT_REVIEWS.type} content -> $item"
+            )
             when (ViewType.findItem(itemType)) {
                 ViewType.CONTENT_REVIEWS -> {
                     val content = item[0]
@@ -273,11 +279,16 @@ class DetailLayoutRecyclerAdapter(
                     if ((content is List<*>) && content.size > 0) {
                         hideErrorText()
                         recyclerView?.layoutManager =
-                            LinearLayoutManager(itemView.context, LinearLayoutManager.HORIZONTAL, false)
+                            LinearLayoutManager(
+                                itemView.context,
+                                LinearLayoutManager.HORIZONTAL,
+                                false
+                            )
                         when (ViewType.findItem(itemType)) {
                             ViewType.CONTENT_CREATED_BY -> {
                                 if (content[0] is ModelTvCreatedBy) {
-                                    recyclerView?.adapter = RecyclerCreatedByAdapter(content as List<ModelTvCreatedBy>)
+                                    recyclerView?.adapter =
+                                        RecyclerCreatedByAdapter(content as List<ModelTvCreatedBy>)
                                 }
                             }
                             ViewType.CONTENT_LIST_CREW -> {
@@ -286,7 +297,8 @@ class DetailLayoutRecyclerAdapter(
                                     else -> RecyclerReviewAdapter.NO_LIMITS
                                 }
                                 if (content[0] is CrewModel) {
-                                    recyclerView?.adapter = RecyclerCrewsAdapter(content as List<CrewModel>, limits)
+                                    recyclerView?.adapter =
+                                        RecyclerCrewsAdapter(content as List<CrewModel>, limits)
                                 }
 
                             }
@@ -297,7 +309,11 @@ class DetailLayoutRecyclerAdapter(
                                 }
                                 if (content[0] is CastModel) {
                                     recyclerView?.adapter =
-                                        RecyclerCastsAdapter(itemView.context, content as List<CastModel>, limits)
+                                        RecyclerCastsAdapter(
+                                            itemView.context,
+                                            content as List<CastModel>,
+                                            limits
+                                        )
                                 }
                             }
                             else -> {
@@ -311,7 +327,8 @@ class DetailLayoutRecyclerAdapter(
                     val otherAboutModel = item[1]
                     val ctx = itemView.context
                     hideErrorText()
-                    recyclerView?.layoutManager = LinearLayoutManager(ctx, RecyclerView.VERTICAL, false)
+                    recyclerView?.layoutManager =
+                        LinearLayoutManager(ctx, RecyclerView.VERTICAL, false)
                     if (aboutModel is MainDataItemModel && otherAboutModel is ResettableItem) {
                         recyclerView?.adapter = RecyclerAboutAdapter(
                             ctx,
@@ -362,13 +379,24 @@ class DetailLayoutRecyclerAdapter(
     }
 
     @Parcelize
-    enum class ViewType(val type: Int, val layoutResId: Int, val titleRes: Int, vararg val mustContains: String) :
+    enum class ViewType(
+        val type: Int,
+        val layoutResId: Int,
+        val titleRes: Int,
+        vararg val mustContains: String
+    ) :
         Parcelable {
         CONTENT_LIST_CREW(0x5d, R.layout.actdetail_layout_list, R.string.crews, MODEL_DATA_CREWS),
         CONTENT_LIST_CAST(0x4f, R.layout.actdetail_layout_list, R.string.casts, MODEL_DATA_CASTS),
         CONTENT_OVERVIEW(0x3f, R.layout.actdetail_overview, R.string.overview, MODEL_DATA_1),
         CONTENT_CREATED_BY(0x2a, R.layout.actdetail_layout_list, R.string.created_by, MODEL_DATA_2),
-        CONTENT_ABOUT(0xffa, R.layout.actdetail_layout_list, R.string.abouts, MODEL_DATA_1, MODEL_DATA_2),
+        CONTENT_ABOUT(
+            0xffa,
+            R.layout.actdetail_layout_list,
+            R.string.abouts,
+            MODEL_DATA_1,
+            MODEL_DATA_2
+        ),
         CONTENT_REVIEWS(0x22, R.layout.actdetail_layout_list, R.string.reviews, MODEL_DATA_REVIEWS),
         CONTENT_NULL(0, 0, 0);
 

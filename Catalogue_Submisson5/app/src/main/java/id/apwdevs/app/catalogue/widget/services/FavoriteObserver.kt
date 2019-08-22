@@ -62,7 +62,10 @@ class FavoriteObserver : Service() {
             startService(Intent(this, FavoriteObserver::class.java))
     }
 
-    class DataWidgetObserver private constructor(context: Context, internal val handlerThread: HandlerThread) :
+    class DataWidgetObserver private constructor(
+        context: Context,
+        internal val handlerThread: HandlerThread
+    ) :
         ContentObserver(
             Handler(handlerThread.looper)
         ) {
@@ -70,7 +73,10 @@ class FavoriteObserver : Service() {
         private val weakContext = WeakReference(context)
         override fun onChange(selfChange: Boolean) {
             super.onChange(selfChange)
-            Log.d("DataWidgetObserver", "Hurry Up! Any Change on database, notify all widgets! ${weakContext.get()}")
+            Log.d(
+                "DataWidgetObserver",
+                "Hurry Up! Any Change on database, notify all widgets! ${weakContext.get()}"
+            )
             weakContext.get()?.let {
                 it.sendBroadcast(Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE).apply {
                     `package` = it.packageName

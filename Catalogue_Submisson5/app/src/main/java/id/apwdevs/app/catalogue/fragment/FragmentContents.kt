@@ -45,7 +45,8 @@ import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter
 import jp.wasabeef.recyclerview.animators.LandingAnimator
 import kotlinx.android.synthetic.main.fg_holder_content.*
 
-class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelectedFragment, OnRequestRefresh,
+class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelectedFragment,
+    OnRequestRefresh,
     NotifyDataSetsChange, PageIndicatorCb {
 
 
@@ -68,7 +69,10 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel =
-            ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory(requireActivity().application)).get(
+            ViewModelProvider(
+                this,
+                ViewModelProvider.AndroidViewModelFactory(requireActivity().application)
+            ).get(
                 MainListViewModel::class.java
             )
         viewModel?.apply {
@@ -102,7 +106,11 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? =
         inflater.inflate(
             R.layout.fg_holder_content,
             container,
@@ -177,7 +185,12 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
             isInSearchMode?.observe(this@FragmentContents, Observer {
                 if (it) {
                     recyclerContent.invisible()
-                    errorAdapter.displayError(GetObjectFromServer.RetError(ErrorSectionAdapter.ON_SEARCH_MODE, null))
+                    errorAdapter.displayError(
+                        GetObjectFromServer.RetError(
+                            ErrorSectionAdapter.ON_SEARCH_MODE,
+                            null
+                        )
+                    )
                 }
             })
             retError?.observe(this@FragmentContents, Observer {
@@ -210,7 +223,8 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
                         recyclerListAdapter.notifyDataSetChanged()
                     }
                     PublicContract.RecyclerMode.MODE_GRID -> {
-                        layoutManager = GridLayoutManager(context, calculateMaxColumn(context, wSize))
+                        layoutManager =
+                            GridLayoutManager(context, calculateMaxColumn(context, wSize))
                         adapter = adapterAnimator(recyclerGridAdapter)
                         resetRecyclerGridData(it)
                         recyclerGridAdapter.notifyDataSetChanged()
@@ -227,12 +241,17 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
                 }
                 requestFocusFromTouch()
 
-                ItemClickSupport.addTo(this)?.onItemClickListener = object : ItemClickSupport.OnItemClickListener {
-                    override fun onItemClicked(recyclerView: RecyclerView, position: Int, v: View) {
-                        onRecyclerItemClicked(recyclerView, position, v)
-                    }
+                ItemClickSupport.addTo(this)?.onItemClickListener =
+                    object : ItemClickSupport.OnItemClickListener {
+                        override fun onItemClicked(
+                            recyclerView: RecyclerView,
+                            position: Int,
+                            v: View
+                        ) {
+                            onRecyclerItemClicked(recyclerView, position, v)
+                        }
 
-                }
+                    }
 
             }
         }
@@ -277,7 +296,13 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
     ////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////// OVERRIDDEN FROM OnSearchCallback \\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-    override fun querySearch(view: View, query: CharSequence?, start: Int, before: Int, count: Int) {
+    override fun querySearch(
+        view: View,
+        query: CharSequence?,
+        start: Int,
+        before: Int,
+        count: Int
+    ) {
         when (viewModel?.prevListMode?.value) {
             PublicContract.RecyclerMode.MODE_LIST -> {
                 if (query?.isNotBlank() == true) {
@@ -384,11 +409,17 @@ class FragmentContents : Fragment(), SearchToolbarCard.OnSearchCallback, OnSelec
         }
 
     }
+
     ////////////////////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     override fun onDataChange(isEmptyData: Boolean, listData: List<Any>) {
         Handler(Looper.getMainLooper()).post {
             if (isEmptyData) {
-                errorAdapter.displayError(GetObjectFromServer.RetError(ErrorSectionAdapter.ERR_NO_RESULTS, null))
+                errorAdapter.displayError(
+                    GetObjectFromServer.RetError(
+                        ErrorSectionAdapter.ERR_NO_RESULTS,
+                        null
+                    )
+                )
                 recyclerContent.invisible()
             } else {
                 recyclerContent.visible()

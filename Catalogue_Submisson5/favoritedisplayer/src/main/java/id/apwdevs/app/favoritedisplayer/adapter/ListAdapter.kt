@@ -1,15 +1,12 @@
 package id.apwdevs.app.favoritedisplayer.adapter
 
 import android.annotation.SuppressLint
-import android.graphics.Color
-import android.graphics.Typeface
-import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
-import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.ImageView
+import android.widget.RatingBar
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -18,7 +15,6 @@ import id.apwdevs.app.favoritedisplayer.R
 import id.apwdevs.app.favoritedisplayer.model.FavoriteEntity
 import id.apwdevs.app.favoritedisplayer.plugin.Contracts
 import id.apwdevs.app.favoritedisplayer.plugin.GetImageFiles
-import id.apwdevs.app.favoritedisplayer.plugin.SearchComponent
 import id.apwdevs.app.favoritedisplayer.plugin.WrappedView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -29,21 +25,22 @@ class ListAdapter(
     private val mContext: AppCompatActivity,
     private var callbacks: (onSuccessChangeFav: Boolean) -> Unit = {}
 ) :
-    RecyclerView.Adapter<ListAdapter.ListViewHolder>(), Filterable {
+    RecyclerView.Adapter<ListAdapter.ListViewHolder>() {
     var dataModel: ArrayList<FavoriteEntity> = arrayListOf()
-    private val requestedWidth: Int = mContext.resources.getDimension(R.dimen.item_poster_width).toInt()
-    private val requestedHeight: Int = mContext.resources.getDimension(R.dimen.item_poster_height).toInt()
-    private val searchMethod = OnSearchMethod()
+    private val requestedWidth: Int =
+        mContext.resources.getDimension(R.dimen.item_poster_width).toInt()
+    private val requestedHeight: Int =
+        mContext.resources.getDimension(R.dimen.item_poster_height).toInt()
 
     init {
         setHasStableIds(true)
     }
 
     override fun getItemViewType(position: Int): Int = position
-    override fun getFilter(): Filter = searchMethod.filter
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ListViewHolder {
-        val view = LayoutInflater.from(mContext).inflate(R.layout.item_list_movies_or_tv, viewGroup, false)
+        val view =
+            LayoutInflater.from(mContext).inflate(R.layout.item_list_movies_or_tv, viewGroup, false)
         return ListViewHolder(view)
     }
 
@@ -60,7 +57,7 @@ class ListAdapter(
         return dataModel.size
     }
 
-    fun resetAllSpannables() {
+    private fun resetAllSpannables() {
         for (model in dataModel) {
             model.onReset()
         }
@@ -72,57 +69,6 @@ class ListAdapter(
             dataModel.addAll(it)
             resetAllSpannables()
         }
-    }
-
-    private inner class OnSearchMethod : SearchComponent<FavoriteEntity>() {
-        override fun onSearchFinished(aList: MutableList<FavoriteEntity>?) {
-            aList?.let {
-                dataModel.clear()
-                dataModel.addAll(it)
-                notifyDataSetChanged()
-            }
-        }
-
-        override fun objectToBeSearch(): MutableList<FavoriteEntity>? = dataModel
-
-        override fun compareObject(constraint: String, obj: FavoriteEntity): Boolean {
-            val str1: String? = obj.title
-            val str2: String? = obj.releaseDate
-            val spanned1: SpannableString? = obj.titleSpan
-            val spanned2: SpannableString? = obj.releaseDateSpan
-
-            obj.onReset()
-            if ((!str1.isNullOrEmpty() && str1.contains(
-                    constraint,
-                    true
-                )) || (!str2.isNullOrEmpty() && str2.contains(
-                    constraint,
-                    true
-                ))
-            ) {
-                    val matchStr1 = getItemMatchedPosition(constraint, str1, true)
-                    val matchStr2 = getItemMatchedPosition(constraint, str2, true)
-                    matchStr1.forEach {
-                        spanned1?.setSpan(
-                            ForegroundColorSpan(Color.RED),
-                            it.startPosition,
-                            it.endPosition,
-                            0
-                        )
-                    }
-                    matchStr2.forEach {
-                        spanned2?.setSpan(
-                            StyleSpan(Typeface.BOLD),
-                            it.startPosition,
-                            it.endPosition,
-                            0
-                        )
-                    }
-                return true
-            }
-            return false
-        }
-
     }
 
     inner class ListViewHolder internal constructor(view: View) :
@@ -177,7 +123,7 @@ class ListAdapter(
         }
 
 
-        private fun setFavorites(enabled: Boolean) {
+        private fun setFavorites(@Suppress("SameParameterValue") enabled: Boolean) {
             itemFavorites.setImageResource(
                 if (enabled) {
                     itemFavorites.tag = REMOVE_FAVORITE

@@ -84,7 +84,11 @@ fun getReadableTime(inMinute: Int?): String {
 }
 
 @WorkerThread
-fun configureFavorite(context: Context, model: ResettableItem?, posterDrawable: Drawable?): Boolean =
+fun configureFavorite(
+    context: Context,
+    model: ResettableItem?,
+    posterDrawable: Drawable?
+): Boolean =
     model?.let {
         val db = FavoriteDatabase.getInstance(context)
         val favDao = db.favoriteDao()
@@ -138,8 +142,8 @@ fun configureFavorite(context: Context, model: ResettableItem?, posterDrawable: 
                     val bmp = it.toBitmap()
                     val file =
                         File(File(context.filesDir, PublicContract.FAVORITE_POSTER_PATH).apply {
-                        mkdirs()
-                    }, posterPath)
+                            mkdirs()
+                        }, posterPath)
                     val fos = FileOutputStream(file)
                     bmp.compress(Bitmap.CompressFormat.JPEG, 90, fos)
                     fos.flush()

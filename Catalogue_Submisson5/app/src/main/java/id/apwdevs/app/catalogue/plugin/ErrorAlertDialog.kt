@@ -25,7 +25,11 @@ class ErrorAlertDialog : DialogFragment() {
             }
 
             val view = LayoutInflater.from(requireContext())
-                .inflate(R.layout.error_layout, requireActivity().window.decorView as ViewGroup, false)
+                .inflate(
+                    R.layout.error_layout,
+                    requireActivity().window.decorView as ViewGroup,
+                    false
+                )
             setView(view)
 
             ErrorSectionAdapter(view).displayError(returnedError)
@@ -51,7 +55,10 @@ class ErrorAlertDialog : DialogFragment() {
         try {
             onListener = context as OnErrorDialogBtnClickListener
         } catch (e: ClassCastException) {
-            Log.e("CastException", "You must implement the OnErrorDialogBtnClickListener callbacks in your class")
+            Log.e(
+                "CastException",
+                "You must implement the OnErrorDialogBtnClickListener callbacks in your class"
+            )
         }
     }
 

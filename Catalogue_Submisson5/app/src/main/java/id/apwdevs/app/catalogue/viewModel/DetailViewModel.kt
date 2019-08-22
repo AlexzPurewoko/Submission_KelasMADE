@@ -71,8 +71,14 @@ class DetailViewModel(application: Application) : AndroidViewModel(application) 
                             getApplication(),
                             viewModelScope
                         )
-                        PublicContract.ContentDisplayType.MOVIE -> DetailMovieActRepo(getApplication(), viewModelScope)
-                        PublicContract.ContentDisplayType.TV_SHOWS -> DetailTvActRepo(getApplication(), viewModelScope)
+                        PublicContract.ContentDisplayType.MOVIE -> DetailMovieActRepo(
+                            getApplication(),
+                            viewModelScope
+                        )
+                        PublicContract.ContentDisplayType.TV_SHOWS -> DetailTvActRepo(
+                            getApplication(),
+                            viewModelScope
+                        )
                     }
                     socmedIds = repository.socmedIds
                     reviews = repository.reviews
@@ -94,21 +100,22 @@ class DetailViewModel(application: Application) : AndroidViewModel(application) 
     fun loadData() {
         id.value?.let {
             val ctx: Context = getApplication()
-            ctx.getSharedPreferences(PublicContract.SHARED_PREF_GLOBAL_NAME, Context.MODE_PRIVATE).let { shared ->
-                val creditsVal = shared.getString("max_credits_results", "10")
-                val reviewsVal = shared.getString("max_review_results", "5")
-                maxAllowedCreditsResult.value =
-                    when (creditsVal) {
-                        "max" -> RecyclerCastsAdapter.NO_LIMITS
-                        null -> 10
-                        else -> creditsVal.toInt()
+            ctx.getSharedPreferences(PublicContract.SHARED_PREF_GLOBAL_NAME, Context.MODE_PRIVATE)
+                .let { shared ->
+                    val creditsVal = shared.getString("max_credits_results", "10")
+                    val reviewsVal = shared.getString("max_review_results", "5")
+                    maxAllowedCreditsResult.value =
+                        when (creditsVal) {
+                            "max" -> RecyclerCastsAdapter.NO_LIMITS
+                            null -> 10
+                            else -> creditsVal.toInt()
+                        }
+                    maxAllowedReviewsResult.value = when (reviewsVal) {
+                        "max" -> RecyclerReviewAdapter.NO_LIMITS
+                        null -> 5
+                        else -> reviewsVal.toInt()
                     }
-                maxAllowedReviewsResult.value = when (reviewsVal) {
-                    "max" -> RecyclerReviewAdapter.NO_LIMITS
-                    null -> 5
-                    else -> reviewsVal.toInt()
                 }
-            }
             repository.load(it)
         }
     }

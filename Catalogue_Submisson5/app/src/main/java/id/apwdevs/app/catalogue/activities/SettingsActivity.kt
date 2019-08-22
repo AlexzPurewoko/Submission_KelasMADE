@@ -46,7 +46,10 @@ class SettingsActivity : AppCompatActivity(), SettingsFragment.SettingCB {
             .commit()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        mViewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory()).get(SettingViewModel::class.java)
+        mViewModel = ViewModelProvider(
+            this,
+            ViewModelProvider.NewInstanceFactory()
+        ).get(SettingViewModel::class.java)
         setUpDialog()
     }
 
@@ -94,17 +97,20 @@ class SettingsActivity : AppCompatActivity(), SettingsFragment.SettingCB {
                 onUpdate()
             }
 
-            mViewModel.mCurrentPreference.observe(this@SettingsActivity, androidx.lifecycle.Observer {
-                val defaultVal = it?.sharedPreferences?.getString(it.key, getTimePickerText(timePicker))
-                Calendar.getInstance().apply {
-                    time = SimpleDateFormat("HH:mm", Locale.getDefault()).parse(defaultVal)
-                    setTimePickerTime(
-                        timePicker,
-                        get(Calendar.HOUR_OF_DAY),
-                        get(Calendar.MINUTE)
-                    )
-                }
-            })
+            mViewModel.mCurrentPreference.observe(
+                this@SettingsActivity,
+                androidx.lifecycle.Observer {
+                    val defaultVal =
+                        it?.sharedPreferences?.getString(it.key, getTimePickerText(timePicker))
+                    Calendar.getInstance().apply {
+                        time = SimpleDateFormat("HH:mm", Locale.getDefault()).parse(defaultVal)
+                        setTimePickerTime(
+                            timePicker,
+                            get(Calendar.HOUR_OF_DAY),
+                            get(Calendar.MINUTE)
+                        )
+                    }
+                })
         }.create()
     }
 

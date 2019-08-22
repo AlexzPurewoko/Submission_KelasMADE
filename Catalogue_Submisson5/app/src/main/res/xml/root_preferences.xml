@@ -14,45 +14,44 @@
   ~ limitations under the License.
   -->
 
-<androidx.preference.PreferenceScreen
-        xmlns:app="http://schemas.android.com/apk/res-auto">
+<androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
             app:iconSpaceReserved="false"
             app:title="@string/common">
 
         <ListPreference
-                app:iconSpaceReserved="false"
-                app:key="@string/pref_languages_key"
-                app:title="@string/pref_languages_title"
-                app:summary="@string/pref_languages_summary"
                 app:defaultValue="@string/pref_languages_default"
                 app:entries="@array/avail_languages"
-                app:entryValues="@array/avail_languages_values"/>
+                app:entryValues="@array/avail_languages_values"
+                app:iconSpaceReserved="false"
+                app:key="@string/pref_languages_key"
+                app:summary="@string/pref_languages_summary"
+                app:title="@string/pref_languages_title" />
 
         <SwitchPreferenceCompat
+                app:defaultValue="@bool/daily_reminder_default"
                 app:iconSpaceReserved="false"
                 app:key="@string/daily_reminder_key"
-                app:defaultValue="@bool/daily_reminder_default"
-                app:title="@string/daily_reminder_title"
-                app:summary="@string/daily_reminder_summaryOn"/>
+                app:summary="@string/daily_reminder_summaryOn"
+                app:title="@string/daily_reminder_title" />
         <Preference
+                app:defaultValue="@string/daily_reminder_time_default"
                 app:iconSpaceReserved="false"
                 app:key="@string/daily_reminder_time_key"
-                app:title="@string/daily_reminder_time_title"
-                app:defaultValue="@string/daily_reminder_time_default"/>
+                app:title="@string/daily_reminder_time_title" />
 
         <SwitchPreferenceCompat
+                app:defaultValue="@bool/release_today_reminder_default"
                 app:iconSpaceReserved="false"
                 app:key="@string/release_today_reminder_key"
-                app:defaultValue="@bool/release_today_reminder_default"
-                app:title="@string/release_today_reminder_title"
-                app:summary="@string/release_today_reminder_summaryOn"/>
+                app:summary="@string/release_today_reminder_summaryOn"
+                app:title="@string/release_today_reminder_title" />
         <Preference
+                app:defaultValue="@string/release_today_reminder_time_default"
                 app:iconSpaceReserved="false"
                 app:key="@string/release_today_reminder_time_key"
-                app:title="@string/release_today_reminder_time_title"
-                app:defaultValue="@string/release_today_reminder_time_default"/>
+                app:title="@string/release_today_reminder_time_title" />
 
 
     </PreferenceCategory>
@@ -61,27 +60,27 @@
             app:iconSpaceReserved="false"
             app:title="@string/theme_pref_name">
         <SwitchPreferenceCompat
+                app:defaultValue="@bool/card_bg_status_default"
                 app:iconSpaceReserved="false"
                 app:key="@string/card_bg_status_key"
-                app:title="@string/card_bg_status_title"
-                app:defaultValue="@bool/card_bg_status_default"
-                app:summary="@string/card_bg_status_summary"/>
+                app:summary="@string/card_bg_status_summary"
+                app:title="@string/card_bg_status_title" />
         <ListPreference
+                app:defaultValue="@string/card_bg_mode_default"
+                app:entries="@array/avail_cardbg_colors"
+                app:entryValues="@array/avail_cardbg_colors_values"
                 app:iconSpaceReserved="false"
                 app:key="@string/card_bg_mode_key"
-                app:title="@string/card_bg_mode_title"
-                app:defaultValue="@string/card_bg_mode_default"
                 app:summary="@string/card_bg_mode_summary"
-                app:entries="@array/avail_cardbg_colors"
-                app:entryValues="@array/avail_cardbg_colors_values"/>
+                app:title="@string/card_bg_mode_title" />
         <ListPreference
+                app:defaultValue="@string/carddrop_w_default"
+                app:entries="@array/avail_carddrop_w"
+                app:entryValues="@array/avail_carddrop_w"
                 app:iconSpaceReserved="false"
                 app:key="@string/carddrop_w_key"
-                app:title="@string/carddrop_w_title"
-                app:defaultValue="@string/carddrop_w_default"
                 app:summary="@string/carddrop_w_summary"
-                app:entries="@array/avail_carddrop_w"
-                app:entryValues="@array/avail_carddrop_w"/>
+                app:title="@string/carddrop_w_title" />
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -89,22 +88,22 @@
             app:title="@string/content_pref_name">
 
         <ListPreference
+                app:defaultValue="@integer/max_credits_results_default"
+                app:entries="@array/avail_max_credits"
+                app:entryValues="@array/avail_max_credits_values"
                 app:iconSpaceReserved="false"
                 app:key="@string/max_credits_results_key"
-                app:title="@string/max_credits_results_title"
-                app:defaultValue="@integer/max_credits_results_default"
                 app:summary="@string/max_credits_results_summary"
-                app:entries="@array/avail_max_credits"
-                app:entryValues="@array/avail_max_credits_values"/>
+                app:title="@string/max_credits_results_title" />
 
         <ListPreference
+                app:defaultValue="@integer/max_review_results_default"
+                app:entries="@array/avail_max_credits"
+                app:entryValues="@array/avail_max_credits_values"
                 app:iconSpaceReserved="false"
                 app:key="@string/max_review_results_key"
-                app:title="@string/max_review_results_title"
-                app:defaultValue="@integer/max_review_results_default"
                 app:summary="@string/max_review_results_summary"
-                app:entries="@array/avail_max_credits"
-                app:entryValues="@array/avail_max_credits_values"/>
+                app:title="@string/max_review_results_title" />
 
 
     </PreferenceCategory>
@@ -113,11 +112,11 @@
             app:iconSpaceReserved="false"
             app:title="@string/search_pref_name">
         <SwitchPreferenceCompat
+                app:defaultValue="@bool/colored_text_state_default"
                 app:iconSpaceReserved="false"
                 app:key="@string/colored_text_state_key"
-                app:defaultValue="@bool/colored_text_state_default"
-                app:title="@string/colored_text_state_title"
-                app:summary="@string/colored_text_state_summary"/>
+                app:summary="@string/colored_text_state_summary"
+                app:title="@string/colored_text_state_title" />
 
     </PreferenceCategory>
 </androidx.preference.PreferenceScreen>

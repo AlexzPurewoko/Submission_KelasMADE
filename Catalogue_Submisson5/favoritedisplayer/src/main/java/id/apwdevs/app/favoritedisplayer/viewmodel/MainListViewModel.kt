@@ -13,14 +13,12 @@ class MainListViewModel(application: Application) : AndroidViewModel(application
 
     var mFavList: MutableLiveData<List<FavoriteEntity>>
     val hasLoading: MutableLiveData<Boolean> = MutableLiveData()
-    val hasFirstInstantiate: MutableLiveData<Boolean> = MutableLiveData()
 
     var type: MainListRepository.ContentDisplayType? = null
     private var mainListRepository: MainListRepository = MainListRepository(getApplication())
 
     init {
         mFavList = mainListRepository.favList
-        hasFirstInstantiate.value = false
         hasLoading.value = false
     }
 

@@ -37,7 +37,10 @@ class WrappedView : ViewGroup {
         for (i in 0 until count) {
             getChildAt(i).apply {
                 if (visibility != GONE) {
-                    measure(MeasureSpec.makeMeasureSpec(w, MeasureSpec.AT_MOST), childHeightMeasureSpec)
+                    measure(
+                        MeasureSpec.makeMeasureSpec(w, MeasureSpec.AT_MOST),
+                        childHeightMeasureSpec
+                    )
                     val lp = layoutParams as LayoutParams
                     lineHeight = max(lineHeight, measuredHeight + lp.verticalSpacing)
 
@@ -72,7 +75,11 @@ class WrappedView : ViewGroup {
 
     fun addImageIcon(@DrawableRes resId: Int, otherSettings: (view: ImageView) -> Unit) {
         addView(
-            (LayoutInflater.from(context).inflate(R.layout.item_icon_socmed, this, false) as ImageView).apply {
+            (LayoutInflater.from(context).inflate(
+                R.layout.item_icon_socmed,
+                this,
+                false
+            ) as ImageView).apply {
                 setImageResource(resId)
                 otherSettings(this)
             }

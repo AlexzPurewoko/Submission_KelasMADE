@@ -23,7 +23,8 @@ class DetailTvActRepo(
 
     override fun initAtFirstTime(dataIntent: Intent) {
         dataIntent.extras?.apply {
-            val otherAboutTv = getParcelable<MainDataItemModel>(DetailActivity.EXTRA_CONTENT_DETAILS)
+            val otherAboutTv =
+                getParcelable<MainDataItemModel>(DetailActivity.EXTRA_CONTENT_DETAILS)
             data1Obj.postValue(otherAboutTv)
         }
     }

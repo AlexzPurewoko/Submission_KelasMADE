@@ -185,7 +185,13 @@ data class MainDataItemResponse(
                     while (true) {
                         val key = "$RESPONSE_DATA_BUNDLE$idx"
                         if (containsKey(key)) {
-                            getBundle(key)?.let { listModel.add(MainDataItemModel.fromBundleIntoModel(it)) }
+                            getBundle(key)?.let {
+                                listModel.add(
+                                    MainDataItemModel.fromBundleIntoModel(
+                                        it
+                                    )
+                                )
+                            }
                             idx++
                         } else break
                     }

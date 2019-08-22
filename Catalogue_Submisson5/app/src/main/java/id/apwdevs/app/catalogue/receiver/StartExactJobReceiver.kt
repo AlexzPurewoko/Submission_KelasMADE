@@ -19,7 +19,8 @@ class StartExactJobReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         // This method is called when the BroadcastReceiver is receiving an Intent broadcast.
-        val pendingJob = ScheduleContract.getObject(intent.getBundleExtra(ScheduleContract.JOB_SELF_PARAMS))
+        val pendingJob =
+            ScheduleContract.getObject(intent.getBundleExtra(ScheduleContract.JOB_SELF_PARAMS))
         val posCls = pendingJob.workJobClassPos
         if (posCls < 0) return
 
@@ -41,7 +42,12 @@ class StartExactJobReceiver : BroadcastReceiver() {
         if (pendingJob.hasRecurringAfterCalled) {
             val newCalendar = Calendar.getInstance()
             newCalendar.time =
-                Date(intent.getLongExtra(ScheduleContract.RUN_EXACT_TIME_NOW, System.currentTimeMillis()))
+                Date(
+                    intent.getLongExtra(
+                        ScheduleContract.RUN_EXACT_TIME_NOW,
+                        System.currentTimeMillis()
+                    )
+                )
             newCalendar.add(Calendar.DAY_OF_MONTH, 1)
             BaseJobManager.getInstance(context).startAtId(pendingJob.jobId, newCalendar)
         }

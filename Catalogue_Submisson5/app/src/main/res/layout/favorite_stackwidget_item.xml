@@ -1,46 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="wrap_content"
         android:layout_height="match_parent">
+
     <ImageView
-            android:src="@drawable/ic_sentiment_dissatisfied_black_24dp"
-            android:backgroundTint="@android:color/white"
-            android:scaleType="fitCenter"
+            android:id="@+id/stackview_widget_item"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:adjustViewBounds="true"
-            android:id="@+id/stackview_widget_item"/>
+            android:backgroundTint="@android:color/white"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_sentiment_dissatisfied_black_24dp" />
 
     <RelativeLayout
-            android:layout_alignEnd="@id/stackview_widget_item"
-            android:layout_alignStart="@id/stackview_widget_item"
-            android:background="#B0636363"
-            android:layout_alignParentBottom="true"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@id/stackview_widget_item"
+            android:layout_alignEnd="@id/stackview_widget_item"
+            android:layout_alignParentBottom="true"
+            android:background="#B0636363">
+
         <ImageView
-                android:layout_marginTop="4dp"
-                android:layout_alignParentEnd="true"
-                android:adjustViewBounds="true"
+                android:id="@+id/favorite_widget_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="20dp"
-                android:tint="#fff"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="4dp"
+                android:adjustViewBounds="true"
                 android:src="@drawable/ic_launch_24dp"
-                android:id="@+id/favorite_widget_btn"/>
+                android:tint="#fff" />
+
         <TextView
-                android:textStyle="bold"
-                android:layout_marginEnd="4dp"
-                android:layout_toLeftOf="@id/favorite_widget_btn"
-                android:layout_centerVertical="true"
-                tools:text="TextView"
-                android:maxLines="2"
-                android:ellipsize="end"
-                android:layout_marginStart="4dp"
-                android:layout_marginLeft="4dp"
+                android:id="@+id/widget_fav_item_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/widget_fav_item_title"/>
+                android:layout_centerVertical="true"
+                android:layout_marginStart="4dp"
+                android:layout_marginLeft="4dp"
+                android:layout_marginEnd="4dp"
+                android:layout_toLeftOf="@id/favorite_widget_btn"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:textStyle="bold"
+                tools:text="TextView" />
     </RelativeLayout>
 </RelativeLayout>

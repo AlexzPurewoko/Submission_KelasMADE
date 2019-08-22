@@ -1,34 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/adapter_page_indicator_container"
-                android:layout_gravity="center_horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/adapter_page_indicator_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal">
 
     <ImageButton
+            android:id="@+id/adapter_page_previous"
+            style="@style/Widget.AppCompat.ActionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/page_previous_24dp"
-            style="@style/Widget.AppCompat.ActionButton"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:id="@+id/adapter_page_previous"/>
+            app:srcCompat="@drawable/page_previous_24dp" />
+
     <androidx.recyclerview.widget.RecyclerView
-            android:orientation="horizontal"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            android:layout_toEndOf="@+id/adapter_page_previous"
-            android:layout_toStartOf="@id/adapter_page_next"
             android:id="@+id/adapter_page_indicator"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/adapter_page_previous"
             android:layout_alignBottom="@+id/adapter_page_previous"
-            android:layout_alignTop="@+id/adapter_page_previous"/>
+            android:layout_toStartOf="@id/adapter_page_next"
+            android:layout_toEndOf="@+id/adapter_page_previous"
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
     <ImageButton
-            android:layout_alignParentEnd="true"
+            android:id="@+id/adapter_page_next"
+            style="@style/Widget.AppCompat.ActionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/page_next_24dp"
-            style="@style/Widget.AppCompat.ActionButton"
+            android:layout_alignParentEnd="true"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:id="@+id/adapter_page_next"/>
+            app:srcCompat="@drawable/page_next_24dp" />
 </RelativeLayout>

@@ -169,7 +169,8 @@ class SettingsFragment : PreferenceFragmentCompat(), GetValues,
         mOnSettingsFragmentCallback?.onReqShowTimePickDialog(preference)
     }
 
-    private fun <T : Preference> findPreference(@StringRes id: Int): T? = findPreference(getString(id))
+    private fun <T : Preference> findPreference(@StringRes id: Int): T? =
+        findPreference(getString(id))
 
     companion object {
         private var sInstance: SettingsFragment? = null

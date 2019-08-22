@@ -31,7 +31,8 @@ class SearchToolbarCard(
     private var contentMore: ImageView = cardView.findViewById(R.id.img_more)
     private var listMode: ImageView = cardView.findViewById(R.id.item_list_modes)
     private lateinit var popupMenu: MaterialPopupMenu
-    private var dataVModel: ToolbarCardViewModel = ViewModelProvider(activity).get(ToolbarCardViewModel::class.java)
+    private var dataVModel: ToolbarCardViewModel =
+        ViewModelProvider(activity).get(ToolbarCardViewModel::class.java)
     private var hasToSubmitted: Boolean = false
     private var hasFirstUserSearch: Boolean = false
     internal val currentListMode: Int?
@@ -188,7 +189,10 @@ class SearchToolbarCard(
                 searchCb.onSubmit(edtSearch.text.toString())
                 hasToSubmitted = true
                 getSystemService(activity, InputMethodManager::class.java)?.apply {
-                    hideSoftInputFromWindow(edtSearch.windowToken, InputMethodManager.RESULT_UNCHANGED_SHOWN)
+                    hideSoftInputFromWindow(
+                        edtSearch.windowToken,
+                        InputMethodManager.RESULT_UNCHANGED_SHOWN
+                    )
                 }
                 //setFocusable(false)
             }
@@ -214,7 +218,8 @@ class SearchToolbarCard(
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                dataVModel.queryTextSearch.value = ToolbarCardViewModel.QueryStrData(s, start, before, count)
+                dataVModel.queryTextSearch.value =
+                    ToolbarCardViewModel.QueryStrData(s, start, before, count)
             }
 
         })
@@ -230,7 +235,10 @@ class SearchToolbarCard(
             }
         } else {
             getSystemService(activity, InputMethodManager::class.java)?.apply {
-                hideSoftInputFromWindow(edtSearch.windowToken, InputMethodManager.RESULT_UNCHANGED_SHOWN)
+                hideSoftInputFromWindow(
+                    edtSearch.windowToken,
+                    InputMethodManager.RESULT_UNCHANGED_SHOWN
+                )
             }
         }
     }

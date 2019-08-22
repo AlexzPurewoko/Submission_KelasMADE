@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Penampil Favorit</string>
+    <string name="movie_title">Film</string>
+    <string name="tv_title">Acara Tv</string>
+    <string name="go_into_activity">Pergi Ke Activity</string>
+    <string name="err_text">Tidak ada Data. Apakah anda ingin menambahkannya?</string>
+    <string name="item_favorite_contentdesc">Tambah / hapus item ini dari favorit</string>
+    <string name="img_poster_contentdesc">Mendeskripsikan gambar poster untuk Film/AcaraTv</string>
+</resources>

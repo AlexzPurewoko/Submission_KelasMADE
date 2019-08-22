@@ -101,8 +101,6 @@
     <string name="remove_fav">Dihapus dari favorit</string>
     <string name="time_picker_allow_24">Pakai format 24 jam</string>
 
-    <string name="add_widget">Add widget</string>
-    <string name="go_into_activity">Ayo Pilih</string>
     <string name="err_text">Kamu belum pilih favorit</string>
     <string name="err_no_results">Tidak ada Result</string>
     <string name="err_no_results_suggest">Segarkan, klik submit atau ganti text pencarian (saat mode pencarian)</string>
@@ -123,6 +121,10 @@
     <string name="reminder_onmain"> Jika Anda ingin menggunakan fitur Page Indicator, segarkan halaman, kemudian klik Mode Indikator Halaman</string>
     <string name="using_page_indicator_ex_search">Keluarlah dari mode pencarian dengan klik panah kiri (toolbar) untuk mengaktifkan Mode Indikator Halaman</string>
     <string name="toggle_page_indicator">Mode Indikator Halaman</string>
+    <string name="explanation_toast_widget">Item bernama %1$s di posisi %2$d dan punya id %3$d, Jika Anda ingin detail secara rinci, Tolong klik Tombol Launch pada pojok kiri bawah gambar.</string>
+    <string name="applying_reminder">Menerapkan konfigurasi ke %1$d pengingat telah sukses</string>
+    <string name="cancel">Batalkan</string>
+    <string name="set">Terapkan</string>
     <string-array name="daily_reminder_notiftitle">
         <item>Ayo, Buka kembali Aplikasi Katalog!</item>
         <item>Pengingat Harian</item>

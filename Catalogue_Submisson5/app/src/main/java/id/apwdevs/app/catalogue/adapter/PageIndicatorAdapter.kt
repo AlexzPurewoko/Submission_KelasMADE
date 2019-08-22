@@ -23,7 +23,11 @@ class PageIndicatorAdapter : RecyclerView.Adapter<PageIndicatorAdapter.PageIndic
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PageIndicatorHolder =
         PageIndicatorHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.adapter_page_indicator_item, parent, false)
+            LayoutInflater.from(parent.context).inflate(
+                R.layout.adapter_page_indicator_item,
+                parent,
+                false
+            )
         )
 
     override fun getItemCount(): Int = pageLength

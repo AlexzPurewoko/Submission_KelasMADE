@@ -35,9 +35,7 @@ class FragmentContents : Fragment(), OnRequestRefresh {
     private lateinit var mLayoutError: LinearLayout
     private lateinit var mCardButton: CardView
 
-    var onCallbacks: OnFragmentCallbacks? = null
-    @Deprecated("")
-    private var onContentRequestAllRefresh: OnRequestRefresh? = null
+    private var onCallbacks: OnFragmentCallbacks? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,7 +53,11 @@ class FragmentContents : Fragment(), OnRequestRefresh {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? =
         inflater.inflate(
             R.layout.fg_holder_content,
             container,
@@ -111,7 +113,7 @@ class FragmentContents : Fragment(), OnRequestRefresh {
         mViewModel?.load()
     }
 
-    fun setupPage(page: List<FavoriteEntity>?) {
+    private fun setupPage(page: List<FavoriteEntity>?) {
         page?.let {
             if (it.isEmpty()) {
                 mLayoutError.visibility = View.VISIBLE
@@ -134,12 +136,17 @@ class FragmentContents : Fragment(), OnRequestRefresh {
                 recyclerListAdapter.notifyDataSetChanged()
                 requestFocusFromTouch()
 
-                ItemClickSupport.addTo(this)?.onItemClickListener = object : ItemClickSupport.OnItemClickListener {
-                    override fun onItemClicked(recyclerView: RecyclerView, position: Int, v: View) {
-                        onRecyclerItemClicked(recyclerView, position, v)
-                    }
+                ItemClickSupport.addTo(this)?.onItemClickListener =
+                    object : ItemClickSupport.OnItemClickListener {
+                        override fun onItemClicked(
+                            recyclerView: RecyclerView,
+                            position: Int,
+                            v: View
+                        ) {
+                            onRecyclerItemClicked(recyclerView, position, v)
+                        }
 
-                }
+                    }
 
             }
             return

@@ -8,15 +8,20 @@ import android.widget.Toast
 import androidx.core.content.edit
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.manager.BaseJobManager
 import id.apwdevs.app.catalogue.plugin.PublicContract
 import java.text.SimpleDateFormat
 import java.util.*
 
-class StartAlarmManager(context: Context, jobParams: WorkerParameters) : Worker(context, jobParams) {
+class StartAlarmManager(context: Context, jobParams: WorkerParameters) :
+    Worker(context, jobParams) {
     override fun doWork(): Result {
         StartAlarmManagerContract.listPendingAlarmJob.forEach {
-            applicationContext.getSharedPreferences(PublicContract.SHARED_PREF_GLOBAL_NAME, Context.MODE_PRIVATE)
+            applicationContext.getSharedPreferences(
+                PublicContract.SHARED_PREF_GLOBAL_NAME,
+                Context.MODE_PRIVATE
+            )
                 .apply {
                     if (it.useSharedPrefControls) {
                         val sharedVal = getBoolean(
@@ -42,7 +47,8 @@ class StartAlarmManager(context: Context, jobParams: WorkerParameters) : Worker(
                     }
                     val calendarTime = Calendar.getInstance()
                     val timeNow = calendarTime.timeInMillis
-                    calendarTime.time = SimpleDateFormat(it.dateFormat, Locale.getDefault()).parse(alarmTm)
+                    calendarTime.time =
+                        SimpleDateFormat(it.dateFormat, Locale.getDefault()).parse(alarmTm)
                     while (it.allowNextReschedule && timeNow > calendarTime.timeInMillis) {
                         calendarTime.add(Calendar.DAY_OF_MONTH, 1)
                     }
@@ -59,7 +65,10 @@ class StartAlarmManager(context: Context, jobParams: WorkerParameters) : Worker(
         android.os.Handler(Looper.getMainLooper()).post {
             Toast.makeText(
                 applicationContext,
-                "Applied Alarm Configuration to ${StartAlarmManagerContract.listPendingAlarmJob.size} Pending Alarms successfully",
+                applicationContext.getString(
+                    R.string.applying_reminder,
+                    StartAlarmManagerContract.listPendingAlarmJob.size
+                ),
                 Toast.LENGTH_SHORT
             ).show()
         }

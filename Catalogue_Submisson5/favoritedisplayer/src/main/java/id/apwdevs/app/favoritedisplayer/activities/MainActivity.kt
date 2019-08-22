@@ -42,7 +42,11 @@ class MainActivity : AppCompatActivity(), OnFragmentCallbacks {
             start()
             observer = DObserver(Handler(looper))
             observer?.let {
-                contentResolver.registerContentObserver(Contracts.BASE_URI_FAVORITE.build(), true, it)
+                contentResolver.registerContentObserver(
+                    Contracts.BASE_URI_FAVORITE.build(),
+                    true,
+                    it
+                )
             }
 
         }
@@ -55,7 +59,11 @@ class MainActivity : AppCompatActivity(), OnFragmentCallbacks {
 
             }
 
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+            override fun onPageScrolled(
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
+            ) {
 
             }
 
@@ -104,7 +112,8 @@ class MainActivity : AppCompatActivity(), OnFragmentCallbacks {
             tabs.addTab(
                 tabs.newTab().apply {
                     customView =
-                        LayoutInflater.from(this@MainActivity).inflate(R.layout.tab_custom, tabs, false).apply {
+                        LayoutInflater.from(this@MainActivity)
+                            .inflate(R.layout.tab_custom, tabs, false).apply {
                             findViewById<TextView>(R.id.tab_title).setText(strId)
                             findViewById<ImageView>(R.id.tab_icon).apply {
                                 imageTintList = ColorStateList.valueOf(Color.WHITE)
@@ -173,7 +182,10 @@ class MainActivity : AppCompatActivity(), OnFragmentCallbacks {
     }
 
     private inner class VAdapter(p: FragmentManager) :
-        FragmentStatePagerAdapter(p, FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+        FragmentStatePagerAdapter(
+            p,
+            BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT
+        ) {
 
         private val mFragments = listOf(
             FragmentContents.newInstance(MainListRepository.ContentDisplayType.MOVIE),

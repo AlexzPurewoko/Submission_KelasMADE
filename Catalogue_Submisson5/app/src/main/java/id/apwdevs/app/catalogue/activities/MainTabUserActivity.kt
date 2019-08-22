@@ -48,7 +48,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
 
-class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallback, FragmentListCallback,
+class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallback,
+    FragmentListCallback,
     OnItemFragmentClickListener, GetFromHostActivity, OnRequestRefresh {
 
     companion object {
@@ -115,7 +116,13 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
                             if (fg is FragmentListContainer) {
                                 while (fg.type == null) delay(150)
                                 if (fg.type == oCType) {
-                                    forceStart(idx, fg, ReleaseTodayReminder.FROM_REMINDER, oCType, contentData)
+                                    forceStart(
+                                        idx,
+                                        fg,
+                                        ReleaseTodayReminder.FROM_REMINDER,
+                                        oCType,
+                                        contentData
+                                    )
                                     break
                                 }
                             }
@@ -173,7 +180,11 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
                 onDataHasChange(it)
             }
             mObserver?.let {
-                contentResolver.registerContentObserver(FavoriteProvider.BASE_URI_FAVORITE.build(), true, it)
+                contentResolver.registerContentObserver(
+                    FavoriteProvider.BASE_URI_FAVORITE.build(),
+                    true,
+                    it
+                )
             }
         }
     }
@@ -181,17 +192,18 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
     override fun attachBaseContext(newBase: Context?) {
         newBase?.let {
             var newCtx: Context?
-            it.getSharedPreferences(PublicContract.SHARED_PREF_GLOBAL_NAME, Context.MODE_PRIVATE).apply {
-                newCtx = when (getString("app_languages", "system")) {
-                    "force_en" -> ApplyLanguage.wrap(it, Locale("en"))
-                    "force_in" -> ApplyLanguage.wrap(it, Locale("in"))
-                    else -> {
-                        super.attachBaseContext(newBase)
-                        return
+            it.getSharedPreferences(PublicContract.SHARED_PREF_GLOBAL_NAME, Context.MODE_PRIVATE)
+                .apply {
+                    newCtx = when (getString("app_languages", "system")) {
+                        "force_en" -> ApplyLanguage.wrap(it, Locale("en"))
+                        "force_in" -> ApplyLanguage.wrap(it, Locale("in"))
+                        else -> {
+                            super.attachBaseContext(newBase)
+                            return
+                        }
                     }
+                    super.attachBaseContext(newCtx)
                 }
-                super.attachBaseContext(newCtx)
-            }
         }
     }
 
@@ -249,6 +261,7 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
             return findAdapters(adapter.wrappedAdapter)
         return adapter
     }
+
     override fun onItemClicked(fg: Fragment, recyclerView: RecyclerView, position: Int, v: View) {
 
         startActivityForResult(
@@ -259,7 +272,8 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
                     if (model.size > 0) {
                         adapter.resetAllSpannables()
                         if (fg is FragmentContents) {
-                            val type = (listFragmentContainer[view_pager.currentItem] as FragmentListContainer).type
+                            val type =
+                                (listFragmentContainer[view_pager.currentItem] as FragmentListContainer).type
                             val selected = model[position]
                             putExtras(Bundle().apply {
                                 putParcelable(
@@ -290,7 +304,8 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
                     if (model.size > 0) {
                         adapter.resetAllSpannables()
                         if (fg is FragmentContents) {
-                            val type = (listFragmentContainer[view_pager.currentItem] as FragmentListContainer).type
+                            val type =
+                                (listFragmentContainer[view_pager.currentItem] as FragmentListContainer).type
                             val selected = model[position]
                             putExtras(Bundle().apply {
                                 putParcelable(
@@ -330,7 +345,11 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
 
             }
 
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+            override fun onPageScrolled(
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
+            ) {
                 tabs.setScrollPosition(position, positionOffset, false)
             }
 
@@ -357,7 +376,8 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
             tabs.addTab(
                 tabs.newTab().apply {
                     customView =
-                        LayoutInflater.from(this@MainTabUserActivity).inflate(R.layout.tab_custom, tabs, false).apply {
+                        LayoutInflater.from(this@MainTabUserActivity)
+                            .inflate(R.layout.tab_custom, tabs, false).apply {
                             findViewById<TextView>(R.id.tab_title).setText(strId)
                             findViewById<ImageView>(R.id.tab_icon).apply {
                                 imageTintList = ColorStateList.valueOf(Color.WHITE)
@@ -381,7 +401,13 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
         })
     }
 
-    override fun querySearch(view: View, query: CharSequence?, start: Int, before: Int, count: Int) {
+    override fun querySearch(
+        view: View,
+        query: CharSequence?,
+        start: Int,
+        before: Int,
+        count: Int
+    ) {
         // forward into next-child current fragment
         listFragmentContainer[view_pager.currentItem].apply {
             if (this is SearchToolbarCard.OnSearchCallback)
@@ -438,7 +464,8 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
         }
     }
 
-    override fun getListMode(): Int = searchToolbarCard.currentListMode ?: PublicContract.RecyclerMode.MODE_LIST
+    override fun getListMode(): Int =
+        searchToolbarCard.currentListMode ?: PublicContract.RecyclerMode.MODE_LIST
 
     override fun onFragmentChange(
         newFragment: Fragment,

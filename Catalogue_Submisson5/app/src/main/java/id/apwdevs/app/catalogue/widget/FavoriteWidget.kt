@@ -9,6 +9,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.RemoteViews
+import android.widget.Toast
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.activities.DetailActivity
 import id.apwdevs.app.catalogue.activities.MainTabUserActivity
@@ -23,7 +24,12 @@ import kotlinx.coroutines.launch
  * Implementation of App Widget functionality.
  */
 class FavoriteWidget : AppWidgetProvider() {
-    override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
+
+    override fun onUpdate(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray
+    ) {
         // There may be multiple widgets active, so update all of them
         for (appWidgetId in appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId)
@@ -40,12 +46,25 @@ class FavoriteWidget : AppWidgetProvider() {
         // Enter relevant functionality for when the last widget is disabled
     }
 
+
     override fun onReceive(context: Context?, intent: Intent?) {
+
         when (intent?.getStringExtra(ACTION_TYPE)) {
             STACK_UPDATE_ALL -> context?.let {
                 val wInstance = AppWidgetManager.getInstance(it)
-                val update = wInstance.getAppWidgetIds(ComponentName(it, FavoriteWidget::class.java))
+                val update =
+                    wInstance.getAppWidgetIds(ComponentName(it, FavoriteWidget::class.java))
                 wInstance.notifyAppWidgetViewDataChanged(update, R.id.stackview_widget)
+            }
+            SHORT_EXPLANATION -> context?.let {
+                val mId = intent.getIntExtra(STACK_ITEM_ID, 0)
+                val position = intent.getIntExtra(STACK_ITEM_POSITION, 0)
+                val mTitle = intent.getStringExtra(STACK_ITEM_TITLE)
+                Toast.makeText(
+                    it,
+                    it.getString(R.string.explanation_toast_widget, mTitle, position, mId),
+                    Toast.LENGTH_LONG
+                ).show()
             }
             STACK_LAUNCH_DETAIL_ITEM -> context?.let {
                 GlobalScope.launch {
@@ -73,7 +92,8 @@ class FavoriteWidget : AppWidgetProvider() {
             }
             START_OBSERVER_AND_UPDATE -> context?.let {
                 val wInstance = AppWidgetManager.getInstance(it)
-                val allIds = wInstance.getAppWidgetIds(ComponentName(it, FavoriteWidget::class.java))
+                val allIds =
+                    wInstance.getAppWidgetIds(ComponentName(it, FavoriteWidget::class.java))
                 onEnabled(it)
                 onUpdate(it, wInstance, allIds)
             }
@@ -81,8 +101,12 @@ class FavoriteWidget : AppWidgetProvider() {
         }
 
     }
+
     companion object {
 
+        const val STACK_ITEM_POSITION: String = "STACK_ITEM_POSITION"
+        const val SHORT_EXPLANATION: String = "SHORT_TOAST_EXPLANATION"
+        const val STACK_ITEM_TITLE: String = "ITEM_WIDGET_TITLE"
         const val START_OBSERVER_AND_UPDATE: String = "OBSERVER_START"
         const val STACK_ITEM_ID: String = "STACK_ID"
         const val STACK_LAUNCH_DETAIL_ITEM: String = "REMOVE_FAVORITE_ITEM"
@@ -96,13 +120,18 @@ class FavoriteWidget : AppWidgetProvider() {
             appWidgetManager.updateAppWidget(
                 appWidgetId,
                 RemoteViews(context.packageName, R.layout.favorite_widget).apply {
-                    setRemoteAdapter(R.id.stackview_widget, Intent(context, StackWidgetService::class.java).also {
-                        it.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                        it.data = Uri.parse(it.toUri(Intent.URI_INTENT_SCHEME))
-                    })
+                    setRemoteAdapter(
+                        R.id.stackview_widget,
+                        Intent(context, StackWidgetService::class.java).also {
+                            it.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                            it.data = Uri.parse(it.toUri(Intent.URI_INTENT_SCHEME))
+                        })
                     setEmptyView(R.id.stackview_widget, R.id.empty_views)
                     val idType =
-                        context.getSharedPreferences(PublicContract.WIDGET_SHARED_PREFERENCES, Context.MODE_PRIVATE)
+                        context.getSharedPreferences(
+                            PublicContract.WIDGET_SHARED_PREFERENCES,
+                            Context.MODE_PRIVATE
+                        )
                             .getInt("widget_conf_${appWidgetId}_type", -1)
                     setTextViewText(
                         R.id.text_display, when (PublicContract.ContentDisplayType.findId(idType)) {
@@ -131,6 +160,15 @@ class FavoriteWidget : AppWidgetProvider() {
                                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                                 putExtra(StackWidgetPreferenceActivity.OWN_UPDATE, true)
                             },
+                            PendingIntent.FLAG_UPDATE_CURRENT
+                        )
+                    )
+                    setPendingIntentTemplate(
+                        R.id.stackview_widget,
+                        PendingIntent.getBroadcast(
+                            context,
+                            0xa2acaf,
+                            Intent(context, FavoriteWidget::class.java),
                             PendingIntent.FLAG_UPDATE_CURRENT
                         )
                     )

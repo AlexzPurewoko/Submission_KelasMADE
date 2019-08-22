@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              tools:theme="@style/AppTheme.NoActionBar"
-              android:orientation="horizontal"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content">
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        tools:theme="@style/AppTheme.NoActionBar">
+
     <ProgressBar
-            android:padding="5dp"
             android:layout_width="50dp"
-            android:layout_height="50dp"/>
+            android:layout_height="50dp"
+            android:padding="5dp" />
 
     <TextView
-            android:textColor="@android:color/white"
+            android:id="@+id/progress_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_marginStart="10dp"
             android:gravity="center_vertical"
             android:text="@string/loading"
-            android:id="@+id/progress_text"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" android:textAppearance="@style/TextAppearance.AppCompat.Body2"/>
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textColor="@android:color/white" />
 </LinearLayout>

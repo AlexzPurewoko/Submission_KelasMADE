@@ -1,5 +1,4 @@
-<resources
->
+<resources>
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -14,22 +13,11 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="AppTheme.NoActionBar.Transparent">
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-    </style>
-
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="ImagePosterStyle">
         <item name="android:layout_width">@dimen/item_poster_width</item>
         <item name="android:layout_height">@dimen/item_poster_height</item>
-    </style>
-
-    <style name="ImagePosterStyle.Grid">
-        <item name="android:scaleType">fitCenter</item>
-        <item name="android:layout_gravity">center</item>
     </style>
 
     <style name="ItemListTextViewTitle">

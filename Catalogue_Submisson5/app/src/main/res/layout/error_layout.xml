@@ -1,67 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools"
-        android:orientation="vertical"
-        android:layout_gravity="center_vertical"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-    <LinearLayout android:orientation="vertical"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:gravity="center_horizontal|center_vertical">
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:orientation="vertical">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal|center_vertical"
+            android:orientation="vertical">
 
         <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:srcCompat="@drawable/ic_signal_wifi_off_grey_24dp"
                 android:id="@+id/error_image"
-                android:contentDescription="@string/error_picture"/>
-        <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:contentDescription="@string/error_picture"
+                app:srcCompat="@drawable/ic_signal_wifi_off_grey_24dp" />
+
+        <TextView
                 android:id="@+id/error_title"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large" tools:text="Kesalahan Jaringan!"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
                 android:paddingStart="16dp"
-                android:paddingEnd="16dp"/>
+                android:paddingEnd="16dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                tools:text="Kesalahan Jaringan!" />
+
         <TextView
+                android:id="@+id/error_body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/error_body"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                tools:text="Koneksi internet lemah"
                 android:gravity="center"
                 android:paddingStart="16dp"
-                android:paddingEnd="16dp"/>
+                android:paddingEnd="16dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                tools:text="Koneksi internet lemah" />
+
         <TextView
                 android:id="@+id/error_text_suggest_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                android:text="@string/suggestion"
-                android:textColor="?android:attr/textColorPrimary"
+                android:layout_marginTop="8dp"
                 android:gravity="center"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
-                android:layout_marginTop="8dp"/>
-        <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/error_resolve_suggested"
+                android:text="@string/suggestion"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                tools:text="Pastikan perangkat anda mempunyai koneksi internet yang baik" android:gravity="center"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"/>
+                android:textColor="?android:attr/textColorPrimary" />
 
         <TextView
+                android:id="@+id/error_resolve_suggested"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/error_resolve_more"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                tools:text="errCode: ERR_NO_NET,  cause: UnknownHostException" android:gravity="center"
-                android:layout_marginTop="8dp"
+                android:gravity="center"
                 android:paddingStart="16dp"
-                android:paddingEnd="16dp"/>
+                android:paddingEnd="16dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                tools:text="Pastikan perangkat anda mempunyai koneksi internet yang baik" />
+
+        <TextView
+                android:id="@+id/error_resolve_more"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                tools:text="errCode: ERR_NO_NET,  cause: UnknownHostException" />
     </LinearLayout>
 </ScrollView>

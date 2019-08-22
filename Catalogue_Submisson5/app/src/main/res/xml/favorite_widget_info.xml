@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:minWidth="180dp"
-                    android:minHeight="180dp"
-                    android:updatePeriodMillis="0"
-                    android:previewImage="@drawable/example_appwidget_preview"
-                    android:initialLayout="@layout/favorite_widget"
-                    android:resizeMode="horizontal|vertical"
-                    android:widgetCategory="home_screen"
-                    android:configure="id.apwdevs.app.catalogue.activities.StackWidgetPreferenceActivity"
-                    android:initialKeyguardLayout="@layout/favorite_widget">
-</appwidget-provider>
+        android:configure="id.apwdevs.app.catalogue.activities.StackWidgetPreferenceActivity"
+        android:initialKeyguardLayout="@layout/favorite_widget"
+        android:initialLayout="@layout/favorite_widget"
+        android:minWidth="180dp"
+        android:minHeight="180dp"
+        android:previewImage="@drawable/stackwidget"
+        android:resizeMode="horizontal|vertical"
+        android:updatePeriodMillis="0"
+        android:widgetCategory="home_screen"></appwidget-provider>

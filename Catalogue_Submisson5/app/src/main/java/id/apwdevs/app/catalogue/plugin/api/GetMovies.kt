@@ -17,7 +17,11 @@ object GetMovies {
     fun getOtherDetails(idMovies: Int): String =
         "${PublicContract.URL_API}/${PublicContract.MOVIE_DIR_PATH}/$idMovies?${PublicContract.API_KEY_QNAME}=${PublicContract.API_KEY}"
 
-    fun getList(types: MovieTypeContract, pages: Int = 1, languageString: String = "en-US"): String =
+    fun getList(
+        types: MovieTypeContract,
+        pages: Int = 1,
+        languageString: String = "en-US"
+    ): String =
         when (types) {
             MovieTypeContract.DISCOVER ->
                 "${PublicContract.URL_API}/${PublicContract.DISCOVER_PATH}/${PublicContract.MOVIE_DIR_PATH}?${PublicContract.API_KEY_QNAME}=${PublicContract.API_KEY}&language=$languageString&page=$pages"

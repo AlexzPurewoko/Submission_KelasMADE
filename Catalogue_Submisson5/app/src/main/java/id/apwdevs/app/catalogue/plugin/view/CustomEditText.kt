@@ -22,14 +22,19 @@ class CustomEditText : AppCompatEditText {
         init()
     }
 
-    constructor(context: Context, attrs: AttributeSet, defStyleAttrs: Int) : super(context, attrs, defStyleAttrs) {
+    constructor(context: Context, attrs: AttributeSet, defStyleAttrs: Int) : super(
+        context,
+        attrs,
+        defStyleAttrs
+    ) {
         init()
     }
 
     var mClearButtonImage: Drawable? = null
     var onBtnClearClicked: OnClrBtnClicked? = null
     private fun init() {
-        mClearButtonImage = ResourcesCompat.getDrawable(resources, R.drawable.ic_close_black_24dp, null)
+        mClearButtonImage =
+            ResourcesCompat.getDrawable(resources, R.drawable.ic_close_black_24dp, null)
         setOnTouchListener(object : OnTouchListener {
             @SuppressLint("ClickableViewAccessibility")
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
@@ -43,7 +48,8 @@ class CustomEditText : AppCompatEditText {
                         if (event.x < clearBtnEnd)
                             isClrBtnClicked = true
                     } else {
-                        clearBtnStart = width - paddingEnd - (mClearButtonImage?.intrinsicWidth ?: 0)
+                        clearBtnStart =
+                            width - paddingEnd - (mClearButtonImage?.intrinsicWidth ?: 0)
                         if (event.x > clearBtnStart)
                             isClrBtnClicked = true
                     }
@@ -52,13 +58,21 @@ class CustomEditText : AppCompatEditText {
                         when (event.action) {
                             MotionEvent.ACTION_DOWN -> {
                                 mClearButtonImage =
-                                    ResourcesCompat.getDrawable(resources, R.drawable.ic_close_black_24dp, null)
+                                    ResourcesCompat.getDrawable(
+                                        resources,
+                                        R.drawable.ic_close_black_24dp,
+                                        null
+                                    )
                                 showClrBtn()
                                 return true
                             }
                             MotionEvent.ACTION_UP -> {
                                 mClearButtonImage =
-                                    ResourcesCompat.getDrawable(resources, R.drawable.ic_close_black_24dp, null)
+                                    ResourcesCompat.getDrawable(
+                                        resources,
+                                        R.drawable.ic_close_black_24dp,
+                                        null
+                                    )
                                 onBtnClearClicked?.onClear(text?.toString())
                                 text?.clear()
                                 hideClrBtn()

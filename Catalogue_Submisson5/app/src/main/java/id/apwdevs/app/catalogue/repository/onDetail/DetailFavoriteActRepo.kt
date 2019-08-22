@@ -29,15 +29,17 @@ class DetailFavoriteActRepo(
     private var favEntity: FavoriteEntity? = null
 
     override fun initAtFirstTime(dataIntent: Intent) {
-        favEntity = dataIntent.extras?.getParcelable<FavoriteEntity>(DetailActivity.EXTRA_CONTENT_DETAILS)?.also {
-            typeContent.value = requireNotNull(
-                when (PublicContract.ContentDisplayType.findId(it.contentType)) {
-                    PublicContract.ContentDisplayType.MOVIE -> TypeContentContract.MOVIE
-                    PublicContract.ContentDisplayType.TV_SHOWS -> TypeContentContract.TV_SHOWS
-                    else -> null
+        favEntity =
+            dataIntent.extras?.getParcelable<FavoriteEntity>(DetailActivity.EXTRA_CONTENT_DETAILS)
+                ?.also {
+                    typeContent.value = requireNotNull(
+                        when (PublicContract.ContentDisplayType.findId(it.contentType)) {
+                            PublicContract.ContentDisplayType.MOVIE -> TypeContentContract.MOVIE
+                            PublicContract.ContentDisplayType.TV_SHOWS -> TypeContentContract.TV_SHOWS
+                            else -> null
+                        }
+                    )
                 }
-            )
-        }
     }
 
     override fun getDataAsync(id: Int): Deferred<Boolean> = GlobalScope.async {
@@ -59,8 +61,14 @@ class DetailFavoriteActRepo(
                             viewModelScope.launch(Dispatchers.IO) {
                                 val typeBuff = Gson().fromJson(it, TempBuff::class.java)
                                 val otherModel = when (typeContent.value) {
-                                    TypeContentContract.MOVIE -> Gson().fromJson(it, OtherMovieAboutModel::class.java)
-                                    TypeContentContract.TV_SHOWS -> Gson().fromJson(it, OtherTVAboutModel::class.java)
+                                    TypeContentContract.MOVIE -> Gson().fromJson(
+                                        it,
+                                        OtherMovieAboutModel::class.java
+                                    )
+                                    TypeContentContract.TV_SHOWS -> Gson().fromJson(
+                                        it,
+                                        OtherTVAboutModel::class.java
+                                    )
                                     else -> null
                                 } as ResettableItem
 

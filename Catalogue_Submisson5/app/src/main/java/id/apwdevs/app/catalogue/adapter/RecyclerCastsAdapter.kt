@@ -29,7 +29,13 @@ class RecyclerCastsAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerCastsViewHolder =
-        RecyclerCastsViewHolder(LayoutInflater.from(context).inflate(R.layout.adapter_item_list_casts, parent, false))
+        RecyclerCastsViewHolder(
+            LayoutInflater.from(context).inflate(
+                R.layout.adapter_item_list_casts,
+                parent,
+                false
+            )
+        )
 
     override fun getItemCount(): Int = mListCasts.size.let {
         if (maxContentLimits == NO_LIMITS)

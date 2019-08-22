@@ -1,94 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-                                   xmlns:app="http://schemas.android.com/apk/res-auto"
-                                   xmlns:tools="http://schemas.android.com/tools"
-                                   android:layout_width="match_parent"
-                                   android:layout_height="220dp"
-                                   app:cardCornerRadius="6dp"
-                                   app:cardElevation="4dp"
-                                   app:cardUseCompatPadding="true">
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        app:cardCornerRadius="6dp"
+        app:cardElevation="4dp"
+        app:cardUseCompatPadding="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
         <ImageView
+                android:id="@+id/item_image_backdrop"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
                 android:tint="@color/image_header"
                 android:tintMode="src_in"
-                android:id="@+id/item_image_backdrop"
-                android:scaleType="centerCrop"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" tools:ignore="ContentDescription"/>
+                tools:ignore="ContentDescription" />
 
         <ImageView
 
-                android:layout_marginStart="10dp"
-                android:contentDescription="@string/img_poster_contentdesc"
                 android:id="@+id/item_poster_image"
                 style="@style/ImagePosterStyle"
-                tools:srcCompat="@tools:sample/avatars" android:layout_marginTop="18dp"
-                app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginBottom="18dp" app:layout_constraintBottom_toBottomOf="parent"/>
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="18dp"
+                android:layout_marginBottom="18dp"
+                android:contentDescription="@string/img_poster_contentdesc"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:srcCompat="@tools:sample/avatars" />
 
         <TextView
                 android:id="@+id/item_list_text_title"
                 style="@style/ItemListTextViewTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
                 android:layout_toEndOf="@id/item_poster_image"
-                tools:text="Aquaman"
-                android:layout_height="wrap_content" android:layout_width="0dp"
-                app:layout_constraintStart_toEndOf="@+id/item_poster_image" android:layout_marginStart="8dp"
-                app:layout_constraintTop_toTopOf="@+id/item_poster_image" android:maxLines="2" android:ellipsize="end"
-                app:layout_constraintEnd_toStartOf="@+id/item_list_btn_favorite"/>
+                android:ellipsize="end"
+                android:maxLines="2"
+                app:layout_constraintEnd_toStartOf="@+id/item_list_btn_favorite"
+                app:layout_constraintStart_toEndOf="@+id/item_poster_image"
+                app:layout_constraintTop_toTopOf="@+id/item_poster_image"
+                tools:text="Aquaman" />
 
         <TextView
                 android:id="@+id/item_list_overview"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
+                android:layout_marginTop="12dp"
                 android:layout_toEndOf="@id/item_poster_image"
                 android:ellipsize="end"
-                tools:text="Lorem ipsum dolor sit amet"
-                app:layout_constraintStart_toStartOf="@+id/item_list_genres"
+                android:gravity="bottom|top"
+                android:maxLines="3"
+                app:layout_constraintBottom_toBottomOf="@+id/item_poster_image"
                 app:layout_constraintEnd_toEndOf="@+id/item_list_genres"
-                app:layout_constraintBottom_toBottomOf="@+id/item_poster_image" android:layout_marginTop="12dp"
-                app:layout_constraintTop_toBottomOf="@+id/item_list_genres" android:gravity="bottom|top"
-                android:maxLines="3"/>
+                app:layout_constraintStart_toStartOf="@+id/item_list_genres"
+                app:layout_constraintTop_toBottomOf="@+id/item_list_genres"
+                tools:text="Lorem ipsum dolor sit amet" />
+
         <RatingBar
+                android:id="@+id/item_list_ratingBar"
+                style="?android:attr/ratingBarStyleSmall"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:id="@+id/item_list_ratingBar"
-                android:layout_marginTop="8dp"
-                app:layout_constraintTop_toBottomOf="@+id/item_list_text_title"
-                app:layout_constraintStart_toEndOf="@+id/item_poster_image"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:rating="4.3"
+                android:layout_marginTop="8dp"
                 android:isIndicator="true"
-                style="?android:attr/ratingBarStyleSmall"/>
+                android:rating="4.3"
+                app:layout_constraintStart_toEndOf="@+id/item_poster_image"
+                app:layout_constraintTop_toBottomOf="@+id/item_list_text_title" />
+
         <TextView
-                tools:text="(4553)"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
                 android:id="@+id/item_list_votecount"
-                app:layout_constraintTop_toTopOf="@+id/item_list_ratingBar"
-                app:layout_constraintBottom_toBottomOf="@+id/item_list_ratingBar"
-                app:layout_constraintStart_toEndOf="@+id/item_list_ratingBar" android:layout_marginStart="8dp"
-        />
-        <id.apwdevs.app.favoritedisplayer.plugin.WrappedView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="@+id/item_list_ratingBar" android:layout_marginTop="8dp"
-                app:layout_constraintTop_toBottomOf="@+id/item_list_ratingBar"
-                android:id="@+id/item_list_genres" app:layout_constraintEnd_toEndOf="@+id/item_list_btn_favorite"
-                android:layout_marginEnd="8dp">
+                android:layout_marginStart="8dp"
+                app:layout_constraintBottom_toBottomOf="@+id/item_list_ratingBar"
+                app:layout_constraintStart_toEndOf="@+id/item_list_ratingBar"
+                app:layout_constraintTop_toTopOf="@+id/item_list_ratingBar"
+                tools:text="(4553)" />
+
+        <id.apwdevs.app.favoritedisplayer.plugin.WrappedView
+                android:id="@+id/item_list_genres"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintEnd_toEndOf="@+id/item_list_btn_favorite"
+                app:layout_constraintStart_toStartOf="@+id/item_list_ratingBar"
+                app:layout_constraintTop_toBottomOf="@+id/item_list_ratingBar">
 
         </id.apwdevs.app.favoritedisplayer.plugin.WrappedView>
+
         <ImageView
+                android:id="@+id/item_list_btn_favorite"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/item_favorite_contentdesc"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
-                android:contentDescription="@string/item_favorite_contentdesc"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content" app:srcCompat="@drawable/ic_favorite_border_24dp"
-                android:id="@+id/item_list_btn_favorite"
-                app:layout_constraintTop_toTopOf="@+id/item_list_text_title" app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="@+id/item_list_text_title" android:adjustViewBounds="true"
-                android:tint="@color/colorPrimary"/>
+                android:tint="@color/colorPrimary"
+                app:layout_constraintBottom_toBottomOf="@+id/item_list_text_title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/item_list_text_title"
+                app:srcCompat="@drawable/ic_favorite_border_24dp" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

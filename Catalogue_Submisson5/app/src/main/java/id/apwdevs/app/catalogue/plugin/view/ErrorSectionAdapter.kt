@@ -85,7 +85,8 @@ class ErrorSectionAdapter(private val itemError: View) {
             else -> return
         }
         errorMore.visible()
-        errorMore.text = ctx.getString(R.string.caused_by, "${retError.cause?.javaClass?.simpleName}")
+        errorMore.text =
+            ctx.getString(R.string.caused_by, "${retError.cause?.javaClass?.simpleName}")
     }
 
     fun unDisplayError() {

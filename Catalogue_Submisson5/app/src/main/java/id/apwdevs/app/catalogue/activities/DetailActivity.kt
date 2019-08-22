@@ -102,14 +102,19 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
                 viewModel.onDataChanged()
             }
             mObserver?.let {
-                contentResolver.registerContentObserver(FavoriteProvider.BASE_URI_FAVORITE.build(), true, it)
+                contentResolver.registerContentObserver(
+                    FavoriteProvider.BASE_URI_FAVORITE.build(),
+                    true,
+                    it
+                )
             }
         }
     }
 
     private fun setSnackbar() {
         loadSnackbar = Snackbar.make(det_container, "", Snackbar.LENGTH_INDEFINITE)
-        val inflate = LayoutInflater.from(this).inflate(R.layout.adapter_loading, det_container as ViewGroup, false)
+        val inflate = LayoutInflater.from(this)
+            .inflate(R.layout.adapter_loading, det_container as ViewGroup, false)
         mTextProgress = inflate.findViewById(R.id.progress_text)
         (loadSnackbar.view as FrameLayout).addView(inflate)
     }
@@ -151,7 +156,12 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
 
             hasOverlayMode.observe(this@DetailActivity, Observer {
                 actdetail_image_header?.imageTintList =
-                    ColorStateList.valueOf(ContextCompat.getColor(baseContext, R.color.image_header))
+                    ColorStateList.valueOf(
+                        ContextCompat.getColor(
+                            baseContext,
+                            R.color.image_header
+                        )
+                    )
                 if (it) {
                     actdetail_image_header?.imageTintMode = PorterDuff.Mode.DARKEN
                     actdetail_tint?.apply {
@@ -266,8 +276,10 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
     }
 
     private fun setRecycler(viewModel: DetailViewModel) {
-        val maxRevResults = viewModel.maxAllowedReviewsResult.value ?: RecyclerReviewAdapter.DEFAULT_LIMITS
-        val maxCreditsResults = viewModel.maxAllowedCreditsResult.value ?: RecyclerCastsAdapter.DEFAULT_LIMITS
+        val maxRevResults =
+            viewModel.maxAllowedReviewsResult.value ?: RecyclerReviewAdapter.DEFAULT_LIMITS
+        val maxCreditsResults =
+            viewModel.maxAllowedCreditsResult.value ?: RecyclerCastsAdapter.DEFAULT_LIMITS
         actdetail_recycler_content.layoutManager = LinearLayoutManager(this)
         actdetail_recycler_content.adapter =
             DetailLayoutRecyclerAdapter(
@@ -278,7 +290,10 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
                 maxCreditsResults
             ).apply {
                 onItemAction = object : DetailLayoutRecyclerAdapter.OnItemActionListener {
-                    override fun onAction(viewType: DetailLayoutRecyclerAdapter.ViewType, vararg action: Any) {
+                    override fun onAction(
+                        viewType: DetailLayoutRecyclerAdapter.ViewType,
+                        vararg action: Any
+                    ) {
                         openTo(action[0].toString())
                     }
 

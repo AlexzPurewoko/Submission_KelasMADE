@@ -32,10 +32,13 @@ class GridAdapter<T : ResettableItem>(
 ) :
     RecyclerView.Adapter<GridAdapter<T>.GridViewHolder<T>>(), Filterable {
     internal var shortListModels: MutableList<T> = mutableListOf()
-    private val requestedWidth: Int = mContext.resources.getDimension(R.dimen.item_poster_width).toInt()
-    private val requestedHeight: Int = mContext.resources.getDimension(R.dimen.item_poster_height).toInt()
+    private val requestedWidth: Int =
+        mContext.resources.getDimension(R.dimen.item_poster_width).toInt()
+    private val requestedHeight: Int =
+        mContext.resources.getDimension(R.dimen.item_poster_height).toInt()
     private val searchMethod = OnSearchMethod()
     var notifyDataSetsChange: NotifyDataSetsChange? = null
+
     init {
         setHasStableIds(true)
     }
@@ -45,7 +48,8 @@ class GridAdapter<T : ResettableItem>(
     override fun getItemViewType(position: Int): Int = position
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): GridViewHolder<T> {
-        val view = LayoutInflater.from(mContext).inflate(R.layout.item_grid_movies_or_tv, viewGroup, false)
+        val view =
+            LayoutInflater.from(mContext).inflate(R.layout.item_grid_movies_or_tv, viewGroup, false)
         return GridViewHolder(view)
     }
 
@@ -200,7 +204,11 @@ class GridAdapter<T : ResettableItem>(
             voteCountTxt.text = "($voteCount)"
             releaseDateTxt.text = releaseDate
             posterPath?.let {
-                mWorker.getBitmapNoProgress(Point(requestedWidth, requestedHeight), it, true) { bitmap ->
+                mWorker.getBitmapNoProgress(
+                    Point(requestedWidth, requestedHeight),
+                    it,
+                    true
+                ) { bitmap ->
                     poster.setImageBitmap(bitmap)
                 }
             }

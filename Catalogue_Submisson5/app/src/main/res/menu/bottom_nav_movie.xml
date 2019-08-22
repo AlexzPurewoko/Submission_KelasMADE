@@ -3,21 +3,21 @@
     <item
             android:id="@+id/now_playing"
             android:icon="@drawable/ic_now_playing_black_24dp"
-            android:title="@string/nav_now_playing"/>
+            android:title="@string/nav_now_playing" />
     <item
             android:id="@+id/popular"
             android:icon="@drawable/ic_popular_black_24dp"
-            android:title="@string/nav_popular"/>
+            android:title="@string/nav_popular" />
     <item
             android:id="@+id/discover"
             android:icon="@drawable/ic_discover_black_24dp"
-            android:title="@string/nav_discover"/>
+            android:title="@string/nav_discover" />
     <item
             android:id="@+id/top_rated"
             android:icon="@drawable/ic_toprated_black_24dp"
-            android:title="@string/nav_top_rated"/>
+            android:title="@string/nav_top_rated" />
     <item
             android:id="@+id/upcoming"
             android:icon="@drawable/ic_upcoming_black_24dp"
-            android:title="@string/nav_upcoming"/>
+            android:title="@string/nav_upcoming" />
 </menu>

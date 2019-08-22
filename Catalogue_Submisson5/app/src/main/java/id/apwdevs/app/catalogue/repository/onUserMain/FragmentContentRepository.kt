@@ -41,6 +41,7 @@ class FragmentContentRepository<T : ClassResponse>(
     val inSearchMode: MutableLiveData<Boolean> = MutableLiveData()
     val loadProgress: MutableLiveData<Double> = MutableLiveData()
     val maxPageNumber: MutableLiveData<Int> = MutableLiveData()
+
     init {
         isLoading.value = false
     }
@@ -62,14 +63,20 @@ class FragmentContentRepository<T : ClassResponse>(
             val obj = when (type) {
                 PublicContract.ContentDisplayType.MOVIE -> {
                     loadFromInet(
-                        GetMovies.getList(commands[0] as MainListViewModel.MovieTypeContract, (commands[1] as Int)),
+                        GetMovies.getList(
+                            commands[0] as MainListViewModel.MovieTypeContract,
+                            (commands[1] as Int)
+                        ),
                         "GetListMovie${commands[0]}",
                         objServer
                     )
                 }
                 PublicContract.ContentDisplayType.TV_SHOWS -> {
                     loadFromInet(
-                        GetTVShows.getList(commands[0] as MainListViewModel.TvTypeContract, (commands[1] as Int)),
+                        GetTVShows.getList(
+                            commands[0] as MainListViewModel.TvTypeContract,
+                            (commands[1] as Int)
+                        ),
                         "GetListTv${commands[0]}",
                         objServer
                     )
@@ -136,6 +143,7 @@ class FragmentContentRepository<T : ClassResponse>(
                 }
         }
     }
+
     @WorkerThread
     private suspend fun checkAndApplyFavorite(value: T?, db: FavoriteDatabase) =
         withContext(Dispatchers.Default) {
@@ -194,23 +202,24 @@ class FragmentContentRepository<T : ClassResponse>(
     ) = GlobalScope.async {
 
         var progress = 0.0
-        val callbacks = object : GetObjectFromServer.GetObjectFromServerCallback<GenreModelResponse> {
-            // already returned from objects
-            override fun onSuccess(response: GenreModelResponse) {
+        val callbacks =
+            object : GetObjectFromServer.GetObjectFromServerCallback<GenreModelResponse> {
+                // already returned from objects
+                override fun onSuccess(response: GenreModelResponse) {
+                }
+
+                override fun onFailed(retError: GetObjectFromServer.RetError) {
+                    retError.cause?.printStackTrace()
+                }
+
+                override fun onProgress(percent: Double) {
+                    val currProgress = percent * (GENRE_LOAD_FACTOR / 2) / MAX_FACTOR
+                    this@FragmentContentRepository.onProgress(currProgress - progress)
+                    progress = currProgress
+
+                }
+
             }
-
-            override fun onFailed(retError: GetObjectFromServer.RetError) {
-                retError.cause?.printStackTrace()
-            }
-
-            override fun onProgress(percent: Double) {
-                val currProgress = percent * (GENRE_LOAD_FACTOR / 2) / MAX_FACTOR
-                this@FragmentContentRepository.onProgress(currProgress - progress)
-                progress = currProgress
-
-            }
-
-        }
         val genreMovieObj = objectFromServer.getSynchronousObj(
             GetMovies.getAllGenre(),
             GenreModelResponse::class.java,
@@ -234,9 +243,10 @@ class FragmentContentRepository<T : ClassResponse>(
     }
 
     @WorkerThread
-    private fun addGenreIntoDb1Async(gDao: GenreDao, response: GenreModelResponse) = GlobalScope.async {
-        gDao.addAll(response.allGenre)
-    }
+    private fun addGenreIntoDb1Async(gDao: GenreDao, response: GenreModelResponse) =
+        GlobalScope.async {
+            gDao.addAll(response.allGenre)
+        }
 
     override fun onSuccess(response: T) {
         /*if (response is MainDataItemResponse)

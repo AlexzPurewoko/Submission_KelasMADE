@@ -22,7 +22,10 @@ class StackWidgetPreferenceActivity : AppCompatActivity() {
         setContentView(R.layout.activity_stack_widget_preference)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         val appWidgetId =
-            intent?.extras?.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
+            intent?.extras?.getInt(
+                AppWidgetManager.EXTRA_APPWIDGET_ID,
+                AppWidgetManager.INVALID_APPWIDGET_ID
+            )
                 ?: AppWidgetManager.INVALID_APPWIDGET_ID
         val ownUpdate = intent?.extras?.getBoolean(OWN_UPDATE, false) ?: false
         val resultValue = Intent().apply {
@@ -54,10 +57,20 @@ class StackWidgetPreferenceActivity : AppCompatActivity() {
         btn_save.setOnClickListener {
             when (radioGroup_content_types.checkedRadioButtonId) {
                 R.id.radio_favorite_movie -> {
-                    save(appWidgetId, PublicContract.ContentDisplayType.MOVIE, resultValue, ownUpdate)
+                    save(
+                        appWidgetId,
+                        PublicContract.ContentDisplayType.MOVIE,
+                        resultValue,
+                        ownUpdate
+                    )
                 }
                 R.id.radio_favorite_tv -> {
-                    save(appWidgetId, PublicContract.ContentDisplayType.TV_SHOWS, resultValue, ownUpdate)
+                    save(
+                        appWidgetId,
+                        PublicContract.ContentDisplayType.TV_SHOWS,
+                        resultValue,
+                        ownUpdate
+                    )
                 }
                 else -> showExitToast()
             }
@@ -79,12 +92,15 @@ class StackWidgetPreferenceActivity : AppCompatActivity() {
         resultIntent: Intent,
         ownUpdate: Boolean
     ) {
-        getSharedPreferences(PublicContract.WIDGET_SHARED_PREFERENCES, Context.MODE_PRIVATE).edit(commit = true) {
+        getSharedPreferences(PublicContract.WIDGET_SHARED_PREFERENCES, Context.MODE_PRIVATE).edit(
+            commit = true
+        ) {
             putInt("widget_conf_${appWidgetId}_type", contentDisplayType.type)
         }
         FavoriteWidget.updateAppWidget(this, AppWidgetManager.getInstance(this), appWidgetId)
         if (ownUpdate) {
-            AppWidgetManager.getInstance(this).notifyAppWidgetViewDataChanged(appWidgetId, R.id.stackview_widget)
+            AppWidgetManager.getInstance(this)
+                .notifyAppWidgetViewDataChanged(appWidgetId, R.id.stackview_widget)
             finish()
             return
         }

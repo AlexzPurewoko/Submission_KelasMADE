@@ -75,7 +75,11 @@ abstract class DetailActivityRepository protected constructor(
         this.progress.postValue(progress)
     }
 
-    private fun getCreditsAsync(id: Int, type: TypeContentContract, objectFromServer: GetObjectFromServer) =
+    private fun getCreditsAsync(
+        id: Int,
+        type: TypeContentContract,
+        objectFromServer: GetObjectFromServer
+    ) =
         GlobalScope.async {
             objectFromServer.getObj(when (type) {
                 TypeContentContract.MOVIE -> GetMovies.getCredits(id)
@@ -100,7 +104,11 @@ abstract class DetailActivityRepository protected constructor(
 
         }
 
-    private fun getReviewsAsync(id: Int, type: TypeContentContract, objectFromServer: GetObjectFromServer) =
+    private fun getReviewsAsync(
+        id: Int,
+        type: TypeContentContract,
+        objectFromServer: GetObjectFromServer
+    ) =
         GlobalScope.async {
             objectFromServer.getObj(when (type) {
                 TypeContentContract.MOVIE -> GetMovies.getReviews(id)
@@ -126,7 +134,11 @@ abstract class DetailActivityRepository protected constructor(
         }
 
 
-    private fun getSocmedIdAsync(id: Int, type: TypeContentContract, objectFromServer: GetObjectFromServer) =
+    private fun getSocmedIdAsync(
+        id: Int,
+        type: TypeContentContract,
+        objectFromServer: GetObjectFromServer
+    ) =
         GlobalScope.async {
             objectFromServer.getObj(when (type) {
                 TypeContentContract.MOVIE -> GetMovies.getSocmedID(id)

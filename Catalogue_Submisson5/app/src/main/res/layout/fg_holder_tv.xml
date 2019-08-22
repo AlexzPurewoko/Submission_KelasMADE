@@ -1,34 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
     <androidx.viewpager.widget.ViewPager
+            android:id="@+id/fg_content_pager"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" android:id="@+id/fg_content_pager"
-            android:layout_marginBottom="0dp" android:layout_above="@+id/bottom_nav_layout_holder"/>
+            android:layout_height="match_parent"
+            android:layout_above="@+id/bottom_nav_layout_holder"
+            android:layout_marginBottom="0dp" />
+
     <View
-            android:layout_above="@id/bottom_nav_layout_holder"
-            android:background="@color/elevation_bg"
             android:layout_width="match_parent"
-            android:layout_height="2dp"/>
+            android:layout_height="2dp"
+            android:layout_above="@id/bottom_nav_layout_holder"
+            android:background="@color/elevation_bg" />
 
     <RelativeLayout
             android:id="@+id/bottom_nav_layout_holder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_width="wrap_content" android:layout_height="wrap_content">
+            android:layout_centerHorizontal="true">
+
         <include
-                android:visibility="invisible"
-                layout="@layout/adapter_page_indicator"/>
+                layout="@layout/adapter_page_indicator"
+                android:visibility="invisible" />
+
         <com.google.android.material.bottomnavigation.BottomNavigationView
-                android:visibility="visible"
+                android:id="@+id/fg_content_bottomnav"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:visibility="visible"
                 app:elevation="2dp"
                 app:itemIconSize="24dp"
-                app:menu="@menu/bottom_nav_tv"
-                android:id="@+id/fg_content_bottomnav"/>
+                app:menu="@menu/bottom_nav_tv" />
     </RelativeLayout>
 </RelativeLayout>

@@ -76,7 +76,8 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
     private val mRegisterScroll = object : RecyclerView.OnScrollListener() {
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             val min = recyclerView.findViewHolderForAdapterPosition(0) != null
-            val max = recyclerView.findViewHolderForAdapterPosition(getMaxNumberPageIndicator() - 1) != null
+            val max =
+                recyclerView.findViewHolderForAdapterPosition(getMaxNumberPageIndicator() - 1) != null
             if (min) {
                 pageLeftArrow?.invisible()
                 pageRightArrow?.visible()
@@ -93,7 +94,11 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
     @Volatile
     private var dummyLockUntilFinish: Boolean = false
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return LayoutInflater.from(requireContext()).inflate(
             when (type) {
                 PublicContract.ContentDisplayType.MOVIE -> R.layout.fg_holder_movies
@@ -165,7 +170,10 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
             while (true) {
                 try {
                     val fg =
-                        childFragmentManager.getFragment(savedInstanceState, "Content$fragmentTag${idx++}") ?: break
+                        childFragmentManager.getFragment(
+                            savedInstanceState,
+                            "Content$fragmentTag${idx++}"
+                        ) ?: break
                     mFragments?.add(fg)
                 } catch (e: Exception) {
                     break
@@ -203,13 +211,18 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
             override fun onPageScrollStateChanged(state: Int) {
             }
 
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+            override fun onPageScrolled(
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
+            ) {
             }
 
             override fun onPageSelected(position: Int) {
                 if (dummyLockUntilFinish) {
                     dummyLockUntilFinish = false
-                    bottomNavigationView.selectedItemId = bottomNavigationView.menu.getItem(position).itemId
+                    bottomNavigationView.selectedItemId =
+                        bottomNavigationView.menu.getItem(position).itemId
                     currItem = position
 
                     mFragments?.let { mFg ->
@@ -291,7 +304,10 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
             onItemClickListener = context as OnItemFragmentClickListener
             fragmentListCb = context as FragmentListCallback
         } catch (e: ClassCastException) {
-            Log.e("onAttach()", "You must implement OnItemFragmentClickListener and FragmentListCallback in your class")
+            Log.e(
+                "onAttach()",
+                "You must implement OnItemFragmentClickListener and FragmentListCallback in your class"
+            )
         }
     }
 
@@ -354,7 +370,13 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
     }
 
 
-    override fun querySearch(view: View, query: CharSequence?, start: Int, before: Int, count: Int) {
+    override fun querySearch(
+        view: View,
+        query: CharSequence?,
+        start: Int,
+        before: Int,
+        count: Int
+    ) {
         mFragments?.let {
             it[vpager.currentItem].apply {
                 if (this is SearchToolbarCard.OnSearchCallback)
@@ -407,7 +429,11 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
                 pageIndicatorLayout?.visible()
                 ItemClickSupport.addTo(recyclerPage)?.onItemClickListener =
                     object : ItemClickSupport.OnItemClickListener {
-                        override fun onItemClicked(recyclerView: RecyclerView, position: Int, v: View) {
+                        override fun onItemClicked(
+                            recyclerView: RecyclerView,
+                            position: Int,
+                            v: View
+                        ) {
                             onPageIndicatorSelected(recyclerView, position, v)
                         }
                     }
@@ -544,7 +570,10 @@ interface PageIndicatorCb {
     fun onSelectedPageNumber(pageNumber: Int)
 }
 
-internal class ContentPageAdapter(fragmentManager: FragmentManager, private val fragments: MutableList<Fragment>) :
+internal class ContentPageAdapter(
+    fragmentManager: FragmentManager,
+    private val fragments: MutableList<Fragment>
+) :
     FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
     override fun getItem(position: Int): Fragment = fragments[position]

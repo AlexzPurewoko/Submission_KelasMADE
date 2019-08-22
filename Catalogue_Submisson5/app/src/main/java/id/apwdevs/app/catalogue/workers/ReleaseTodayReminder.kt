@@ -34,7 +34,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import java.util.*
 
-class ReleaseTodayReminder(context: Context, jobParams: WorkerParameters) : CoroutineWorker(context, jobParams) {
+class ReleaseTodayReminder(context: Context, jobParams: WorkerParameters) :
+    CoroutineWorker(context, jobParams) {
 
 
     companion object {
@@ -55,7 +56,10 @@ class ReleaseTodayReminder(context: Context, jobParams: WorkerParameters) : Coro
         val jobId: Int
         var maxRetryKey: Int
         val sharedPref =
-            applicationContext.getSharedPreferences(PublicContract.SHARED_PREF_GLOBAL_NAME, Context.MODE_PRIVATE)
+            applicationContext.getSharedPreferences(
+                PublicContract.SHARED_PREF_GLOBAL_NAME,
+                Context.MODE_PRIVATE
+            )
         inputData.apply {
             jobId = getInt(StartExactJobReceiver.JOB_ID, 0)
             maxRetryKey = getInt(StartExactJobReceiver.MAX_RETRY_KEY, 2)
@@ -97,63 +101,66 @@ class ReleaseTodayReminder(context: Context, jobParams: WorkerParameters) : Coro
         notifId: Int
     ) {
         if (mainDataItemResponse?.contents != null) {
-            val notifBuilder = NotificationCompat.Builder(applicationContext, NOTIF_CHANNEL_ID).apply {
-                setSmallIcon(R.mipmap.ic_launcher)
+            val notifBuilder =
+                NotificationCompat.Builder(applicationContext, NOTIF_CHANNEL_ID).apply {
+                    setSmallIcon(R.mipmap.ic_launcher)
 
-                val nTitle = "${mainDataItemResponse.contents.size} $typeStr Released Today!"
-                val nSummary = applicationContext.getString(R.string.find_out)
-                setContentTitle(SpannableString(nTitle).also {
-                    it[0 until nTitle.length] = RelativeSizeSpan(0.8f)
-                })
-                setContentText(nSummary)
-                setLargeIcon(
-                    BitmapFactory.decodeResource(
-                        applicationContext.resources,
-                        R.mipmap.ic_launcher
+                    val nTitle = "${mainDataItemResponse.contents.size} $typeStr Released Today!"
+                    val nSummary = applicationContext.getString(R.string.find_out)
+                    setContentTitle(SpannableString(nTitle).also {
+                        it[0 until nTitle.length] = RelativeSizeSpan(0.8f)
+                    })
+                    setContentText(nSummary)
+                    setLargeIcon(
+                        BitmapFactory.decodeResource(
+                            applicationContext.resources,
+                            R.mipmap.ic_launcher
+                        )
                     )
-                )
-                setStyle(NotificationCompat.InboxStyle().also {
-                    for ((idx, mData) in mainDataItemResponse.contents.withIndex()) {
-                        if (idx == 6) {
-                            it.addLine(SpannableString("...${mainDataItemResponse.contents.size - idx} more").also { span ->
-                                span[0..span.length] = RelativeSizeSpan(0.9f)
-                            })
+                    setStyle(NotificationCompat.InboxStyle().also {
+                        for ((idx, mData) in mainDataItemResponse.contents.withIndex()) {
+                            if (idx == 6) {
+                                it.addLine(SpannableString("...${mainDataItemResponse.contents.size - idx} more").also { span ->
+                                    span[0..span.length] = RelativeSizeSpan(0.9f)
+                                })
 
-                        } else {
-                            val titleCs = SpannableStringBuilder(mData.title)
-                            titleCs[0..titleCs.length] = StyleSpan(Typeface.BOLD)
-                            titleCs.append(" ${mData.overview}")
-                            titleCs[0..titleCs.length] = RelativeSizeSpan(0.9f)
-                            it.addLine(titleCs)
+                            } else {
+                                val titleCs = SpannableStringBuilder(mData.title)
+                                titleCs[0..titleCs.length] = StyleSpan(Typeface.BOLD)
+                                titleCs.append(" ${mData.overview}")
+                                titleCs[0..titleCs.length] = RelativeSizeSpan(0.9f)
+                                it.addLine(titleCs)
+                            }
                         }
-                    }
-                    it.setBigContentTitle(nTitle)
-                    it.setSummaryText(nSummary)
-                    priority = NotificationCompat.PRIORITY_HIGH
-                    setVibrate(longArrayOf(1000, 500, 1000, 1000))
-                    setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                    setLights(Color.BLUE, 1000, 500)
-                })
+                        it.setBigContentTitle(nTitle)
+                        it.setSummaryText(nSummary)
+                        priority = NotificationCompat.PRIORITY_HIGH
+                        setVibrate(longArrayOf(1000, 500, 1000, 1000))
+                        setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                        setLights(Color.BLUE, 1000, 500)
+                    })
 
-                val intentTo = Intent(applicationContext, MainTabUserActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    putExtra(INTENT_FROM, FROM_REMINDER)
-                    putExtra(NOTIF_ID, notifId)
-                    putExtra(DISPLAY_TYPE, displayType.type)
-                    putExtra(DISPLAY_CONTENT, mainDataItemResponse.fromDataIntoBundle())
+                    val intentTo =
+                        Intent(applicationContext, MainTabUserActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            putExtra(INTENT_FROM, FROM_REMINDER)
+                            putExtra(NOTIF_ID, notifId)
+                            putExtra(DISPLAY_TYPE, displayType.type)
+                            putExtra(DISPLAY_CONTENT, mainDataItemResponse.fromDataIntoBundle())
 
+                        }
+
+                    setContentIntent(
+                        PendingIntent.getActivity(
+                            applicationContext, notifId, intentTo, PendingIntent.FLAG_UPDATE_CURRENT
+                        )
+                    )
+                    setGroup(GROUP_KEY_NOTIF)
+                    setGroupSummary(true)
                 }
 
-                setContentIntent(
-                    PendingIntent.getActivity(
-                        applicationContext, notifId, intentTo, PendingIntent.FLAG_UPDATE_CURRENT
-                    )
-                )
-                setGroup(GROUP_KEY_NOTIF)
-                setGroupSummary(true)
-            }
-
-            val manager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val manager =
+                applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 manager.createNotificationChannel(
                     NotificationChannel(

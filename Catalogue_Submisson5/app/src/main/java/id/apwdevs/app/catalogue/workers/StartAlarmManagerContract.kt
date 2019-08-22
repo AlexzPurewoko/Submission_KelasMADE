@@ -5,7 +5,16 @@ import id.apwdevs.app.catalogue.R
 object StartAlarmManagerContract {
 
     internal val listPendingAlarmJob = listOf(
-        AlarmIdentity(0, "7:00", "HH:mm", true, "daily_reminder_time", true, R.string.daily_reminder_key, true),
+        AlarmIdentity(
+            0,
+            "7:00",
+            "HH:mm",
+            true,
+            "daily_reminder_time",
+            true,
+            R.string.daily_reminder_key,
+            true
+        ),
         AlarmIdentity(
             1,
             "8:00",

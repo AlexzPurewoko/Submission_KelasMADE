@@ -82,7 +82,12 @@ class FavoriteProvider : ContentProvider() {
         return false
     }
 
-    override fun update(uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<String>?): Int = -1
+    override fun update(
+        uri: Uri,
+        values: ContentValues?,
+        selection: String?,
+        selectionArgs: Array<String>?
+    ): Int = -1
 
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?): Int {
         val retValue = favDb?.let {
