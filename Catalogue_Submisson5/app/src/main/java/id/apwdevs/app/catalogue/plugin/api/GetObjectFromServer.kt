@@ -85,24 +85,6 @@ class GetObjectFromServer private constructor(appContext: Context) {
             })
     }
 
-    fun loadBitmapFromCache(
-        size: Point,
-        posterPath: String,
-        enableScaling: Boolean = false,
-        scaleType: ImageView.ScaleType = ImageView.ScaleType.FIT_XY
-    ): Bitmap? {
-        return AndroidNetworking.get(GetImageFiles.getImg(size.x, posterPath)).apply {
-            setPriority(Priority.LOW)
-            setTag("")
-            if (enableScaling) {
-                setBitmapMaxHeight(size.y)
-                setBitmapMaxWidth(size.x)
-                setImageScaleType(scaleType)
-            }
-        }.build().executeForBitmap().result as Bitmap?
-    }
-
-
     suspend fun <T> getObj(
         url: String,
         cls: Class<T>,
@@ -161,11 +143,11 @@ class GetObjectFromServer private constructor(appContext: Context) {
                 callbacks?.onProgress((bytesDownloaded * 100 / totalBytes).toDouble())
         }
         val result = androidNet.executeForObject(cls)
-        if (result.isSuccess) return result.result as T?
+        return if (result.isSuccess) result.result as T?
         else {
             callbacks?.onFailed(composeError(result.error))
             Log.e(tag, result.error.errorBody, result.error.cause)
-            return null
+            null
         }
 
     }

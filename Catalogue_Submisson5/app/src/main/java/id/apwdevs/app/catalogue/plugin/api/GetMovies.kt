@@ -41,9 +41,9 @@ object GetMovies {
         val year = now.get(Calendar.YEAR)
         val month: String
         now.get(Calendar.MONTH).apply {
-            when {
-                this < 10 -> month = "01"
-                else -> month = this.toString()
+            month = when {
+                this < 10 -> "01"
+                else -> this.toString()
             }
         }
         val date = now.get(Calendar.DAY_OF_MONTH)

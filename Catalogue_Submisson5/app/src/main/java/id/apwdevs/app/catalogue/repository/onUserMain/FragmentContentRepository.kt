@@ -29,9 +29,6 @@ class FragmentContentRepository<T : ClassResponse>(
 ) : GetObjectFromServer.GetObjectFromServerCallback<T> {
 
     companion object {
-        const val TAG_LOAD_RES_OBJ = "PrimaryObjectLoads"
-        const val TAG_LOAD_RES_GENRE = "LoadModelGenre"
-
         const val MAX_FACTOR = 100
         const val GENRE_LOAD_FACTOR = 20
         const val RES_OBJ_LOAD_FACTOR = 80
@@ -42,7 +39,6 @@ class FragmentContentRepository<T : ClassResponse>(
     var allGenre: LiveData<List<GenreModel>>? = null
     var retError: MutableLiveData<GetObjectFromServer.RetError> = MutableLiveData()
     val inSearchMode: MutableLiveData<Boolean> = MutableLiveData()
-    //val searchAPIResult: MutableLiveData<T> = MutableLiveData()
     val loadProgress: MutableLiveData<Double> = MutableLiveData()
     val maxPageNumber: MutableLiveData<Int> = MutableLiveData()
     init {

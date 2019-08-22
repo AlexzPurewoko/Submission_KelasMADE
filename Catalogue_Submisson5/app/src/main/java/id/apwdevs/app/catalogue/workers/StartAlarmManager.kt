@@ -1,9 +1,11 @@
 package id.apwdevs.app.catalogue.workers
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
+import androidx.core.content.edit
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import id.apwdevs.app.catalogue.manager.BaseJobManager
@@ -21,15 +23,22 @@ class StartAlarmManager(context: Context, jobParams: WorkerParameters) : Worker(
                             applicationContext.getString(it.sharedPrefControlsName),
                             it.sharedPrefControlsDefault
                         )
-                        if (!sharedVal)
+                        if (!sharedVal) {
+                            BaseJobManager.getInstance(applicationContext)
+                                .cancel(it.lJobId, Calendar.getInstance().apply {
+                                    time =
+                                        SimpleDateFormat(it.dateFormat, Locale.getDefault()).parse(
+                                            getString(it.timeSharedPrefName, it.date) ?: it.date
+                                        )
+                                })
                             return@apply
+                        }
                     }
 
-                    val alarmTm: String
-                    if (it.useTimeSharedPreference && it.timeSharedPrefName != null) {
-                        alarmTm = getString(it.timeSharedPrefName, it.date) ?: it.date
+                    val alarmTm = if (it.useTimeSharedPreference && it.timeSharedPrefName != null) {
+                        getString(it.timeSharedPrefName, it.date) ?: it.date
                     } else {
-                        alarmTm = it.date
+                        it.date
                     }
                     val calendarTime = Calendar.getInstance()
                     val timeNow = calendarTime.timeInMillis
@@ -38,6 +47,9 @@ class StartAlarmManager(context: Context, jobParams: WorkerParameters) : Worker(
                         calendarTime.add(Calendar.DAY_OF_MONTH, 1)
                     }
                     BaseJobManager.getInstance(applicationContext).start(it.lJobId, calendarTime)
+
+                    saveSharedPrefIfNoKey(this, it)
+
                     Log.d(
                         "StartAlarmManagerWorker",
                         "Starts Alarm Job At ${it.lJobId} with time $calendarTime , timeInMillis = ${calendarTime.timeInMillis}"
@@ -52,6 +64,23 @@ class StartAlarmManager(context: Context, jobParams: WorkerParameters) : Worker(
             ).show()
         }
         return Result.success()
+    }
+
+    private fun saveSharedPrefIfNoKey(
+        sharedPreferences: SharedPreferences?,
+        it: StartAlarmManagerContract.AlarmIdentity
+    ) {
+        sharedPreferences?.apply {
+            edit(commit = true) {
+                val enableStr = applicationContext.getString(it.sharedPrefControlsName)
+                val timeStr = it.timeSharedPrefName
+                if (!contains(enableStr) && it.useSharedPrefControls)
+                    putBoolean(enableStr, it.sharedPrefControlsDefault)
+                if (!contains(timeStr) && it.useTimeSharedPreference)
+                    putString(timeStr, it.date)
+            }
+
+        }
     }
 
 }

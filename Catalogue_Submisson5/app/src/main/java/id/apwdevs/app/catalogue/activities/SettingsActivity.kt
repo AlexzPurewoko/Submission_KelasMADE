@@ -1,6 +1,7 @@
 package id.apwdevs.app.catalogue.activities
 
-import android.content.Intent
+import android.app.Activity
+import android.content.Context
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
@@ -17,17 +18,23 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.preference.Preference
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.fragment.SettingsFragment
-import id.apwdevs.app.catalogue.workers.ReleaseTodayReminder
+import id.apwdevs.app.catalogue.plugin.ApplyLanguage
+import id.apwdevs.app.catalogue.plugin.PublicContract
 import java.text.SimpleDateFormat
 import java.util.*
 
 class SettingsActivity : AppCompatActivity(), SettingsFragment.SettingCB {
-    companion object {
-        const val INTENT_FROM_SETTINGS_ACTIVITY: Int = 0xaca32
-    }
-
     private lateinit var showDialogPick: AlertDialog
     private lateinit var mViewModel: SettingViewModel
+    private val isModified: Int
+        get() {
+            var isMod = Activity.RESULT_CANCELED
+            supportFragmentManager.fragments.forEach {
+                if (it is GetValues)
+                    isMod = it.isHasBeenModified()
+            }
+            return isMod
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -113,6 +120,24 @@ class SettingsActivity : AppCompatActivity(), SettingsFragment.SettingCB {
         backActivity()
     }
 
+    override fun attachBaseContext(newBase: Context?) {
+        newBase?.let {
+            var newCtx: Context?
+            it.getSharedPreferences(PublicContract.SHARED_PREF_GLOBAL_NAME, Context.MODE_PRIVATE)
+                .apply {
+                    newCtx = when (getString("app_languages", "system")) {
+                        "force_en" -> ApplyLanguage.wrap(it, Locale("en"))
+                        "force_in" -> ApplyLanguage.wrap(it, Locale("in"))
+                        else -> {
+                            super.attachBaseContext(newBase)
+                            return
+                        }
+                    }
+                    super.attachBaseContext(newCtx)
+                }
+        }
+    }
+
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         if (item?.itemId == android.R.id.home) {
             backActivity()
@@ -122,9 +147,10 @@ class SettingsActivity : AppCompatActivity(), SettingsFragment.SettingCB {
     }
 
     private fun backActivity() {
-        startActivity(Intent(this, MainTabUserActivity::class.java).apply {
-            putExtra(ReleaseTodayReminder.INTENT_FROM, INTENT_FROM_SETTINGS_ACTIVITY)
-        })
+        setResult(
+            isModified
+        )
+        finish()
     }
 
     override fun onReqShowTimePickDialog(preference: Preference) {
@@ -159,6 +185,10 @@ class SettingsActivity : AppCompatActivity(), SettingsFragment.SettingCB {
         }
     }
 
+}
+
+internal interface GetValues {
+    fun isHasBeenModified(): Int
 }
 
 class SettingViewModel : ViewModel() {

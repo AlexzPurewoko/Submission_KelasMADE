@@ -12,7 +12,7 @@ import androidx.work.WorkManager
 import id.apwdevs.app.catalogue.widget.FavoriteWidget
 import id.apwdevs.app.catalogue.workers.StartAlarmManager
 
-class NotifyBootCompleted : BroadcastReceiver() {
+class InitialNotifyBroadcast : BroadcastReceiver() {
 
     @SuppressLint("UnsafeProtectedBroadcastReceiver")
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -26,7 +26,7 @@ class NotifyBootCompleted : BroadcastReceiver() {
             startObserverIfAny(it)
         }
 
-        Log.d("NotifyBootCompleted", "Success applying all defined jobs")
+        Log.d("InitialNotifyBroadcast", "Success applying all defined jobs")
     }
 
     private fun startObserverIfAny(it: Context) {

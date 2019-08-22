@@ -143,9 +143,8 @@ class DetailActivity : AppCompatActivity(), ErrorAlertDialog.OnErrorDialogBtnCli
                     PublicContract.ContentDisplayType.TV_SHOWS -> {
                         getString(R.string.detail_tv_title)
                     }
-                    // will be changed again
                     PublicContract.ContentDisplayType.FAVORITES -> {
-                        "Favorites"
+                        getString(R.string.detail_favorites_title)
                     }
                     else -> ""
                 }

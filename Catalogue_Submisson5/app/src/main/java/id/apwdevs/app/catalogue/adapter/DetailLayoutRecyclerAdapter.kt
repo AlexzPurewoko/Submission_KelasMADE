@@ -355,7 +355,6 @@ class DetailLayoutRecyclerAdapter(
         }
 
         companion object {
-            //const val TAG_BTN_LAUNCH = "ACTION_LAUNCH"
             const val TAG_BTN_ACTION_DROP_UP = "ACTION_DROP_UP"
             const val TAG_BTN_ACTION_DROP_DOWN = "ACTION_DROP_DOWN"
         }

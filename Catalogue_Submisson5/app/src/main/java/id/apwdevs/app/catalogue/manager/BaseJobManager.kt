@@ -22,13 +22,6 @@ class BaseJobManager private constructor(context: Context) {
         }
     }
 
-    fun isMatchInSystem(position: Int): Boolean {
-        weakContext.get()?.apply {
-            return isRunning(this, Calendar.getInstance(), position)
-        }
-        return false
-    }
-
     private fun isRunning(context: Context, atTime: Calendar, position: Int): Boolean {
         return ScheduleContract.buildIntoPendingIntent(context, position, atTime, PendingIntent.FLAG_NO_CREATE) != null
     }
@@ -44,12 +37,6 @@ class BaseJobManager private constructor(context: Context) {
         start(pos, atTime)
     }
 
-    fun startAll(atTime: Calendar) {
-        for (i in ScheduleContract.listPendingJobs.indices) {
-            start(i, atTime)
-        }
-    }
-
     fun cancel(position: Int, alarmOn: Calendar) {
         weakContext.get()?.apply {
             val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -58,12 +45,6 @@ class BaseJobManager private constructor(context: Context) {
             pendingJobs?.let {
                 alarmManager.cancel(it)
             }
-        }
-    }
-
-    fun cancelAll(onTime: Calendar) {
-        for (i in ScheduleContract.listPendingJobs.indices) {
-            cancel(i, onTime)
         }
     }
 

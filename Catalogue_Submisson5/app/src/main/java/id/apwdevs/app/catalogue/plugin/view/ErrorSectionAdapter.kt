@@ -75,8 +75,8 @@ class ErrorSectionAdapter(private val itemError: View) {
             }
             ON_SEARCH_MODE -> {
                 imgError.setImageResource(R.drawable.ic_search_black_24dp)
-                errorTitle.text = "Searching..."
-                errorBody.text = "Please Wait until seach finished :)"
+                errorTitle.text = ctx.getString(R.string.searching)
+                errorBody.text = ctx.getString(R.string.wait_until_search_finished)
                 errorSuggestions.text = ""
                 errorSuggestionsTitle.gone()
                 errorMore.gone()

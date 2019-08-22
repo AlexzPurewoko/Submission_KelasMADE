@@ -116,11 +116,27 @@
         <item>Remind you to go to application</item>
         <item>Come on and find out any update availables</item>
     </string-array>
-    <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
     <string name="go_into_activity">Add It</string>
     <string name="err_text">No Favorite Added</string>
     <string name="err_no_results">No Results</string>
-    <string name="err_no_results_suggest">Refresh or change the right query</string>
+    <string name="err_no_results_suggest">Refresh, submit or change the right query</string>
+    <string name="detail_favorites_title">Detail Favorites</string>
+    <string name="daily_reminder_intent_message">Thanks for going back into this application!\\nHopefully you have great
+        experience :)
+    </string>
+    <string name="alert">Alert</string>
+    <string name="appwidget_invalid_id_message">The App Widget Id is invalid! Please input the right value!</string>
+    <string name="okay">Okay</string>
+    <string name="appwidget_not_right_value">Please select the right value before exit!</string>
+    <string name="searching">Searching…</string>
+    <string name="wait_until_search_finished">Please Wait until search finished :)</string>
+    <string name="fav_tv_shows">My Favorite Tv Shows</string>
+    <string name="fav_movies_widget">My Favorite Movies</string>
+    <string name="whatever">Whatever :(</string>
+    <string name="find_out">Let\'s find out what of that!</string>
+    <string name="reminder_onmain"> If you want to use Page Indicator, refresh the page then click Toggle Page Indicator on the menu</string>
+    <string name="using_page_indicator_ex_search">Please exit search mode by clicking left arrow (toolbar) to enable Toggle Page Indicator</string>
+    <string name="toggle_page_indicator">Mode Indikator Halaman</string>
 
 </resources>

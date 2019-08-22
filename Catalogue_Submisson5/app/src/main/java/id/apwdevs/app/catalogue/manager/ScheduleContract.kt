@@ -11,17 +11,29 @@ import java.util.*
 
 object ScheduleContract {
     const val RUN_EXACT_TIME_NOW: String = "JOB_TIME_MILLIS"
-    const val JOB_ID = "JOB_ID"
-    const val JOB_TAG = "JOB_TAG"
-    const val JOB_CLS_LIST_POS = "JOT_CLS_POS"
-    const val JOB_RECURRING = "JOB_RECURING"
-    const val JOB_RETRY_WHEN_FAIL = "JOB_RETRY_WHEN_FAIL"
-    const val JOB_MAX_RETRY_COUNT = "JOB_MAX_RETRY"
+    private const val JOB_ID = "JOB_ID"
+    private const val JOB_TAG = "JOB_TAG"
+    private const val JOB_CLS_LIST_POS = "JOT_CLS_POS"
+    private const val JOB_RECURRING = "JOB_RECURING"
+    private const val JOB_RETRY_WHEN_FAIL = "JOB_RETRY_WHEN_FAIL"
+    private const val JOB_MAX_RETRY_COUNT = "JOB_MAX_RETRY"
     const val JOB_SELF_PARAMS: String = "JOB_PARAMETERS"
     val listPendingJobs: List<PendingAlarmRunJob> = listOf(
         // put your all service here
-        PendingAlarmRunJob(0x44a, "DailyReminder", 0, true, false),
-        PendingAlarmRunJob(0x4ab, "DailyReleaseToday", 1, true, false)
+        PendingAlarmRunJob(
+            0x44a,
+            "DailyReminder",
+            0,
+            hasRecurringAfterCalled = true,
+            retryWhenJobFail = false
+        ),
+        PendingAlarmRunJob(
+            0x4ab,
+            "DailyReleaseToday",
+            1,
+            hasRecurringAfterCalled = true,
+            retryWhenJobFail = false
+        )
     )
     val listRunnerCls: List<Class<*>> = listOf(
         DailyReminderNotif::class.java,
@@ -38,7 +50,7 @@ object ScheduleContract {
         return PendingIntent.getBroadcast(context, pendingJob.jobId, intent, flags)
     }
 
-    fun putIntoBundle(pendingJob: PendingAlarmRunJob): Bundle = Bundle().apply {
+    private fun putIntoBundle(pendingJob: PendingAlarmRunJob): Bundle = Bundle().apply {
         pendingJob.apply {
             putInt(JOB_ID, jobId)
             putString(JOB_TAG, jobTags)
@@ -62,12 +74,4 @@ object ScheduleContract {
 
         }
     }
-
-    fun getId(position: Int): Int =
-        if (position !in 0 until listPendingJobs.size) -1
-        else listPendingJobs[position].jobId
-
-    fun getTags(position: Int): String? =
-        if (position !in 0 until listPendingJobs.size) null
-        else listPendingJobs[position].jobTags
 }

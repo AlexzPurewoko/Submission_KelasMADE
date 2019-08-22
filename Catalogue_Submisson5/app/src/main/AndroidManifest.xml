@@ -46,7 +46,7 @@
                     android:resource="@xml/favorite_widget_info"/>
         </receiver>
         <receiver
-                android:name=".receiver.NotifyBootCompleted"
+                android:name=".receiver.InitialNotifyBroadcast"
                 android:enabled="true"
                 android:exported="true">
             <intent-filter>
@@ -78,7 +78,6 @@
         <activity
                 android:name=".activities.SettingsActivity"
                 android:label="Settings"
-                android:noHistory="true"
                 android:parentActivityName=".activities.MainTabUserActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

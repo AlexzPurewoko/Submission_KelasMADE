@@ -10,12 +10,12 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.github.zawadz88.materialpopupmenu.MaterialPopupMenu
 import com.github.zawadz88.materialpopupmenu.popupMenu
 import id.apwdevs.app.catalogue.R
+import id.apwdevs.app.catalogue.activities.MainTabUserActivity
 import id.apwdevs.app.catalogue.activities.SettingsActivity
 import id.apwdevs.app.catalogue.plugin.PublicContract
 import id.apwdevs.app.catalogue.viewModel.ToolbarCardViewModel
@@ -89,7 +89,7 @@ class SearchToolbarCard(
             section {
                 item {
                     icon = R.drawable.ic_page_indicator_24dp
-                    label = "Toggle Page Indicator"
+                    label = activity.getString(R.string.toggle_page_indicator)
                     dismissOnSelect = true
                     callback = {
                         dataVModel.pageIndicatorMode.value = !isVisiblePageIndicator
@@ -100,7 +100,12 @@ class SearchToolbarCard(
                     label = activity.getString(R.string.setting)
                     dismissOnSelect = true
                     callback = {
-                        startActivity(activity, Intent(activity, SettingsActivity::class.java), null)
+                        activity.startActivityForResult(
+                            Intent(
+                                activity,
+                                SettingsActivity::class.java
+                            ), MainTabUserActivity.PREFERENCE_SETTING
+                        )
                     }
                 }
                 item {

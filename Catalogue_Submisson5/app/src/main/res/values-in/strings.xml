@@ -101,6 +101,28 @@
     <string name="remove_fav">Dihapus dari favorit</string>
     <string name="time_picker_allow_24">Pakai format 24 jam</string>
 
+    <string name="add_widget">Add widget</string>
+    <string name="go_into_activity">Ayo Pilih</string>
+    <string name="err_text">Kamu belum pilih favorit</string>
+    <string name="err_no_results">Tidak ada Result</string>
+    <string name="err_no_results_suggest">Segarkan, klik submit atau ganti text pencarian (saat mode pencarian)</string>
+    <string name="detail_favorites_title">Detail Favorites</string>
+    <string name="daily_reminder_intent_message">Terimakasih telah membuka aplikasi kembali!\\nHarapannya adalah kamu memperoleh pengalaman terbaik :)
+    </string>
+    <string name="alert">Perhatian!</string>
+    <string name="appwidget_invalid_id_message">ID App Widget tidak valid! Silahkan input dengan nilai yang benar!</string>
+    <string name="okay">Oke</string>
+    <string name="searching">Sedang Mencari…</string>
+    <string name="appwidget_not_right_value">Tolong pilih nilai yang benar sebelum keluar!</string>
+    <string name="wait_until_search_finished">Tunggu sebentar hingga pencarian selesai :)</string>
+    <string name="fav_tv_shows">Acara TV Favoritku</string>
+    <string name="fav_movies_widget">Film Favoritku</string>
+    <string name="whatever">Terserah :(</string>
+    <string name="find_out">Ayoo cari dan lihat apakah itu?</string>
+
+    <string name="reminder_onmain"> Jika Anda ingin menggunakan fitur Page Indicator, segarkan halaman, kemudian klik Mode Indikator Halaman</string>
+    <string name="using_page_indicator_ex_search">Keluarlah dari mode pencarian dengan klik panah kiri (toolbar) untuk mengaktifkan Mode Indikator Halaman</string>
+    <string name="toggle_page_indicator">Mode Indikator Halaman</string>
     <string-array name="daily_reminder_notiftitle">
         <item>Ayo, Buka kembali Aplikasi Katalog!</item>
         <item>Pengingat Harian</item>

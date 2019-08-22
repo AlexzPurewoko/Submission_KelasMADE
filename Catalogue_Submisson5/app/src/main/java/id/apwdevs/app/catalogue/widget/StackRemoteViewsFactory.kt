@@ -25,16 +25,11 @@ class StackRemoteViewsFactory(
 ) : RemoteViewsService.RemoteViewsFactory {
 
     private var mCursor: Cursor? = null
-    //private val mListBitmapRef: HashMap<Int, Bitmap?> = hashMapOf()
     private val mPosterWidth = context.resources.getDimension(R.dimen.item_poster_width)
     private val mPosterHeight = context.resources.getDimension(R.dimen.item_poster_height)
     private val mBitmapCache: LruCache<Int, Bitmap> = LruCache((mPosterHeight * mPosterWidth * 6).toInt())
     private val mData: MutableList<ItemWidget> = mutableListOf()
     override fun onCreate() {
-        /*GlobalScope.launch (Dispatchers.IO){
-            mListData.addAll(getFavorite(context, PublicContract.ContentDisplayType.MOVIE))
-            Log.d("LoadAllDb", "list -> $mListData")
-        }*/
     }
 
     override fun getLoadingView(): RemoteViews = RemoteViews(context.packageName, R.layout.widget_loading)
@@ -121,7 +116,7 @@ class StackRemoteViewsFactory(
         data.posterPath?.let {
             var bmp = mBitmapCache.get(data.id)
             if (bmp == null) {
-                val file = File(File(context.cacheDir, PublicContract.FAVORITE_POSTER_PATH).apply {
+                val file = File(File(context.filesDir, PublicContract.FAVORITE_POSTER_PATH).apply {
                     mkdirs()
                 }, it)
                 if (file.exists()) {

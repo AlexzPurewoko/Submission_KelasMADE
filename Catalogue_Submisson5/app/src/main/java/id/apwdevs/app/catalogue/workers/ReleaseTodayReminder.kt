@@ -101,7 +101,7 @@ class ReleaseTodayReminder(context: Context, jobParams: WorkerParameters) : Coro
                 setSmallIcon(R.mipmap.ic_launcher)
 
                 val nTitle = "${mainDataItemResponse.contents.size} $typeStr Released Today!"
-                val nSummary = "Let's find out what of that!"
+                val nSummary = applicationContext.getString(R.string.find_out)
                 setContentTitle(SpannableString(nTitle).also {
                     it[0 until nTitle.length] = RelativeSizeSpan(0.8f)
                 })
@@ -158,7 +158,7 @@ class ReleaseTodayReminder(context: Context, jobParams: WorkerParameters) : Coro
                 manager.createNotificationChannel(
                     NotificationChannel(
                         NOTIF_CHANNEL_ID,
-                        "${NOTIF_CHANNEL_ID}$notifId",
+                        "$NOTIF_CHANNEL_ID$notifId",
                         NotificationManager.IMPORTANCE_DEFAULT
                     )
                 )

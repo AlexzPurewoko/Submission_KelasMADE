@@ -135,9 +135,9 @@ class DetailViewModel(application: Application) : AndroidViewModel(application) 
             isFavorite.postValue(isFav)
             isAnyChangesMade.postValue(true)
             viewModelScope.launch(Dispatchers.Main) {
-                data1Obj.value?.let {
-                    if (it is MainDataItemModel)
-                        it.isFavorite = isFav
+                data1Obj.value?.let { item ->
+                    if (item is MainDataItemModel)
+                        item.isFavorite = isFav
                 }
             }
         }

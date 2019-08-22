@@ -73,7 +73,6 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
     var fragmentListCb: FragmentListCallback? = null
     private var onItemClickListener: OnItemFragmentClickListener? = null
     private var currItem: Int = 0
-    private var isPageIndicatorVisible: Boolean = false
     private val mRegisterScroll = object : RecyclerView.OnScrollListener() {
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             val min = recyclerView.findViewHolderForAdapterPosition(0) != null
@@ -345,7 +344,7 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
             val fg = it[position]
             if (fg is OnSelectedFragment) {
                 // we have to wait its fragment until done for creating its instance
-                GlobalScope.launch(CoroutineContextProvider().main) {
+                GlobalScope.launch(Dispatchers.Main) {
                     while (!fg.isAdded)
                         delay(500)
                     Handler(Looper.getMainLooper()).post { fg.start(fg, position) }
@@ -489,10 +488,11 @@ class FragmentListContainer : Fragment(), SearchToolbarCard.OnSearchCallback,
     private fun removeAllSpansFromHolder(recyclerView: RecyclerView) {
         recyclerView.adapter?.let {
             if (it is PageIndicatorAdapter) {
-                it.availableHolder.forEach {
-                    val text = it.textIndicator.text
+                it.availableHolder.forEach { indicatorHolder ->
+                    val text = indicatorHolder.textIndicator.text
                     if (text is SpannedString)
-                        it.textIndicator.text = text.toSpannable().apply { clearSpans() }
+                        indicatorHolder.textIndicator.text =
+                            text.toSpannable().apply { clearSpans() }
                 }
             }
         }

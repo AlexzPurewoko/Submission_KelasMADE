@@ -4,22 +4,15 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.drawable.Drawable
-import android.util.Log
 import android.view.View
-import android.widget.ImageView
 import androidx.annotation.WorkerThread
 import androidx.core.graphics.drawable.toBitmap
-import com.androidnetworking.AndroidNetworking
-import com.androidnetworking.common.Priority
-import com.androidnetworking.error.ANError
-import com.androidnetworking.interfaces.BitmapRequestListener
 import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.database.FavoriteDatabase
 import id.apwdevs.app.catalogue.entity.FavoriteEntity
 import id.apwdevs.app.catalogue.model.GenreModel
 import id.apwdevs.app.catalogue.model.ResettableItem
 import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemModel
-import id.apwdevs.app.catalogue.plugin.api.GetImageFiles
 import id.apwdevs.app.catalogue.provider.FavoriteProvider
 import java.io.File
 import java.io.FileOutputStream
@@ -90,32 +83,6 @@ fun getReadableTime(inMinute: Int?): String {
     return "${hour}h ${minutes}m"
 }
 
-
-@Deprecated("This method will be removed, use applyBitmaps() instead")
-fun getBitmap(
-    size: Point,
-    posterPath: String,
-    scaleType: ImageView.ScaleType = ImageView.ScaleType.FIT_XY,
-    response: (response: Bitmap?) -> Unit
-) {
-    AndroidNetworking.get(GetImageFiles.getImg(size.x, posterPath))
-        .setPriority(Priority.LOW)
-        .setBitmapMaxHeight(size.y)
-        .setBitmapMaxWidth(size.x)
-        .setImageScaleType(scaleType)
-        .build()
-        .getAsBitmap(object : BitmapRequestListener {
-            override fun onResponse(response: Bitmap?) {
-                response(response)
-            }
-
-            override fun onError(anError: ANError?) {
-                Log.e("ErrorDisplayBitmap", anError?.errorBody, anError)
-            }
-
-        })
-}
-
 @WorkerThread
 fun configureFavorite(context: Context, model: ResettableItem?, posterDrawable: Drawable?): Boolean =
     model?.let {
@@ -169,7 +136,8 @@ fun configureFavorite(context: Context, model: ResettableItem?, posterDrawable: 
             posterDrawable?.let {
                 posterPath?.let { posterPath ->
                     val bmp = it.toBitmap()
-                    val file = File(File(context.cacheDir, PublicContract.FAVORITE_POSTER_PATH).apply {
+                    val file =
+                        File(File(context.filesDir, PublicContract.FAVORITE_POSTER_PATH).apply {
                         mkdirs()
                     }, posterPath)
                     val fos = FileOutputStream(file)

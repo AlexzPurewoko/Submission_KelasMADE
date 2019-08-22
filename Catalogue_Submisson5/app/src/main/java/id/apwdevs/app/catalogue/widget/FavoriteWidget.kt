@@ -106,9 +106,9 @@ class FavoriteWidget : AppWidgetProvider() {
                             .getInt("widget_conf_${appWidgetId}_type", -1)
                     setTextViewText(
                         R.id.text_display, when (PublicContract.ContentDisplayType.findId(idType)) {
-                            PublicContract.ContentDisplayType.TV_SHOWS -> "My Favorite Tv Shows"
-                            PublicContract.ContentDisplayType.MOVIE -> "My Favorite Movies"
-                            else -> "Whatever :("
+                            PublicContract.ContentDisplayType.TV_SHOWS -> context.getString(R.string.fav_tv_shows)
+                            PublicContract.ContentDisplayType.MOVIE -> context.getString(R.string.fav_movies_widget)
+                            else -> context.getString(R.string.whatever)
                         }
                     )
                     setOnClickPendingIntent(

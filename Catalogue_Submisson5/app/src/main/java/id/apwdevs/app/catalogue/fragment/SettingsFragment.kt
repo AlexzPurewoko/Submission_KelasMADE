@@ -1,6 +1,8 @@
 package id.apwdevs.app.catalogue.fragment
 
+import android.app.Activity
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import androidx.annotation.StringRes
@@ -9,8 +11,12 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import id.apwdevs.app.catalogue.R
+import id.apwdevs.app.catalogue.activities.GetValues
 
-class SettingsFragment : PreferenceFragmentCompat() {
+class SettingsFragment : PreferenceFragmentCompat(), GetValues,
+    SharedPreferences.OnSharedPreferenceChangeListener {
+
+
     private var cardBgStatus: SwitchPreferenceCompat? = null
     private var cardBgMode: ListPreference? = null
     private var mDailyReminder: SwitchPreferenceCompat? = null
@@ -20,6 +26,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private var mDailyReminderTimePicker: Preference? = null
     private var mReleaseTodayTimePicker: Preference? = null
     private var mOnSettingsFragmentCallback: SettingCB? = null
+    private var needToModify: Int = Activity.RESULT_CANCELED
 
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -32,7 +39,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
             cardBgMode?.isEnabled = value
             cardBgStatus?.isChecked = value
             backdropCardPref?.isEnabled = value
-
             value
         }
         val checked = cardBgStatus?.isChecked ?: false
@@ -77,6 +83,36 @@ class SettingsFragment : PreferenceFragmentCompat() {
     override fun onDetach() {
         super.onDetach()
         mOnSettingsFragmentCallback = null
+    }
+
+    override fun isHasBeenModified(): Int = needToModify
+
+    override fun onResume() {
+        super.onResume()
+        preferenceManager.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+    }
+
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        needToModify = when (key) {
+            getString(R.string.release_today_reminder_key), getString(R.string.daily_reminder_key), getString(
+                R.string.release_today_reminder_time_key
+            ), getString(R.string.daily_reminder_time_key) ->
+                UPDATE_REMINDER
+            getString(R.string.colored_text_state_key), getString(R.string.max_credits_results_key), getString(
+                R.string.max_review_results_key
+            ) ->
+                UPDATE_MAX_VALUES
+            getString(R.string.pref_languages_key), getString(R.string.card_bg_status_key), getString(
+                R.string.card_bg_mode_key
+            ), getString(R.string.carddrop_w_key) ->
+                UPDATE_RECREATE_ACTIVITY
+            else -> needToModify
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        preferenceManager.sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
     }
 
     fun update() {
@@ -137,6 +173,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     companion object {
         private var sInstance: SettingsFragment? = null
+        const val UPDATE_REMINDER = 0x4ad
+        const val UPDATE_RECREATE_ACTIVITY = 0x4af
+        const val UPDATE_MAX_VALUES = 0x4ac
         @JvmStatic
         fun getInstance(): SettingsFragment {
             return sInstance ?: SettingsFragment().apply {

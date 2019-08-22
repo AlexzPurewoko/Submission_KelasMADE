@@ -2,7 +2,6 @@ package id.apwdevs.app.catalogue.viewModel
 
 import android.app.Application
 import android.content.Context
-import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Parcelable
@@ -34,25 +33,17 @@ class MainListViewModel(application: Application) : AndroidViewModel(application
     val hasForceLoadContent: MutableLiveData<Boolean> = MutableLiveData()
     var maxPage: LiveData<Int>? = null
     val currentPage: MutableLiveData<Int> = MutableLiveData()
-    val currentPageMode: MutableLiveData<Int> = MutableLiveData()
+    private val currentPageMode: MutableLiveData<Int> = MutableLiveData()
     val allowToggleIndicator: MutableLiveData<Boolean> = MutableLiveData()
-    val searchModel: MutableLiveData<SearchModel> = MutableLiveData()
 
     private var repository: FragmentContentRepository<ClassResponse>? = null
 
     var objData: LiveData<ClassResponse>? = null
     var isLoading: LiveData<Boolean>? = null
     var isInSearchMode: LiveData<Boolean>? = null
-    var loadProgress: LiveData<Double>? = null
     private var allGenre: LiveData<List<GenreModel>>? = null
     var retError: LiveData<GetObjectFromServer.RetError>? = null
     val mTextSearchQuery = MutableLiveData<String>()
-    val sharedPreferences: SharedPreferences
-        get() = (getApplication() as Context).getSharedPreferences(
-            PublicContract.SHARED_PREF_GLOBAL_NAME,
-            Context.MODE_PRIVATE
-        )
-
     init {
         // we have to initialize these variables to be available for first instance
         hasFirstInstantiate.value = false
@@ -85,7 +76,6 @@ class MainListViewModel(application: Application) : AndroidViewModel(application
         objData = repository?.objData
         retError = repository?.retError
         isInSearchMode = repository?.inSearchMode
-        loadProgress = repository?.loadProgress
         maxPage = repository?.maxPageNumber
     }
 
@@ -187,12 +177,6 @@ class MainListViewModel(application: Application) : AndroidViewModel(application
         DARK_WITH_BG(Color.parseColor("#302E2E"), Color.parseColor("#302E2E"), PorterDuff.Mode.DARKEN, Color.WHITE),
         LIGHT_WITH_BG(Color.parseColor("#302E2E"), Color.parseColor("#302E2E"), PorterDuff.Mode.OVERLAY, Color.WHITE)
     }
-
-    data class SearchModel(
-        val page: Int,
-        val maxPage: Int,
-        val query: String
-    )
     companion object {
         const val DEFAULT_COLOR = -6565
 

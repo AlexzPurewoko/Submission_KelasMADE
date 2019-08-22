@@ -12,7 +12,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
@@ -26,10 +25,7 @@ import id.apwdevs.app.catalogue.R
 import id.apwdevs.app.catalogue.adapter.GridAdapter
 import id.apwdevs.app.catalogue.adapter.ListAdapter
 import id.apwdevs.app.catalogue.entity.FavoriteEntity
-import id.apwdevs.app.catalogue.fragment.FragmentContents
-import id.apwdevs.app.catalogue.fragment.FragmentListContainer
-import id.apwdevs.app.catalogue.fragment.HolderPageAdapter
-import id.apwdevs.app.catalogue.fragment.OnRequestRefresh
+import id.apwdevs.app.catalogue.fragment.*
 import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemModel
 import id.apwdevs.app.catalogue.model.onUserMain.MainDataItemResponse
 import id.apwdevs.app.catalogue.plugin.ApplyLanguage
@@ -57,6 +53,7 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
 
     companion object {
         const val LISTEN_FOR_LAYOUT_CHANGES = 0x55f
+        const val PREFERENCE_SETTING = 0x44a
         const val LAYOUT_REQUEST_UPDATE = 0x4f
         const val NO_REQUEST = 0x5a
     }
@@ -124,20 +121,18 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
                             }
                         }
                     }
+                    Snackbar.make(
+                        view_pager,
+                        getString(R.string.reminder_onmain),
+                        Snackbar.LENGTH_LONG
+                    ).show()
                 }
                 DailyReminderNotif.INTENT_FROM_DAILY_REMINDER -> {
                     Snackbar.make(
                         view_pager,
-                        "Thanks for going back into this application!\nHopefully you have great experience :)",
+                        getString(R.string.daily_reminder_intent_message),
                         Snackbar.LENGTH_SHORT
                     ).show()
-                }
-                SettingsActivity.INTENT_FROM_SETTINGS_ACTIVITY -> {
-                    Toast.makeText(applicationContext, "Applying change into new configuration", Toast.LENGTH_LONG)
-                        .show()
-                    intent = null
-                    recreate()
-                    return
                 }
                 else -> return
             }
@@ -153,7 +148,7 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
     private fun forceStart(
         idx: Int,
         fg: FragmentListContainer,
-        from: Int,
+        @Suppress("SameParameterValue") from: Int,
         type: PublicContract.ContentDisplayType,
         contentDataItemResponse: MainDataItemResponse
     ) {
@@ -235,10 +230,21 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
                 if (it is OnRequestRefresh)
                     it.onForceRefresh(Fragment())
             }
+        } else if (requestCode == PREFERENCE_SETTING) {
+            when (resultCode) {
+                SettingsFragment.UPDATE_RECREATE_ACTIVITY -> {
+                    startActivity(packageManager.getLaunchIntentForPackage(packageName).apply {
+                        this?.flags =
+                            Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    })
+                }
+                SettingsFragment.UPDATE_REMINDER ->
+                    startAllWorkers()
+            }
         }
     }
 
-    fun findAdapters(adapter: RecyclerView.Adapter<*>?): RecyclerView.Adapter<*>? {
+    private fun findAdapters(adapter: RecyclerView.Adapter<*>?): RecyclerView.Adapter<*>? {
         if (adapter is AnimationAdapter)
             return findAdapters(adapter.wrappedAdapter)
         return adapter
@@ -405,6 +411,11 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
     }
 
     override fun onSearchStarted() {
+        Snackbar.make(
+            view_pager,
+            getString(R.string.using_page_indicator_ex_search),
+            Snackbar.LENGTH_LONG
+        ).show()
         listFragmentContainer[view_pager.currentItem].apply {
             if (this is SearchToolbarCard.OnSearchCallback)
                 onSearchStarted()
@@ -448,7 +459,7 @@ class MainTabUserActivity : AppCompatActivity(), SearchToolbarCard.OnSearchCallb
         }
     }
 
-    internal fun onDataHasChange(selfChange: Boolean) {
+    private fun onDataHasChange(selfChange: Boolean) {
         runOnUiThread {
             if (!selfChange)
                 onForceRefresh(listFragmentContainer[view_pager.currentItem])

@@ -30,9 +30,9 @@ class StackWidgetPreferenceActivity : AppCompatActivity() {
         }
         if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
             AlertDialog.Builder(this).apply {
-                title = "Alert"
-                setMessage("The App Widget Id is invalid! Please input the right value!")
-                setPositiveButton("Okay!") { dialog, _ ->
+                title = getString(R.string.alert)
+                setMessage(getString(R.string.appwidget_invalid_id_message))
+                setPositiveButton(R.string.okay) { dialog, _ ->
                     dialog.dismiss()
                     setResult(Activity.RESULT_CANCELED, resultValue)
                     finish()
@@ -69,7 +69,8 @@ class StackWidgetPreferenceActivity : AppCompatActivity() {
     }
 
     private fun showExitToast() {
-        Toast.makeText(this, "Please select the right value before exit!", Toast.LENGTH_LONG).show()
+        Toast.makeText(this, getString(R.string.appwidget_not_right_value), Toast.LENGTH_LONG)
+            .show()
     }
 
     private fun save(

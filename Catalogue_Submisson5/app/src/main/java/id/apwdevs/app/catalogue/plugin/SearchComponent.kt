@@ -34,7 +34,7 @@ abstract class SearchComponent<T : ResettableItem> : Filterable {
             return filterResults
         }
 
-        @SuppressWarnings("unchecked")
+        @Suppress("UNCHECKED_CAST")
         override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
             onSearchFinished(results?.values as MutableList<T>?)
         }
@@ -57,7 +57,7 @@ abstract class SearchComponent<T : ResettableItem> : Filterable {
     protected fun getItemMatchedPosition(
         comparatorString: CharSequence,
         source: CharSequence?,
-        ignoreCase: Boolean
+        @Suppress("SameParameterValue") ignoreCase: Boolean
     ): MutableList<ItemPosition> {
         val listPositionItem = mutableListOf<ItemPosition>()
         if (source == null) return listPositionItem
