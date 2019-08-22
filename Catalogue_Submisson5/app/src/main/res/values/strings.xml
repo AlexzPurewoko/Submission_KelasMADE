@@ -138,4 +138,7 @@
     <string name="toggle_page_indicator">Toggle Page Indicator</string>
     <string name="explanation_toast_widget">The title is %1$s at position %2$d and have id %3$d, if you want to more details, please click launch button on side bottom right of element.</string>
     <string name="applying_reminder">Applied Alarm Configuration to %1$d Pending Alarms successfully</string>
+    <string name="stackprev_radio_fav_movie">Favorite Movie</string>
+    <string name="stackprev_radio_fav_tvshows">Favorite Tv Shows</string>
+    <string name="stackprev_title">Selects the content of favorite that should to be shown as widget</string>
 </resources>

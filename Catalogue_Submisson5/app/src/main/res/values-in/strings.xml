@@ -125,6 +125,9 @@
     <string name="applying_reminder">Menerapkan konfigurasi ke %1$d pengingat telah sukses</string>
     <string name="cancel">Batalkan</string>
     <string name="set">Terapkan</string>
+    <string name="stackprev_radio_fav_movie">Favorit Film</string>
+    <string name="stackprev_radio_fav_tvshows">Favorit Acara Tv</string>
+    <string name="stackprev_title">Pilih konten favorit yang harus ditampilkan ke widget</string>
     <string-array name="daily_reminder_notiftitle">
         <item>Ayo, Buka kembali Aplikasi Katalog!</item>
         <item>Pengingat Harian</item>

@@ -22,13 +22,13 @@
                 android:id="@+id/radio_favorite_movie"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Favorite Movie" />
+                android:text="@string/stackprev_radio_fav_movie" />
 
         <RadioButton
                 android:id="@+id/radio_favorite_tv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Favorite Tv Shows" />
+                android:text="@string/stackprev_radio_fav_tvshows" />
     </RadioGroup>
 
     <TextView
@@ -36,7 +36,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="Selects the content of favorite that should to be shown as widget"
+            android:text="@string/stackprev_title"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -49,7 +49,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:text="Okay!"
+            android:text="@string/okay"
             app:layout_constraintEnd_toEndOf="@+id/radioGroup_content_types"
             app:layout_constraintTop_toBottomOf="@+id/radioGroup_content_types" />
 </androidx.constraintlayout.widget.ConstraintLayout>
